@@ -25,7 +25,7 @@ from ..scenarios.cd import Scenario
 from ..sim import events as E
 from ..sim.events import EventLog
 from ..strips.store import StripStore
-from ..verbalizer.template import TemplateVerbalizer
+from ..verbalizer import CachedVerbalizer, default_verbalizer
 
 NEGLECT_THRESHOLD_SEC = 180  # CD: unanswered/uncleared beyond this = NEGLECT (§13.1)
 MAX_TURNS_PER_WINDOW = 60
@@ -54,6 +54,7 @@ class SessionResult:
     model_io: list[dict]
     prompt_hash: str
     harness_version: str = HARNESS_VERSION
+    verbalizer_cache: Optional[dict] = None
 
     def write(self, out_dir: str | Path) -> None:
         d = Path(out_dir)
@@ -82,18 +83,22 @@ class SessionResult:
             ),
             encoding="utf-8",
         )
+        if self.verbalizer_cache is not None:
+            (d / "verbalizer_cache.json").write_text(
+                json.dumps(self.verbalizer_cache, sort_keys=True, indent=2), encoding="utf-8"
+            )
 
 
 class CDSession:
     def __init__(
         self,
         scenario: Scenario,
-        verbalizer: Optional[TemplateVerbalizer] = None,
+        verbalizer=None,
         correction_window_sec: int = 30,
         prompt_hash: str = "cd-template-v1",
     ):
         self.scn = scenario
-        self.vb = verbalizer or TemplateVerbalizer()
+        self.vb = verbalizer or default_verbalizer()
         self.correction_window_sec = correction_window_sec
         self.prompt_hash = prompt_hash
 
@@ -305,6 +310,7 @@ class CDSession:
             if self._total_turns > 100000:  # pragma: no cover - runaway guard
                 break
         self.log.emit(self.tick, E.SESSION_END, position=self.scn.position, seed=self.scn.seed)
+        vb_cache = self.vb.cache.to_dict() if isinstance(self.vb, CachedVerbalizer) else None
         return SessionResult(
             scenario=self.scn,
             log=self.log,
@@ -312,4 +318,5 @@ class CDSession:
             strips_history=self.strips.history,
             model_io=self.model_io,
             prompt_hash=self.prompt_hash,
+            verbalizer_cache=vb_cache,
         )

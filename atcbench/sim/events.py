@@ -34,6 +34,12 @@ READBACK = "readback"
 AIRCRAFT_CLEARED = "aircraft_cleared"
 PILOT_DEVIATION = "pilot_deviation"
 SESSION_END = "session_end"
+# Ground position
+TAXI_CLEARANCE = "taxi_clearance"
+CROSSING_CLEARANCE = "crossing_clearance"
+RUNWAY_INCURSION = "runway_incursion"
+DEADLOCK = "deadlock"
+AIRCRAFT_ARRIVED = "aircraft_arrived"
 
 
 @dataclass
