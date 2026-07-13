@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from ..charts import kmdw_cd
+from ..charts import kmrl_cd
 from ..scenarios.cd import CATCHABLE_CLASSES
 from ..sim.events import EventLog
 
@@ -48,7 +48,7 @@ def score_cd(log: EventLog, expected: dict[str, dict], error_schedule: dict[str,
             alt_ok = comply.get("altitude") == exp.get("altitude")
             dest_ok = comply.get("clearance_limit") == exp.get("clearance_limit")
             route = comply.get("route")
-            route_ok = route is not None and kmdw_cd.PACK.sid_valid(route)
+            route_ok = route is not None and kmrl_cd.PACK.sid_valid(route)
             squawk_ok = comply.get("squawk") == exp.get("squawk")
             freq_ok = comply.get("frequency") == exp.get("frequency")
 
@@ -99,7 +99,7 @@ def score_cd(log: EventLog, expected: dict[str, dict], error_schedule: dict[str,
         ttfc = min(cardinal_ticks) if cardinal_ticks else None
 
     return {
-        "position": "MDW_CD",
+        "position": "MRL_CD",
         "gate": gate,
         "S": round(S, 4),
         "S_raw": round(s_raw, 4),

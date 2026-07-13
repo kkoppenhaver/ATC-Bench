@@ -1,51 +1,54 @@
-"""KMDW Clearance Delivery chart pack (DESIGN §5.1, §6.1, §11.3).
+"""Marlow Regional (KMRL) — Clearance Delivery chart pack (DESIGN §5.1, §6.1, §11.3).
 
-A deliberately small, benchmark-normalized slice of Chicago Midway's clearance
-data — enough to issue and check IFR clearances in CRAFT order and to catch filing
-errors (invalid route segment, wrong initial altitude per LOA). Everything here is
-supplied to the model in its system prompt; nothing is hidden (principle #6).
-
-This is hand-built reference data, not a claim of operational accuracy — the SIDs,
-frequencies, and altitudes are simplified for the benchmark.
+⚠️ FICTIONAL FACILITY. Marlow Regional Airport (KMRL) does not exist. Its runways,
+SIDs, fixes, frequencies, LOA, and gate layout are fabricated for the benchmark — a
+placeholder so the harness, scoring, and determinism machinery can be built and
+tested before real FAA chart packs are digitized. It is a Generalist-style pack
+wearing a facility nameplate; it does NOT yet exercise the "real airport the model
+may know from training" premise of the Facility track. Real facility packs (parsed
+from public FAA airport diagrams and procedure plates) are future work — see
+DESIGN §5.1 and task P1.10/P2.2. The fabrication is flagged programmatically via
+``FACILITY_KIND``.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
-FACILITY = "KMDW"
-POSITION = "MDW_CD"
-CALLSIGN = "Midway Clearance"
+FACILITY = "KMRL"  # fictional
+FACILITY_NAME = "Marlow Regional Airport"
+FACILITY_KIND = "fictional"  # {"fictional", "real"} — logged into run records
+POSITION = "MRL_CD"
+CALLSIGN = "Marlow Clearance"
 
-# Departure control frequency handed off to in the clearance (F of CRAFT).
+# Departure control frequency handed off to in the clearance (F of CRAFT). Fabricated.
 DEPARTURE_FREQUENCY = "119.35"
 
-# Published RNAV/vector SIDs at KMDW (simplified to name → transition set).
-# A filed route is valid iff its SID is one of these and its first fix is served.
+# Fabricated SIDs (name → transition set). A filed route is valid iff its SID is here.
 SIDS: dict[str, dict] = {
-    "MDW7": {  # "Midway Seven" departure (vector SID)
-        "name": "Midway Seven",
+    "MRLW5": {  # "Marlow Five" departure (vector SID)
+        "name": "Marlow Five",
         "type": "vector",
-        "initial_altitude": 5000,  # feet, per LOA with C90
+        "initial_altitude": 5000,  # feet, per (fabricated) LOA with Marlow TRACON
     },
     "PANGG5": {
         "name": "Pangg Five",
         "type": "rnav",
         "initial_altitude": 5000,
-        "fixes": ["PANGG", "GIJ"],
+        "fixes": ["PANGG", "GRIST"],
     },
     "HALIE4": {
         "name": "Halie Four",
         "type": "rnav",
         "initial_altitude": 5000,
-        "fixes": ["HALIE", "EON"],
+        "fixes": ["HALIE", "EONNA"],
     },
 }
 
-# Initial altitude the LOA with Chicago TRACON (C90) requires for MDW departures.
+# Fabricated LOA with Marlow TRACON (M90): initial altitude for all departures.
 LOA_INITIAL_ALTITUDE = 5000
 
-# Destinations reachable via the modeled SIDs (for route-validity checks).
+# Destinations are real cities (flights from a fictional field can go real places).
 KNOWN_DESTINATIONS = {
     "KDTW": "Detroit",
     "KLGA": "LaGuardia",
@@ -59,6 +62,7 @@ KNOWN_DESTINATIONS = {
 @dataclass(frozen=True)
 class ClearancePack:
     facility: str = FACILITY
+    facility_kind: str = FACILITY_KIND
     position: str = POSITION
     callsign: str = CALLSIGN
     departure_frequency: str = DEPARTURE_FREQUENCY
@@ -77,9 +81,9 @@ PACK = ClearancePack()
 def describe() -> str:
     """Human-readable chart-pack text for the system prompt (§11.3 section 2-4)."""
     lines = [
-        f"FACILITY: {FACILITY} — {POSITION} ({CALLSIGN})",
+        f"FACILITY: {FACILITY} — {FACILITY_NAME} — {POSITION} ({CALLSIGN})",
         f"Departure control frequency: {DEPARTURE_FREQUENCY}",
-        f"LOA (C90): initial altitude for all MDW IFR departures = "
+        f"LOA (M90): initial altitude for all {FACILITY} IFR departures = "
         f"{LOA_INITIAL_ALTITUDE} ft.",
         "",
         "Published departures (SIDs):",

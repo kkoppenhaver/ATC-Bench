@@ -9,13 +9,13 @@ from __future__ import annotations
 
 import hashlib
 
-from ..charts import kmdw_cd
+from ..charts import kmrl_cd
 
 PROMPT_TEMPLATE_VERSION = "cd-v1"
 
 _PHRASEOLOGY_EXAMPLES = """\
 Canonical clearance (CRAFT order):
-  "American 2452, cleared to Detroit, Midway Seven departure, maintain five thousand,
+  "American 2452, cleared to Detroit, Marlow Seven departure, maintain five thousand,
    departure one one niner point three five, squawk four three two one."
 Catching a bad readback:
   pilot: "... maintain six thousand ..."   controller: "American 2452, negative, maintain five thousand."
@@ -24,9 +24,9 @@ Catching a bad readback:
 
 def build_cd_system_prompt(session_seconds: int, regime: str = "turn") -> str:
     sections = [
-        "1. ROLE: You are the Clearance Delivery controller at Chicago Midway (MDW_CD). "
+        "1. ROLE: You are the Clearance Delivery controller at Marlow Regional (MRL_CD). "
         "Issue IFR clearances in CRAFT order and catch filing and readback errors.",
-        "2-4. AIRSPACE / PROCEDURES / LOA:\n" + kmdw_cd.describe(),
+        "2-4. AIRSPACE / PROCEDURES / LOA:\n" + kmrl_cd.describe(),
         "5. SEPARATION: not applicable at CD (no aircraft movement).",
         "6. HANDOFF PROTOCOL: not applicable at CD.",
         "7. TOOLS: use `transmit` to speak on frequency (one transmission per call). "

@@ -198,6 +198,8 @@ Real facilities, synthetic traffic. The model may "know" the airport from traini
 
 Chart packs are hand-built once per facility from public FAA data (airport diagram → taxi graph, LOAs simplified to a benchmark-normalized format, frequencies, SIDs/STARs as fix sequences with altitude/speed constraints).
 
+> **Implementation status (v1 — honesty note).** The real facilities above (KMDW, C90, ZAU) are the *target* for the Facility track, but the current implementation does **not** ship them yet. To build and test the harness before digitizing real FAA charts, v1 uses a **fictional stand-in facility — Marlow Regional Airport (KMRL)** — whose runways, taxi graph, SIDs, fixes, frequencies, and LOA are entirely fabricated (flagged in-code via `FACILITY_KIND = "fictional"`). It reproduces the *kind* of geometry a real facility has (a crossing runway, opposable taxiway flows) but is effectively a Generalist-track pack wearing a facility nameplate — so it does **not** yet exercise the "model may know this airport from training" premise that gives the Facility track its meaning. Parsing real charts into facility packs (and thereby making the `generalization_gap` metric meaningful) is tracked as task P1.10/P2.2.
+
 ### 5.2 Generalist track (procedural airspace)
 
 The "feel the AGI" track: the model receives a chart pack for an airspace that has never existed, entirely in context, and must work traffic on it. No human controller can do this on day one; the track is deliberately superhuman as a bar.

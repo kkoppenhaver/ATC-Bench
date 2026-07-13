@@ -1,10 +1,14 @@
-"""KMDW Ground chart pack (DESIGN §4.4, §5.1, §6.2).
+"""Marlow Regional (KMRL) — Ground chart pack (DESIGN §4.4, §5.1, §6.2).
 
-A simplified but representative Chicago Midway surface with the geometry that makes
-Ground genuinely hard: departures must **cross runway 31R** (an active crossing
-runway) to reach the departure runway 31C, and departures/arrivals can be misrouted
-into a head-on on the same taxiway. This is benchmark-normalized reference data, not
-an operationally accurate diagram.
+⚠️ FICTIONAL FACILITY. Marlow Regional Airport (KMRL) does not exist; this surface
+graph is fabricated for the benchmark, not a real airport diagram (see ``FACILITY_KIND``
+and the note in kmrl_cd.py). It is designed to reproduce the *kind* of geometry that
+makes Ground hard — a crossing runway and opposable taxiway flows — so the harness can
+be exercised before a real FAA airport diagram is digitized (task P2.2).
+
+The layout keeps the interesting difficulty: departures must **cross runway 31R** (an
+active crossing runway) to reach the departure runway 31C, and departures/arrivals can
+be misrouted into a head-on on the same taxiway.
 
 Layout:
     Gates G1/G2 --taxiway A--> [cross RWY 31R] --> hold short RWY 31C   (departures)
@@ -16,9 +20,11 @@ from __future__ import annotations
 
 from ..sim.taxi import TaxiEdge, TaxiGraph, TaxiNode
 
-FACILITY = "KMDW"
-POSITION = "MDW_GND"
-CALLSIGN = "Midway Ground"
+FACILITY = "KMRL"  # fictional
+FACILITY_NAME = "Marlow Regional Airport"
+FACILITY_KIND = "fictional"
+POSITION = "MRL_GND"
+CALLSIGN = "Marlow Ground"
 
 DEPARTURE_RUNWAY = "31C"
 CROSSING_RUNWAY = "31R"
@@ -74,7 +80,7 @@ def arrival_route_via_a(gate: str) -> list[str]:
 
 def describe() -> str:
     lines = [
-        f"FACILITY: {FACILITY} — {POSITION} ({CALLSIGN})",
+        f"FACILITY: {FACILITY} — {FACILITY_NAME} — {POSITION} ({CALLSIGN})",
         f"Departure runway: {DEPARTURE_RUNWAY}. Crossing runway: {CROSSING_RUNWAY} (active).",
         "",
         "TAXIWAYS:",

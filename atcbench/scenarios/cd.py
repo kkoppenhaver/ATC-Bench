@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
 
-from ..charts import kmdw_cd
+from ..charts import kmrl_cd
 from ..domain import ErrorEvent, FlightPlan, Persona
 from .seeds import SeedManager
 
@@ -31,7 +31,7 @@ _PERSONAS = [
     Persona.GA_RELAXED, Persona.FOREIGN_CARRIER, Persona.STUDENT_PILOT,
 ]
 _AIRLINES = ["AAL", "UAL", "SWA", "DAL"]
-_DESTINATIONS = list(kmdw_cd.KNOWN_DESTINATIONS)
+_DESTINATIONS = list(kmrl_cd.KNOWN_DESTINATIONS)
 
 
 @dataclass
@@ -78,9 +78,9 @@ def _correct_clearance(fp: FlightPlan, squawk: str) -> dict:
     """The clearance the controller should issue for a plan, after fixing filings."""
     return {
         "clearance_limit": fp.destination,
-        "route": fp.filed_sid if kmdw_cd.PACK.sid_valid(fp.filed_sid) else "MDW7",
-        "altitude": kmdw_cd.LOA_INITIAL_ALTITUDE,
-        "frequency": kmdw_cd.DEPARTURE_FREQUENCY,
+        "route": fp.filed_sid if kmrl_cd.PACK.sid_valid(fp.filed_sid) else "MRLW5",
+        "altitude": kmrl_cd.LOA_INITIAL_ALTITUDE,
+        "frequency": kmrl_cd.DEPARTURE_FREQUENCY,
         "squawk": squawk,
     }
 
@@ -115,7 +115,7 @@ def generate(seed: int, band: str = "standard", session_seconds: int = 3600) -> 
         actype = traffic.choice(["B738", "A320", "B739", "E175", "C172"])
         persona = traffic.choice(_PERSONAS)
         dest = traffic.choice(_DESTINATIONS)
-        filed_sid = traffic.choice(list(kmdw_cd.SIDS))
+        filed_sid = traffic.choice(list(kmrl_cd.SIDS))
         filed_alt = traffic.choice([16000, 17000, 23000, 35000])
 
         filing_error: Optional[str] = None
@@ -125,7 +125,7 @@ def generate(seed: int, band: str = "standard", session_seconds: int = 3600) -> 
                 filed_sid = "BOGUS9"  # not in the chart pack -> must be corrected
                 filing_error = "invalid_sid"
             else:
-                # Filed an initial altitude that violates the C90 LOA (should be 5000).
+                # Filed an initial altitude that violates the M90 LOA (should be 5000).
                 filed_alt = 9000
                 filing_error = "wrong_initial_altitude"
 
@@ -161,7 +161,7 @@ def generate(seed: int, band: str = "standard", session_seconds: int = 3600) -> 
             acid=twin_acid,
             actype="B738",
             destination=callsigns.choice(_DESTINATIONS),
-            filed_sid=callsigns.choice(list(kmdw_cd.SIDS)),
+            filed_sid=callsigns.choice(list(kmrl_cd.SIDS)),
             filed_altitude=16000,
             persona=Persona.AIRLINE_CRISP,
             call_tick=min(session_seconds - 60, base.call_tick + callsigns.randint(20, 90)),
@@ -184,7 +184,7 @@ def generate(seed: int, band: str = "standard", session_seconds: int = 3600) -> 
             if code == "RB-ALT":
                 detail["wrong_altitude"] = errors.choice([6000, 15000, 4000])
             elif code == "RB-FREQ":
-                detail["wrong_frequency"] = _transpose_freq(kmdw_cd.DEPARTURE_FREQUENCY)
+                detail["wrong_frequency"] = _transpose_freq(kmrl_cd.DEPARTURE_FREQUENCY)
             elif code == "RB-PART":
                 detail["omit"] = errors.choice(["squawk", "frequency"])
             schedule[fp.acid] = ErrorEvent(code=code, detail=detail)
@@ -196,7 +196,7 @@ def generate(seed: int, band: str = "standard", session_seconds: int = 3600) -> 
     return Scenario(
         seed=seed,
         band=band,
-        position="MDW_CD",
+        position="MRL_CD",
         session_seconds=session_seconds,
         flight_plans=plans,
         error_schedule=schedule,

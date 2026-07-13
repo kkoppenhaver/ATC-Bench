@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Optional
 
 from .. import HARNESS_VERSION, WORDS_PER_SECOND
-from ..charts import kmdw_cd
+from ..charts import kmrl_cd
 from ..pilots import parser as P
 from ..pilots.fsm import CDState, PilotFSM
 from ..scenarios.cd import Scenario
@@ -202,7 +202,7 @@ class CDSession:
                 "status": status,
                 "filed": {
                     "destination": fsm.plan.destination,
-                    "destination_name": kmdw_cd.KNOWN_DESTINATIONS.get(
+                    "destination_name": kmrl_cd.KNOWN_DESTINATIONS.get(
                         fsm.plan.destination, fsm.plan.destination
                     ),
                     "sid": fsm.plan.filed_sid,
@@ -267,7 +267,7 @@ class CDSession:
 
     def _handle_transmit(self, text: str) -> None:
         self._emit_transmission(self.scn.position, text)
-        parsed = P.parse_controller_transmission(text, list(self.active.keys()), kmdw_cd.PACK)
+        parsed = P.parse_controller_transmission(text, list(self.active.keys()), kmrl_cd.PACK)
         acid = parsed.acid
         if acid is None or acid not in self.active:
             return

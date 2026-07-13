@@ -47,9 +47,9 @@ class PilotFSM:
 
     def check_in(self, tick: int) -> dict:
         self.state = CDState.AWAITING_CLEARANCE
-        from ..charts import kmdw_cd
+        from ..charts import kmrl_cd
 
-        dest_name = kmdw_cd.KNOWN_DESTINATIONS.get(self.plan.destination, self.plan.destination)
+        dest_name = kmrl_cd.KNOWN_DESTINATIONS.get(self.plan.destination, self.plan.destination)
         return {
             "kind": "check_in",
             "acid": self.acid,

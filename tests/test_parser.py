@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from atcbench.charts import kmdw_cd
+from atcbench.charts import kmrl_cd
 from atcbench.pilots import parser as P
 from atcbench.pilots.parser import ParseTier
 
@@ -28,9 +28,9 @@ def test_extract_callsign_spoken_and_written():
 
 
 def test_clearance_tier_standard():
-    text = ("American 2452, cleared to Detroit, Midway Seven departure, maintain five thousand, "
+    text = ("American 2452, cleared to Detroit, Marlow Seven departure, maintain five thousand, "
             "departure one one niner point three five, squawk four three two one.")
-    pt = P.parse_controller_transmission(text, ["AAL2452"], kmdw_cd.PACK)
+    pt = P.parse_controller_transmission(text, ["AAL2452"], kmrl_cd.PACK)
     assert pt.intent == "clearance"
     assert pt.tier == ParseTier.STANDARD
     assert pt.altitude == 5000 and pt.squawk == "4321" and pt.frequency == "119.35"
@@ -38,6 +38,6 @@ def test_clearance_tier_standard():
 
 def test_missing_callsign_is_ambiguous():
     pt = P.parse_controller_transmission(
-        "cleared to Detroit, maintain five thousand, squawk 4321", ["AAL2452"], kmdw_cd.PACK
+        "cleared to Detroit, maintain five thousand, squawk 4321", ["AAL2452"], kmrl_cd.PACK
     )
     assert pt.tier == ParseTier.AMBIGUOUS

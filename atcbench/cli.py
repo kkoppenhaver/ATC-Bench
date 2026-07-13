@@ -52,12 +52,12 @@ def cmd_run(args: argparse.Namespace) -> int:
 
 def _detect_position(run_dir: Path) -> str:
     scn = json.loads((run_dir / "scenario.json").read_text(encoding="utf-8"))
-    return scn.get("position", "MDW_CD")
+    return scn.get("position", "MRL_CD")
 
 
 def cmd_score(args: argparse.Namespace) -> int:
     pos = _detect_position(Path(args.dir))
-    score = score_gnd_dir(args.dir) if pos == "MDW_GND" else score_cd_dir(args.dir)
+    score = score_gnd_dir(args.dir) if pos == "MRL_GND" else score_cd_dir(args.dir)
     print(json.dumps(score, indent=2, sort_keys=True))
     return 0
 
@@ -67,7 +67,7 @@ def cmd_replay(args: argparse.Namespace) -> int:
     scn_dict = json.loads((src / "scenario.json").read_text(encoding="utf-8"))
     io = json.loads((src / "model_io.json").read_text(encoding="utf-8"))
     turns = [t["output"] for t in io["turns"]]
-    if scn_dict.get("position") == "MDW_GND":
+    if scn_dict.get("position") == "MRL_GND":
         scn = gnd_scenarios.generate(scn_dict["seed"], band=scn_dict["band"],
                                      session_seconds=scn_dict["session_seconds"])
         session = GroundSession(scn, prompt_hash=io.get("prompt_hash", "replay"))
