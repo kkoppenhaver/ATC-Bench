@@ -181,6 +181,102 @@ class BadGNDController(ModelAdapter):
         return self.wait()
 
 
+def _approach_per_sec(actype: str) -> float:
+    from ..sim.performance import perf
+
+    return perf(actype).approach_kt / 3600.0
+
+
+class ScriptedTWRController(ModelAdapter):
+    """Oracle Tower controller. Serializes the single runway — at most one committed use
+    at a time (cleared_land / landing / luaw / takeoff) — so two aircraft never occupy it
+    together. Clears an arrival only when wake separation holds at its threshold, and sends
+    it around rather than clear it unsafely. Fits a departure into a gap only when the next
+    arrival is far and wake permits, then hands airborne departures to Approach."""
+
+    LAND_CLEAR_NM = 4.0
+    DEP_ARR_CLEAR_NM = 5.0
+
+    def step(self, observation: dict) -> dict:
+        from ..charts import kmrl_twr
+        from ..sim.performance import wake_min_sec
+
+        rw = observation["runway"]
+        since = rw["since_last_use_sec"]
+        last_wake = rw["last_use_wake"]
+        acs = observation["aircraft"]
+        departures = [a for a in acs if a["role"] == "departure"]
+
+        def eta(a):
+            return a["dist_nm"] / _approach_per_sec(a["actype"])
+
+        # Hand off airborne departures regardless of runway state.
+        for d in departures:
+            if d["phase"] == "airborne":
+                cs = _callsign_words(d["acid"])
+                return self.transmit(
+                    f"{cs}, contact departure {spoken_digits(kmrl_twr.DEPARTURE_FREQUENCY)}.")
+
+        committed = any(a["phase"] in ("cleared_land", "landing", "luaw", "takeoff") for a in acs)
+        if committed:
+            return self.wait()  # one runway use at a time
+
+        finals = sorted((a for a in acs if a["role"] == "arrival" and a["phase"] == "final"), key=eta)
+        if finals:
+            a = finals[0]
+            e = eta(a)
+            wake_ok = since is None or (since + e) >= wake_min_sec(last_wake, a["wake"])
+            if a["dist_nm"] <= self.LAND_CLEAR_NM:
+                cs = _callsign_words(a["acid"])
+                if wake_ok:
+                    return self.transmit(f"{cs}, runway {_runway_spoken(kmrl_twr.RUNWAY)}, cleared to land.")
+                if a["dist_nm"] <= kmrl_twr.GO_AROUND_NM + 0.5:
+                    return self.transmit(f"{cs}, go around, I say again, go around.")
+                return self.wait()
+            # Nearest arrival still far — use the gap for a departure if it fits ahead.
+            if a["dist_nm"] > self.DEP_ARR_CLEAR_NM:
+                launch = self._launch_departure(departures, since, last_wake, e, a["wake"], wake_min_sec, kmrl_twr)
+                if launch:
+                    return launch
+            return self.wait()
+
+        # No arrivals inbound: launch a departure if wake permits.
+        launch = self._launch_departure(departures, since, last_wake, 1e9, "L", wake_min_sec, kmrl_twr)
+        return launch or self.wait()
+
+    def _launch_departure(self, departures, since, last_wake, nearest_eta, nearest_wake,
+                          wake_min_sec, kmrl_twr):
+        for d in departures:
+            if d["phase"] != "hold_short":
+                continue
+            behind_ok = since is None or since >= wake_min_sec(last_wake, d["wake"])
+            ahead_ok = nearest_eta >= max(kmrl_twr.OCCUPY_DEP_SEC + 30,
+                                          wake_min_sec(d["wake"], nearest_wake))
+            if behind_ok and ahead_ok:
+                cs = _callsign_words(d["acid"])
+                return self.transmit(
+                    f"{cs}, runway {_runway_spoken(kmrl_twr.RUNWAY)}, cleared for takeoff.")
+        return None
+
+
+class BadTWRController(ModelAdapter):
+    """Clears every arrival to land and every departure for takeoff on sight — piling
+    aircraft onto one runway. Produces simultaneous-occupancy LoS and wake busts."""
+
+    def step(self, observation: dict) -> dict:
+        from ..charts import kmrl_twr
+
+        for a in observation["aircraft"]:
+            cs = _callsign_words(a["acid"])
+            if a["role"] == "arrival" and a["phase"] == "final":
+                return self.transmit(f"{cs}, runway {_runway_spoken(kmrl_twr.RUNWAY)}, cleared to land.")
+            if a["role"] == "departure" and a["phase"] == "hold_short":
+                return self.transmit(f"{cs}, runway {_runway_spoken(kmrl_twr.RUNWAY)}, cleared for takeoff.")
+            if a["role"] == "departure" and a["phase"] == "airborne":
+                return self.transmit(f"{cs}, contact departure.")
+        return self.wait()
+
+
 class ReasoningController(ModelAdapter):
     """Wraps any controller and inflates its reported output tokens by a fixed amount,
     standing in for a model that reasons at length before each action. Under the

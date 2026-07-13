@@ -17,3 +17,13 @@ def gnd_feasible(scenario: GNDScenario) -> bool:
     """True iff the oracle controller works the scenario without a cardinal violation."""
     result = GroundSession(scenario).run(ScriptedGNDController())
     return score_gnd(result.log, scenario.to_dict())["gate"] == 1
+
+
+def twr_feasible(scenario) -> bool:
+    """True iff the Tower oracle works the scenario without a cardinal violation."""
+    from ..harness.adapters import ScriptedTWRController
+    from ..harness.tower_session import TowerSession
+    from ..scoring.twr import score_twr
+
+    result = TowerSession(scenario).run(ScriptedTWRController())
+    return score_twr(result.log, scenario.to_dict())["gate"] == 1

@@ -115,6 +115,23 @@ class TemplateVerbalizer:
         acid = _callsign_words(intent["acid"])
         return f"{intent['text']}, {acid}"
 
+    # --- TWR-position intents -------------------------------------------------
+
+    def _render_tower_checkin(self, intent: dict, persona: Persona) -> str:
+        acid = _callsign_words(intent["acid"])
+        if intent.get("role") == "arrival":
+            miles = intent.get("miles", 8)
+            return f"Marlow Tower, {acid}, {spoken_digits(str(miles))} mile final, runway three one center"
+        return f"Marlow Tower, {acid}, holding short runway three one center, ready"
+
+    def _render_tower_readback(self, intent: dict, persona: Persona) -> str:
+        acid = _callsign_words(intent["acid"])
+        return f"{intent['text']}, {acid}"
+
+    def _render_tower_goaround(self, intent: dict, persona: Persona) -> str:
+        acid = _callsign_words(intent["acid"])
+        return f"Going around, {acid}"
+
     def _render_correction_ack(self, intent: dict, persona: Persona) -> str:
         rb = intent["readback"]
         acid = _callsign_words(intent["acid"])
