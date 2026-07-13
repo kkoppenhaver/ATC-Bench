@@ -1,0 +1,315 @@
+"""Clearance Delivery session runner (DESIGN §4.1 event-driven cadence, §7.1 channel).
+
+Turn-based regime: the sim pauses while the model reasons, but transmissions consume
+sim time at 150 wpm (frequency physics). The runner alternates between advancing the
+sim to the next scheduled event (pilot check-in, readback correction deadline, or a
+neglect deadline) and handing the model turns until it waits.
+
+Everything the scorer needs is emitted to the event log; the run directory is
+self-contained and re-scoreable / re-runnable (given recorded model outputs).
+"""
+
+from __future__ import annotations
+
+import json
+import math
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Optional
+
+from .. import HARNESS_VERSION, WORDS_PER_SECOND
+from ..charts import kmdw_cd
+from ..pilots import parser as P
+from ..pilots.fsm import CDState, PilotFSM
+from ..scenarios.cd import Scenario
+from ..sim import events as E
+from ..sim.events import EventLog
+from ..strips.store import StripStore
+from ..verbalizer.template import TemplateVerbalizer
+
+NEGLECT_THRESHOLD_SEC = 180  # CD: unanswered/uncleared beyond this = NEGLECT (§13.1)
+MAX_TURNS_PER_WINDOW = 60
+BASE_SIM_HOUR = 14  # sessions start at 14:00:00Z (deterministic wall-clock label)
+
+
+def _sim_time(tick: int) -> str:
+    total = tick
+    h = BASE_SIM_HOUR + total // 3600
+    m = (total % 3600) // 60
+    s = total % 60
+    return f"{h:02d}:{m:02d}:{s:02d}Z"
+
+
+def _broadcast_seconds(text: str) -> int:
+    words = len(P.normalize(text).split())
+    return max(1, math.ceil(words / WORDS_PER_SECOND))
+
+
+@dataclass
+class SessionResult:
+    scenario: Scenario
+    log: EventLog
+    transcript: list[dict]
+    strips_history: list[dict]
+    model_io: list[dict]
+    prompt_hash: str
+    harness_version: str = HARNESS_VERSION
+
+    def write(self, out_dir: str | Path) -> None:
+        d = Path(out_dir)
+        d.mkdir(parents=True, exist_ok=True)
+        (d / "scenario.json").write_text(
+            json.dumps(self.scenario.to_dict(), sort_keys=True, indent=2), encoding="utf-8"
+        )
+        self.log.write(d / "events.jsonl")
+        (d / "transcript.jsonl").write_text(
+            "".join(json.dumps(m, sort_keys=True) + "\n" for m in self.transcript),
+            encoding="utf-8",
+        )
+        (d / "strips_history.jsonl").write_text(
+            "".join(json.dumps(s, sort_keys=True) + "\n" for s in self.strips_history),
+            encoding="utf-8",
+        )
+        (d / "model_io.json").write_text(
+            json.dumps(
+                {
+                    "harness_version": self.harness_version,
+                    "prompt_hash": self.prompt_hash,
+                    "turns": self.model_io,
+                },
+                sort_keys=True,
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+
+
+class CDSession:
+    def __init__(
+        self,
+        scenario: Scenario,
+        verbalizer: Optional[TemplateVerbalizer] = None,
+        correction_window_sec: int = 30,
+        prompt_hash: str = "cd-template-v1",
+    ):
+        self.scn = scenario
+        self.vb = verbalizer or TemplateVerbalizer()
+        self.correction_window_sec = correction_window_sec
+        self.prompt_hash = prompt_hash
+
+        self.log = EventLog()
+        self.transcript: list[dict] = []
+        self.strips = StripStore(bays=["queue", "cleared", "watch"])
+        self.model_io: list[dict] = []
+
+        self.tick = 0
+        self.freq_busy_until = 0
+        self.last_shown = 0
+        self.active: dict[str, PilotFSM] = {}
+        self.neglect_deadline: dict[str, int] = {}
+        self._checkins = sorted(scenario.flight_plans, key=lambda p: p.call_tick)
+        self._ci_idx = 0
+        self._total_turns = 0
+
+    # --- channel -------------------------------------------------------------
+
+    def _emit_transmission(self, speaker: str, text: str) -> None:
+        start = max(self.tick, self.freq_busy_until)
+        dur = _broadcast_seconds(text)
+        end = start + dur
+        self.tick = end
+        self.freq_busy_until = end
+        self.transcript.append({"t": start, "from": speaker, "text": text})
+        self.log.emit(start, E.TRANSMISSION, speaker=speaker, text=text, start_tick=start, end_tick=end)
+
+    # --- scheduled events ----------------------------------------------------
+
+    def _process_checkins(self) -> None:
+        while self._ci_idx < len(self._checkins) and self._checkins[self._ci_idx].call_tick <= self.tick:
+            fp = self._checkins[self._ci_idx]
+            self._ci_idx += 1
+            self.log.emit(fp.call_tick, E.AIRCRAFT_SPAWN, acid=fp.acid, actype=fp.actype,
+                          destination=fp.destination, persona=fp.persona.value)
+            fsm = PilotFSM(fp, self.scn.error_schedule.get(fp.acid), self.correction_window_sec)
+            self.active[fp.acid] = fsm
+            self.neglect_deadline[fp.acid] = fp.call_tick + NEGLECT_THRESHOLD_SEC
+            # Auto-strip on check-in (queue bay).
+            self.strips.strip_create(fp.acid, "queue", {"type": fp.actype, "dest": fp.destination})
+            self.log.emit(self.tick, E.STRIP_OP, op="auto_create", acid=fp.acid, bay="queue")
+            intent = fsm.check_in(self.tick)
+            self._emit_transmission(fp.acid, self.vb.render(intent))
+
+    def _process_deadlines(self) -> None:
+        for acid, fsm in list(self.active.items()):
+            neglected = (
+                fsm.state == CDState.AWAITING_CLEARANCE
+                and self.tick >= self.neglect_deadline.get(acid, 1 << 30)
+            )
+            expired = (
+                fsm.state == CDState.READBACK_PENDING
+                and fsm.readback_deadline is not None
+                and self.tick >= fsm.readback_deadline
+            )
+            if neglected or expired:
+                final = fsm.finalize(self.tick)
+                final["neglected"] = bool(neglected)
+                self.log.emit(self.tick, E.AIRCRAFT_CLEARED, **final)
+                self.strips.strip_move(acid, "cleared", 0)
+                self.log.emit(self.tick, E.STRIP_OP, op="auto_move", acid=acid, bay="cleared")
+                del self.active[acid]
+
+    def _next_event_tick(self) -> Optional[int]:
+        candidates: list[int] = []
+        if self._ci_idx < len(self._checkins):
+            candidates.append(self._checkins[self._ci_idx].call_tick)
+        for acid, fsm in self.active.items():
+            if fsm.state == CDState.READBACK_PENDING and fsm.readback_deadline is not None:
+                candidates.append(fsm.readback_deadline)
+            elif fsm.state == CDState.AWAITING_CLEARANCE:
+                candidates.append(self.neglect_deadline.get(acid, 1 << 30))
+        return min(candidates) if candidates else None
+
+    # --- model turns ---------------------------------------------------------
+
+    def _build_observation(self) -> dict:
+        new_msgs = [dict(m) for m in self.transcript[self.last_shown:]]
+        self.last_shown = len(self.transcript)
+        aircraft = []
+        for acid, fsm in self.active.items():
+            status = {
+                CDState.AWAITING_CLEARANCE: "awaiting_clearance",
+                CDState.READBACK_PENDING: "readback_pending",
+            }.get(fsm.state, "cleared")
+            last_rb = None
+            if fsm.state == CDState.READBACK_PENDING:
+                if fsm.readback_dropped:
+                    last_rb = {"dropped": True}
+                else:
+                    last_rb = {
+                        "altitude": fsm.readback.get("altitude"),
+                        "frequency": fsm.readback.get("frequency"),
+                        "squawk": fsm.readback.get("squawk"),
+                        "callsign_used": fsm.readback_acid,
+                    }
+            aircraft.append({
+                "acid": acid,
+                "actype": fsm.plan.actype,
+                "status": status,
+                "filed": {
+                    "destination": fsm.plan.destination,
+                    "destination_name": kmdw_cd.KNOWN_DESTINATIONS.get(
+                        fsm.plan.destination, fsm.plan.destination
+                    ),
+                    "sid": fsm.plan.filed_sid,
+                    "altitude": fsm.plan.filed_altitude,
+                    "filing_error_hint": fsm.plan.filing_error is not None,
+                },
+                "assigned_squawk": self.scn.expected_clearance[acid]["squawk"],
+                "last_readback": last_rb,
+            })
+        return {
+            "tick": self.tick,
+            "sim_time": _sim_time(self.tick),
+            "position": self.scn.position,
+            "frequency": new_msgs,
+            "aircraft": aircraft,
+        }
+
+    def _give_model_turns(self, adapter) -> None:
+        for _ in range(MAX_TURNS_PER_WINDOW):
+            self._total_turns += 1
+            obs = self._build_observation()
+            self.log.emit(self.tick, E.RADAR_SNAPSHOT_SENT, n_aircraft=len(obs["aircraft"]))
+            self.log.emit(self.tick, E.MODEL_TURN_START)
+            resp = adapter.step(obs)
+            self.model_io.append({"tick": self.tick, "output": resp})
+            self.log.emit(self.tick, E.MODEL_TURN_END, output_tokens=int(resp.get("output_tokens", 0)))
+            waited = self._apply_tool_calls(resp)
+            self.strips.snapshot(self.tick)
+            if waited:
+                break
+
+    def _apply_tool_calls(self, resp: dict) -> bool:
+        calls = resp.get("tool_calls") or []
+        if not calls:
+            return True
+        for call in calls:
+            name = call.get("name")
+            inp = call.get("input", {})
+            if name == "wait":
+                return True
+            if name == "transmit":
+                self._handle_transmit(inp.get("text", ""))
+            elif name == "strip_create":
+                self.strips.strip_create(inp["acid"], inp["bay"], inp.get("fields"))
+                self.tick += 1
+                self.log.emit(self.tick, E.STRIP_OP, op="create", acid=inp.get("acid"))
+            elif name == "strip_update":
+                self.strips.strip_update(inp["acid"], inp.get("patch", {}))
+                self.tick += 1
+                self.log.emit(self.tick, E.STRIP_OP, op="update", acid=inp.get("acid"))
+            elif name == "strip_move":
+                self.strips.strip_move(inp["acid"], inp["bay"], inp.get("index", 0))
+                self.tick += 1
+                self.log.emit(self.tick, E.STRIP_OP, op="move", acid=inp.get("acid"))
+            elif name == "strip_delete":
+                self.strips.strip_delete(inp["acid"])
+                self.tick += 1
+                self.log.emit(self.tick, E.STRIP_OP, op="delete", acid=inp.get("acid"))
+            elif name == "bay_read":
+                pass  # 0 s, no state change
+        return False
+
+    def _handle_transmit(self, text: str) -> None:
+        self._emit_transmission(self.scn.position, text)
+        parsed = P.parse_controller_transmission(text, list(self.active.keys()), kmdw_cd.PACK)
+        acid = parsed.acid
+        if acid is None or acid not in self.active:
+            return
+        fsm = self.active[acid]
+        if parsed.intent == "clearance" and fsm.state == CDState.AWAITING_CLEARANCE:
+            self.log.emit(self.tick, E.CLEARANCE_ISSUED, acid=acid,
+                          altitude=parsed.altitude, frequency=parsed.frequency,
+                          squawk=parsed.squawk, route=parsed.sid, destination=parsed.destination)
+            verb_intent, fsm_event = fsm.receive_clearance(self.tick, parsed)
+            self.log.emit(self.tick, E.FSM_INTENT, **fsm_event)
+            if verb_intent is not None:
+                self._emit_transmission(acid, self.vb.render(verb_intent))
+                self.log.emit(self.tick, E.READBACK, acid=acid, readback=fsm.readback,
+                              readback_acid=fsm.readback_acid)
+            else:
+                self.log.emit(self.tick, E.PILOT_DEVIATION, acid=acid, kind="readback_dropped")
+        elif fsm.state == CDState.READBACK_PENDING and parsed.intent in ("correction", "clearance"):
+            ack = fsm.receive_correction(self.tick, parsed)
+            self.log.emit(self.tick, E.CLEARANCE_CORRECTED, acid=acid, caught=fsm.error_caught)
+            if ack is not None:
+                self._emit_transmission(acid, self.vb.render(ack))
+                self.log.emit(self.tick, E.READBACK, acid=acid, readback=fsm.readback,
+                              readback_acid=fsm.readback_acid, corrected=True)
+
+    # --- driver --------------------------------------------------------------
+
+    def run(self, adapter) -> SessionResult:
+        while True:
+            nxt = self._next_event_tick()
+            if nxt is None and not self.active:
+                break
+            if nxt is not None and nxt > self.tick:
+                self.tick = nxt
+            self._process_checkins()
+            self._process_deadlines()
+            if not self.active and self._ci_idx >= len(self._checkins):
+                break
+            if self.active:
+                self._give_model_turns(adapter)
+            if self._total_turns > 100000:  # pragma: no cover - runaway guard
+                break
+        self.log.emit(self.tick, E.SESSION_END, position=self.scn.position, seed=self.scn.seed)
+        return SessionResult(
+            scenario=self.scn,
+            log=self.log,
+            transcript=self.transcript,
+            strips_history=self.strips.history,
+            model_io=self.model_io,
+            prompt_hash=self.prompt_hash,
+        )

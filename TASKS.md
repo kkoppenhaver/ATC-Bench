@@ -6,25 +6,31 @@ by phase and ordered by dependency. **v1 public release = Phases 1–2.**
 Legend: `[ ]` todo · `[~]` in progress · `[x]` done. Each task lists the design
 section(s) it implements and its hard dependencies.
 
+> **Status (2026-07): Phase 1 walking skeleton is functional.** A deterministic
+> Clearance Delivery session runs, scores, certifies, and replays byte-identically
+> (`python -m atcbench.cli run/score/replay`). `[~]` = partially done: P0.2 has CI
+> (SessionStart hook pending); P1.8 ships a deterministic template verbalizer (the
+> pinned-LLM verbalizer + response cache is the next step).
+
 ---
 
 ## Phase 0 — Project scaffolding
 
 Foundational plumbing. No behavior yet; everything else builds on this.
 
-- [ ] **P0.1 — Python package skeleton.** Create `atcbench/` package with the
+- [x] **P0.1 — Python package skeleton.** Create `atcbench/` package with the
   submodule layout from DESIGN §15 (`sim/`, `scenarios/`, `pilots/`, `verbalizer/`,
   `harness/`, `strips/`, `charts/`, `scoring/`, `baselines/`). Add `pyproject.toml`
   (Python 3.12+, single package `atcbench`), `runs/`, `seeds/`, `tests/` dirs.
   _Deps: none._
-- [ ] **P0.2 — Dev tooling & CI.** Configure formatter/linter (ruff), type checker
+- [~] **P0.2 — Dev tooling & CI.** Configure formatter/linter (ruff), type checker
   (mypy or pyright), test runner (pytest), and a GitHub Actions workflow that runs
   lint + tests. Add a SessionStart hook so web sessions can run the suite. _Deps: P0.1._
-- [ ] **P0.3 — Core dataclasses & JSONL I/O.** World-state dataclasses (aircraft,
+- [x] **P0.3 — Core dataclasses & JSONL I/O.** World-state dataclasses (aircraft,
   world snapshot) and append-only JSONL event-log writer/reader. Define the session
   directory contract (`scenario.json`, `events.jsonl`, `transcript.jsonl`,
   `strips_history.jsonl`, `score.json`). _Deps: P0.1. Design §3.2, §4.6._
-- [ ] **P0.4 — Named-PRNG seed manager.** Master seed → independent named streams
+- [x] **P0.4 — Named-PRNG seed manager.** Master seed → independent named streams
   (`traffic`, `errors`, `weather`, `callsigns`, `airspace`, `coordination`). This is
   the root of all determinism. _Deps: P0.1. Design §12.1, principle #2._
 
@@ -36,73 +42,73 @@ Goal: a full CD session runs deterministically and is scorable from the log alon
 **Exit test (P1.13):** record model outputs, replay twice → byte-identical event logs.
 
 ### Simulation core
-- [ ] **P1.1 — Sim clock & tick loop.** 1 Hz fixed-timestep integrator, event-driven /
+- [x] **P1.1 — Sim clock & tick loop.** 1 Hz fixed-timestep integrator, event-driven /
   cadence-based model update scheduling (CD = event-driven). No wall clock anywhere.
   _Deps: P0.3, P0.4. Design §4.1._
-- [ ] **P1.2 — Event log emission.** Wire every state transition to append typed events
+- [x] **P1.2 — Event log emission.** Wire every state transition to append typed events
   (`aircraft_spawn`, `radar_snapshot_sent`, `model_turn_start/end`, `transmission`,
   `fsm_intent`, `command_applied`, `strip_op`, `session_end`, …). _Deps: P0.3, P1.1.
   Design §4.6._
 
 ### Communication channel
-- [ ] **P1.3 — Frequency channel model.** Half-duplex single channel; broadcast duration
+- [x] **P1.3 — Frequency channel model.** Half-duplex single channel; broadcast duration
   `ceil(word_count / 2.5)`; transmission queueing when channel busy; `[BLOCKED]` handling
   stub. _Deps: P1.1. Design §7.1._
-- [ ] **P1.4 — Transcript formatter.** World→model frequency feed (ordered, timestamped
+- [x] **P1.4 — Transcript formatter.** World→model frequency feed (ordered, timestamped
   JSON lines per §7.3). _Deps: P1.3. Design §7.3._
 
 ### Pilot agents
-- [ ] **P1.5 — Tiered phraseology parser.** Deterministic grammar + normalization
+- [x] **P1.5 — Tiered phraseology parser.** Deterministic grammar + normalization
   (spoken-word/digit equivalence, "point"/"decimal", group vs. single-digit altitudes).
   Four parse tiers (standard / nonstandard / ambiguous / unparseable). Ships with a
   variant corpus for tests. _Deps: P0.1. Design §7.2, key risk #1._
-- [ ] **P1.6 — Pilot FSM.** Per-aircraft state machine (§8.2 states, CD subset). Core
+- [x] **P1.6 — Pilot FSM.** Per-aircraft state machine (§8.2 states, CD subset). Core
   loop: draw error → emit `fsm_intent` → verbalize → apply `will_comply_as`. Correction
   window logic. Pure function of `(state, parsed_instruction, error_schedule, tick)`.
   _Deps: P1.5, P1.2. Design §8.1, §8.2._
-- [ ] **P1.7 — Error schedule (CD subset).** Seeded per-aircraft error schedule for CD
+- [x] **P1.7 — Error schedule (CD subset).** Seeded per-aircraft error schedule for CD
   classes: RB-ALT, RB-HDG, RB-FREQ, RB-DROP, RB-PART, CS-CONF, CS-WRONG, SAY-AGAIN,
   BLOCKED. _Deps: P0.4, P1.6. Design §8.3._
-- [ ] **P1.8 — Verbalizer + response cache.** Pinned-model client (temp 0) rendering
+- [~] **P1.8 — Verbalizer + response cache.** Pinned-model client (temp 0) rendering
   `fsm_intent`→radio string; on-disk cache keyed on `(intent_json, persona, prompt_hash)`.
   Personas: `airline_crisp`, `ga_relaxed`, `student_pilot`, `foreign_carrier`, `unfamiliar`.
   _Deps: P1.6. Design §8.3, §8.1 verbalization layer, principle #2._
 
 ### Scenario generation (CD slice)
-- [ ] **P1.9 — CD scenario generator.** Filed flight-plan queue (some flawed), pilot
+- [x] **P1.9 — CD scenario generator.** Filed flight-plan queue (some flawed), pilot
   call schedule, persona assignment, similar-callsign injection (edit-distance-1 pairs).
   Difficulty bands (calm/standard/heavy) via error density + call rate. _Deps: P0.4,
   P1.7. Design §5.1, §6.1, §8.4, §12._
 
 ### Chart pack (KMDW CD slice)
-- [ ] **P1.10 — KMDW chart pack (CD slice).** Structured routes/SIDs as fix sequences,
+- [x] **P1.10 — KMDW chart pack (CD slice).** Structured routes/SIDs as fix sequences,
   initial-altitude LOA entries, frequencies, transponder assignment — enough to check
   CRAFT clearances. Human-readable + structured JSON, same content the sim uses.
   _Deps: P0.3. Design §5.1, §11.3._
 
 ### Model harness
-- [ ] **P1.11 — Model adapter + tool router.** Provider-agnostic adapter (Anthropic
+- [x] **P1.11 — Model adapter + tool router.** Provider-agnostic adapter (Anthropic
   Messages tool schema native; OpenAI-style adapter). Tools for CD: `transmit`, strip
   tools, `wait`. State serializer, verbatim I/O logging, token-count capture. _Deps:
   P1.2, P1.4. Design §11.1, §11.4, §3.2._
-- [ ] **P1.12 — System-prompt assembly.** Versioned template assembling the 9 §11.3
+- [x] **P1.12 — System-prompt assembly.** Versioned template assembling the 9 §11.3
   sections from the chart pack; emit `prompt_hash` into the run record. _Deps: P1.10.
   Design §11.3._
 
 ### Scoring
-- [ ] **P1.14 — CD scorer.** Pure function of the log. Cardinal detection (NEGLECT,
+- [x] **P1.14 — CD scorer.** Pure function of the log. Cardinal detection (NEGLECT,
   uncorrected bad readback on departed queue item), severe cap, S_raw components with
   CD-specific E (service time). Hearback H from RB-*/CS-* catch rate. _Deps: P1.2.
   Design §13.1–§13.3, §6.1._
-- [ ] **P1.15 — Flight strip store + tools.** Bay/strip data structures, tool impls
+- [x] **P1.15 — Flight strip store + tools.** Bay/strip data structures, tool impls
   (`strip_create/update/move/delete`, `bay_read`), auto-strip on handoff_offered,
   `strips_history.jsonl`. _Deps: P1.11. Design §9.2, §9.3._
 
 ### Determinism & CLI
-- [ ] **P1.13 — `atcbench replay` + determinism CI check.** Replay recorded model
+- [x] **P1.13 — `atcbench replay` + determinism CI check.** Replay recorded model
   outputs through the harness; assert byte-identical event logs across two replays.
   **This is the Phase 1 exit test.** _Deps: P1.11, P1.14. Design §17.2._
-- [ ] **P1.16 — CLI skeleton (`run`, `score`, `replay`).** Argparse/click surface per
+- [x] **P1.16 — CLI skeleton (`run`, `score`, `replay`).** Argparse/click surface per
   §17.1 for the CD slice. _Deps: P1.11, P1.14, P1.13. Design §17.1._
 
 ---
