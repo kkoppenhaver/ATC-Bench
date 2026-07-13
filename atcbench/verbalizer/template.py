@@ -71,10 +71,10 @@ class TemplateVerbalizer:
         acid = _callsign_words(intent["acid"])
         dest = intent.get("destination_name", "our destination")
         if persona == Persona.STUDENT_PILOT:
-            return f"Uh, Midway Clearance, {acid}, we're, uh, ready to copy IFR to {dest}"
+            return f"Uh, Marlow Clearance, {acid}, we're, uh, ready to copy IFR to {dest}"
         if persona == Persona.FOREIGN_CARRIER:
-            return f"Midway Clearance, {acid}, request IFR clearance to {dest}"
-        return f"Midway Clearance, {acid}, IFR to {dest}, ready to copy"
+            return f"Marlow Clearance, {acid}, request IFR clearance to {dest}"
+        return f"Marlow Clearance, {acid}, IFR to {dest}, ready to copy"
 
     def _render_readback(self, intent: dict, persona: Persona) -> str:
         """Read back the safety-critical numeric elements the FSM decided to voice.
@@ -105,11 +105,11 @@ class TemplateVerbalizer:
     def _render_taxi_checkin(self, intent: dict, persona: Persona) -> str:
         acid = _callsign_words(intent["acid"])
         if intent.get("role") == "arrival":
-            return f"{intent.get('facility_ground', 'Midway Ground')}, {acid}, clear of the runway, taxi to the gate"
+            return f"{intent.get('facility_ground', 'Marlow Ground')}, {acid}, clear of the runway, taxi to the gate"
         gate = intent.get("gate", "the gate")
         if persona == Persona.STUDENT_PILOT:
-            return f"Uh, Midway Ground, {acid}, at {gate}, ready to, uh, taxi"
-        return f"Midway Ground, {acid}, {gate}, ready to taxi"
+            return f"Uh, Marlow Ground, {acid}, at {gate}, ready to, uh, taxi"
+        return f"Marlow Ground, {acid}, {gate}, ready to taxi"
 
     def _render_taxi_readback(self, intent: dict, persona: Persona) -> str:
         acid = _callsign_words(intent["acid"])

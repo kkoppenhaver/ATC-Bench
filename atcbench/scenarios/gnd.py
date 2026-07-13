@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 
-from ..charts import kmdw_gnd
+from ..charts import kmrl_gnd
 from ..domain import ErrorEvent
 from .seeds import SeedManager
 
@@ -99,7 +99,7 @@ def generate(seed: int, band: str = "standard", session_seconds: int = 3600) -> 
     departures: list[GroundSpawn] = []
     for _ in range(cfg["n_dep"]):
         actype, wake = traffic.choice(_TYPES)
-        gate = traffic.choice(kmdw_gnd.GATES)
+        gate = traffic.choice(kmrl_gnd.GATES)
         departures.append(GroundSpawn(
             acid=_mk_callsign(callsigns, used), actype=actype, wake=wake, role="departure",
             gate=gate, node=gate, goal="HS_31C",
@@ -108,7 +108,7 @@ def generate(seed: int, band: str = "standard", session_seconds: int = 3600) -> 
     arrivals: list[GroundSpawn] = []
     for _ in range(cfg["n_arr"]):
         actype, wake = traffic.choice(_TYPES)
-        gate = traffic.choice(kmdw_gnd.GATES)
+        gate = traffic.choice(kmrl_gnd.GATES)
         arrivals.append(GroundSpawn(
             acid=_mk_callsign(callsigns, used), actype=actype, wake=wake, role="arrival",
             gate=gate, node="RWEX", goal=gate,
@@ -134,7 +134,7 @@ def generate(seed: int, band: str = "standard", session_seconds: int = 3600) -> 
             schedule[sp.acid] = ErrorEvent(code="GND-HS-DROP", detail={})
 
     return GNDScenario(
-        seed=seed, band=band, position=kmdw_gnd.POSITION, session_seconds=session_seconds,
+        seed=seed, band=band, position=kmrl_gnd.POSITION, session_seconds=session_seconds,
         departures=departures, arrivals=arrivals, tower_sequence=tower_sequence,
         hot_windows={"31R": hot}, error_schedule=schedule,
     )

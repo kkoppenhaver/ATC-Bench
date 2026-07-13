@@ -1,1 +1,1 @@
-"""Chart packs: facility packs (kmdw/, ...) and (later) the procedural generator."""
+"""Chart packs: facility packs (kmrl/, ...) and (later) the procedural generator."""

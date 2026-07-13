@@ -11,9 +11,16 @@ for the work breakdown. Progress is tracked in the GitHub issues (one epic per p
 
 ## Status
 
-Phase 1 **walking skeleton** — a deterministic **Clearance Delivery (CD)** position
-at Chicago Midway (KMDW), turn-based regime, with full scoring, certification gating,
-and a byte-identical replay determinism check.
+Phases 1–2 (v1 = **CD + GND**) — deterministic **Clearance Delivery** and **Ground**
+positions, turn-based regime, with full scoring, certification gating, and a
+byte-identical replay determinism check.
+
+> **Facility honesty note.** v1 runs on a **fictional stand-in airport — Marlow
+> Regional (KMRL)** — whose runways, taxi graph, SIDs, frequencies, and LOA are
+> *fabricated* (flagged in-code via `FACILITY_KIND = "fictional"`). It is a
+> Generalist-style pack wearing a facility nameplate; it does not yet exercise the
+> Facility-track premise of a real airport the model may know from training. Parsing
+> real FAA charts (KMDW, C90, ZAU) into facility packs is future work — see DESIGN §5.1.
 
 Implemented so far:
 
@@ -21,13 +28,15 @@ Implemented so far:
 - Append-only JSONL event log — `sim/events.py`
 - Tiered phraseology parser with number normalization — `pilots/parser.py`
 - Per-aircraft pilot FSM (CD subset) + seeded error schedule — `pilots/fsm.py`, `scenarios/cd.py`
-- Deterministic template verbalizer (LLM verbalizer + cache is the next step) — `verbalizer/`
+- Deterministic template verbalizer + response cache, pluggable LLM backend — `verbalizer/`
 - Half-duplex frequency channel (150 wpm broadcast physics) — `harness/session.py`
-- Model adapter + tool router, with a scripted oracle, a "bad controller", a replay
+- Taxi graph + Ground position: taxi kinematics, explicit crossings, runway-incursion
+  and head-on deadlock oracle — `sim/taxi.py`, `charts/kmrl_gnd.py`, `harness/ground_session.py`
+- Model adapter + tool router: scripted oracle & bad controllers (CD and GND), a replay
   adapter, and an Anthropic adapter — `harness/adapters.py`
 - Flight strip store + tools — `strips/store.py`
-- CD scorer + certification gate — `scoring/cd.py`
-- CLI: `run` / `score` / `replay` — `cli.py`
+- CD + GND scorers, certification gates, feasibility oracle — `scoring/`, `baselines/`
+- CLI: `run --position CD|GND` / `score` / `replay` — `cli.py`
 
 ## Quickstart
 

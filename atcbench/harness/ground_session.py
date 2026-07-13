@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Optional
 
 from .. import HARNESS_VERSION
-from ..charts import kmdw_gnd
+from ..charts import kmrl_gnd
 from ..pilots import parser as P
 from ..scenarios.gnd import GNDScenario
 from ..sim import events as E
@@ -68,7 +68,7 @@ class GroundSessionResult:
 class GroundSession:
     def __init__(self, scenario: GNDScenario, verbalizer=None, prompt_hash: str = "gnd-template-v1"):
         self.scn = scenario
-        self.graph = kmdw_gnd.GRAPH
+        self.graph = kmrl_gnd.GRAPH
         self.vb = verbalizer or default_verbalizer()
         self.prompt_hash = prompt_hash
 
@@ -223,10 +223,10 @@ class GroundSession:
             return
         gate = ac.goal_node if ac.role == "arrival" else ac.spawn_node
         if ac.role == "departure":
-            ac.route = kmdw_gnd.departure_route(gate)
+            ac.route = kmrl_gnd.departure_route(gate)
         else:
             via_a = "a" in [v.lower() for v in pt.via]
-            ac.route = kmdw_gnd.arrival_route_via_a(gate) if via_a else kmdw_gnd.arrival_route(gate)
+            ac.route = kmrl_gnd.arrival_route_via_a(gate) if via_a else kmrl_gnd.arrival_route(gate)
         ac.idx = 0
         ac.progress = 0
 

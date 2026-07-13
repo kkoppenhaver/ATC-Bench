@@ -19,7 +19,7 @@ from __future__ import annotations
 import math
 from typing import Any
 
-from ..charts import kmdw_cd
+from ..charts import kmrl_cd
 from ..verbalizer.template import _callsign_words, spoken_altitude, spoken_digits
 
 
@@ -30,12 +30,12 @@ def _est_tokens(text: str) -> int:
 def _correct_clearance_for(ac: dict) -> dict:
     filed = ac["filed"]
     sid = filed["sid"]
-    route = sid if kmdw_cd.PACK.sid_valid(sid) else "MDW7"
+    route = sid if kmrl_cd.PACK.sid_valid(sid) else "MRLW5"
     return {
         "destination": filed["destination"],
         "route": route,
-        "altitude": kmdw_cd.LOA_INITIAL_ALTITUDE,
-        "frequency": kmdw_cd.DEPARTURE_FREQUENCY,
+        "altitude": kmrl_cd.LOA_INITIAL_ALTITUDE,
+        "frequency": kmrl_cd.DEPARTURE_FREQUENCY,
         "squawk": ac["assigned_squawk"],
     }
 
@@ -78,7 +78,7 @@ class ScriptedCDController(ModelAdapter):
         c = _correct_clearance_for(ac)
         cs = _callsign_words(ac["acid"])
         dest_name = ac["filed"]["destination_name"]
-        sid = kmdw_cd.SIDS.get(c["route"], {"name": c["route"]})["name"]
+        sid = kmrl_cd.SIDS.get(c["route"], {"name": c["route"]})["name"]
         return (
             f"{cs}, cleared to {dest_name}, {sid} departure, "
             f"maintain {spoken_altitude(c['altitude'])}, "
@@ -119,7 +119,7 @@ class BadCDController(ModelAdapter):
                 self._issued.add(acid)
                 c = _correct_clearance_for(ac)
                 cs = _callsign_words(acid)
-                sid = kmdw_cd.SIDS.get(c["route"], {"name": c["route"]})["name"]
+                sid = kmrl_cd.SIDS.get(c["route"], {"name": c["route"]})["name"]
                 text = (
                     f"{cs}, cleared to {ac['filed']['destination_name']}, {sid} departure, "
                     f"maintain {spoken_altitude(c['altitude'])}, "

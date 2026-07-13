@@ -305,10 +305,10 @@ def parse_controller_transmission(
     """Parse the model's transmission for the CD position.
 
     ``pack`` is a chart pack exposing ``SIDS``/``KNOWN_DESTINATIONS`` via the module
-    (charts.kmdw_cd). Determines the addressed aircraft, the intent, and any CRAFT
+    (charts.kmrl_cd). Determines the addressed aircraft, the intent, and any CRAFT
     elements present, and assigns a parse tier.
     """
-    from ..charts import kmdw_cd
+    from ..charts import kmrl_cd
 
     acid = extract_callsign(text, active_acids)
     lower = text.lower()
@@ -316,8 +316,8 @@ def parse_controller_transmission(
     altitude = extract_altitude(text)
     frequency = extract_frequency(text)
     squawk = extract_squawk(text)
-    sid = extract_sid(text, kmdw_cd.SIDS)
-    destination = extract_destination(text, kmdw_cd.KNOWN_DESTINATIONS)
+    sid = extract_sid(text, kmrl_cd.SIDS)
+    destination = extract_destination(text, kmrl_cd.KNOWN_DESTINATIONS)
 
     is_clearance = ("cleared to" in lower) or (altitude and squawk)
     is_correction = any(

@@ -11,8 +11,8 @@ section(s) it implements and its hard dependencies.
 > (`python -m atcbench.cli run --position CD|GND ...`). The oracle certifies across
 > seeds/bands; scripted bad controllers bust (CD: uncaught readback; GND: runway
 > incursion + head-on deadlock). `[~]` = partial: P0.2 (SessionStart hook/type checker
-> pending); P2.2 (simplified KMDW surface, not the full diagram); P2.5 (one ground
-> error class so far). 47 tests, ruff clean.
+> pending); P1.10/P2.2 (a **fictional stand-in** facility, Marlow Regional/KMRL — real
+> FAA chart packs are future work); P2.5 (one ground error class so far). 47 tests, ruff clean.
 
 ---
 
@@ -82,10 +82,11 @@ Goal: a full CD session runs deterministically and is scorable from the log alon
   Difficulty bands (calm/standard/heavy) via error density + call rate. _Deps: P0.4,
   P1.7. Design §5.1, §6.1, §8.4, §12._
 
-### Chart pack (KMDW CD slice)
-- [x] **P1.10 — KMDW chart pack (CD slice).** Structured routes/SIDs as fix sequences,
-  initial-altitude LOA entries, frequencies, transponder assignment — enough to check
-  CRAFT clearances. Human-readable + structured JSON, same content the sim uses.
+### Chart pack (CD slice)
+- [~] **P1.10 — Facility CD chart pack.** _Done as a **fictional stand-in** (Marlow
+  Regional / KMRL, `FACILITY_KIND="fictional"`): structured routes/SIDs, initial-altitude
+  LOA, frequencies, squawk — enough to check CRAFT clearances. Remaining: a **real** FAA
+  chart pack (KMDW) so the Facility-track premise holds. Design §5.1, §11.3._
   _Deps: P0.3. Design §5.1, §11.3._
 
 ### Model harness
@@ -122,8 +123,10 @@ Goal: a full CD session runs deterministically and is scorable from the log alon
 - [x] **P2.1 — Taxi graph model.** Directed graph (nodes: intersections, runway
   entry/exit, gates, hold-short bars; edges: segments with length/direction, `runway`
   flag). Aircraft taxi kinematics (15 kt straight / 8 kt turn). _Deps: P1.1. Design §4.4._
-- [~] **P2.2 — KMDW full taxi-diagram chart pack.** Full airport surface graph +
-  human-readable diagram description. _Deps: P2.1, P1.10. Design §4.4, §5.1._
+- [~] **P2.2 — Real facility taxi-diagram chart pack.** _Done as a **fictional stand-in**
+  (Marlow Regional / KMRL): a hand-built surface graph with the crossing-runway geometry +
+  human-readable description. Remaining: a real airport surface graph (KMDW) parsed from the
+  FAA diagram. Deps: P2.1, P1.10. Design §4.4, §5.1._
 - [x] **P2.3 — Ground clearance parsing.** Taxi-route + explicit-crossing + hold-short
   phraseology (no implied crossings). Extends the parser. _Deps: P1.5, P2.1. Design §6.2._
 - [x] **P2.4 — Incursion & deadlock detection.** Runway incursion (RI-CTRL provenance:

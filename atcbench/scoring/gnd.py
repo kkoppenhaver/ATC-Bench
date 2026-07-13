@@ -12,7 +12,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from ..charts import kmdw_gnd
+from ..charts import kmrl_gnd
 from ..sim.events import EventLog
 
 W_E, W_H, W_F, W_A = 0.35, 0.25, 0.20, 0.20
@@ -26,10 +26,10 @@ def _clamp(x: float, lo: float = 0.0, hi: float = 1.0) -> float:
 
 
 def _ideal_seconds(spawn_node: str, goal_node: str, crosses: bool) -> float:
-    path = kmdw_gnd.GRAPH.shortest_path(spawn_node, goal_node)
+    path = kmrl_gnd.GRAPH.shortest_path(spawn_node, goal_node)
     sweeps = 0
     for u, v in zip(path, path[1:]):
-        edge = kmdw_gnd.GRAPH.edge(u, v)
+        edge = kmrl_gnd.GRAPH.edge(u, v)
         if edge:
             sweeps += edge.transit_sweeps()
     base = sweeps * SWEEP_SEC
@@ -100,7 +100,7 @@ def score_gnd(log: EventLog, scenario: dict) -> dict:
     ttfc = min([c["tick"] for c in cardinals], default=None)
 
     return {
-        "position": "MDW_GND",
+        "position": "MRL_GND",
         "gate": gate,
         "S": round(S, 4),
         "S_raw": round(s_raw, 4),
