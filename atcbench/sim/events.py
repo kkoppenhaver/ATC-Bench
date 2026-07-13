@@ -10,6 +10,7 @@ so two runs that produce the same events produce byte-identical JSONL (§17.2).
 
 from __future__ import annotations
 
+import copy
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -78,7 +79,10 @@ class EventLog:
         self._events: list[Event] = []
 
     def emit(self, tick: int, type: str, **payload: Any) -> Event:
-        ev = Event(tick=tick, type=type, payload=payload)
+        # Snapshot the payload so the log is immutable ground truth: callers often pass
+        # live mutable state (e.g. an FSM's readback dict), which they mutate later — a
+        # deep copy captures the value *at emit time* (§4.6, the fsm_intent primitive).
+        ev = Event(tick=tick, type=type, payload=copy.deepcopy(payload))
         self._events.append(ev)
         return ev
 
