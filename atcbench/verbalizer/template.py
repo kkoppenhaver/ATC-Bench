@@ -100,6 +100,21 @@ class TemplateVerbalizer:
         acid = _callsign_words(intent["acid"])
         return f"Say again for {acid}?"
 
+    # --- GND-position intents ------------------------------------------------
+
+    def _render_taxi_checkin(self, intent: dict, persona: Persona) -> str:
+        acid = _callsign_words(intent["acid"])
+        if intent.get("role") == "arrival":
+            return f"{intent.get('facility_ground', 'Midway Ground')}, {acid}, clear of the runway, taxi to the gate"
+        gate = intent.get("gate", "the gate")
+        if persona == Persona.STUDENT_PILOT:
+            return f"Uh, Midway Ground, {acid}, at {gate}, ready to, uh, taxi"
+        return f"Midway Ground, {acid}, {gate}, ready to taxi"
+
+    def _render_taxi_readback(self, intent: dict, persona: Persona) -> str:
+        acid = _callsign_words(intent["acid"])
+        return f"{intent['text']}, {acid}"
+
     def _render_correction_ack(self, intent: dict, persona: Persona) -> str:
         rb = intent["readback"]
         acid = _callsign_words(intent["acid"])

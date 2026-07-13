@@ -214,6 +214,75 @@ def extract_destination(text: str, destinations: dict) -> Optional[str]:
     return None
 
 
+_PHONETIC = {
+    "alpha": "a", "bravo": "b", "charlie": "c", "delta": "d", "echo": "e",
+    "foxtrot": "f", "golf": "g", "hotel": "h",
+}
+_RWY_SUFFIX = {"left": "l", "right": "r", "center": "c", "centre": "c"}
+
+
+def _canon_runways(norm: str) -> str:
+    """Rewrite spoken runway suffixes so runways appear as '31r'/'31c' tokens."""
+    def repl(m):
+        return m.group(1) + _RWY_SUFFIX[m.group(2)]
+
+    return re.sub(r"(\d{1,2})\s+(left|right|center|centre)\b", repl, norm)
+
+
+@dataclass
+class ParsedGroundTransmission:
+    raw: str
+    acid: Optional[str]
+    intent: str  # "taxi" | "crossing" | "hold" | "other"
+    to_runway: Optional[str] = None
+    to_gate: Optional[str] = None
+    via: list[str] = field(default_factory=list)
+    cross: list[str] = field(default_factory=list)
+    hold_short: list[str] = field(default_factory=list)
+    hold_position: bool = False
+
+
+def parse_ground_transmission(text: str, active_acids) -> ParsedGroundTransmission:
+    acid = extract_callsign(text, active_acids)
+    lower = text.lower()
+    norm = _canon_runways(normalize(text))
+
+    cross = re.findall(r"cross\w*\s+runway\s+(\d{1,2}[lrc])", norm)
+    hold_short = re.findall(r"hold\s+short\s+(?:of\s+)?runway\s+(\d{1,2}[lrc])", norm)
+    hold_position = "hold position" in lower or "hold your position" in lower
+
+    via: list[str] = []
+    for m in re.findall(r"via\s+(?:taxiway\s+)?([a-z]+)", lower):
+        via.append(_PHONETIC.get(m, m[:1]))
+
+    to_runway = None
+    for rwy in re.findall(r"runway\s+(\d{1,2}[lrc])", norm):
+        if rwy not in hold_short and rwy not in cross:
+            to_runway = rwy
+            break
+    to_gate = None
+    mg = re.search(r"\b(g\d)\b|gate\s+(g?\d)", lower)
+    if mg:
+        to_gate = (mg.group(1) or ("g" + mg.group(2).lstrip("g"))).upper()
+
+    if cross:
+        intent = "crossing"
+    elif to_runway or via or to_gate:
+        intent = "taxi"
+    elif hold_position:
+        intent = "hold"
+    else:
+        intent = "other"
+
+    return ParsedGroundTransmission(
+        raw=text, acid=acid, intent=intent,
+        to_runway=to_runway.upper() if to_runway else None,
+        to_gate=to_gate, via=via,
+        cross=[c.upper() for c in cross], hold_short=[h.upper() for h in hold_short],
+        hold_position=hold_position,
+    )
+
+
 @dataclass
 class ParsedTransmission:
     """Structured result of parsing one controller transmission."""

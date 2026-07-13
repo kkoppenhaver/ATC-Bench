@@ -7,6 +7,21 @@ is the same, so an LLM-backed verbalizer can slot in behind the cache later with
 touching the FSM — behavior never depends on wording (principle #4).
 """
 
-from .template import TemplateVerbalizer, spoken_digits, spoken_altitude
+from .cache import CachedVerbalizer, ResponseCache, cache_key
+from .template import TemplateVerbalizer, spoken_altitude, spoken_digits
 
-__all__ = ["TemplateVerbalizer", "spoken_digits", "spoken_altitude"]
+
+def default_verbalizer(cache: ResponseCache | None = None) -> CachedVerbalizer:
+    """The shipping default: cache-first over the deterministic template backend."""
+    return CachedVerbalizer(TemplateVerbalizer(), cache)
+
+
+__all__ = [
+    "TemplateVerbalizer",
+    "CachedVerbalizer",
+    "ResponseCache",
+    "cache_key",
+    "default_verbalizer",
+    "spoken_digits",
+    "spoken_altitude",
+]

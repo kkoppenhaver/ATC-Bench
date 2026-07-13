@@ -6,11 +6,13 @@ by phase and ordered by dependency. **v1 public release = Phases 1–2.**
 Legend: `[ ]` todo · `[~]` in progress · `[x]` done. Each task lists the design
 section(s) it implements and its hard dependencies.
 
-> **Status (2026-07): Phase 1 walking skeleton is functional.** A deterministic
-> Clearance Delivery session runs, scores, certifies, and replays byte-identically
-> (`python -m atcbench.cli run/score/replay`). `[~]` = partially done: P0.2 has CI
-> (SessionStart hook pending); P1.8 ships a deterministic template verbalizer (the
-> pinned-LLM verbalizer + response cache is the next step).
+> **Status (2026-07): Phases 1 and 2 are functional** (v1 = CD + GND). Deterministic
+> Clearance Delivery and Ground sessions run, score, certify, and replay byte-identically
+> (`python -m atcbench.cli run --position CD|GND ...`). The oracle certifies across
+> seeds/bands; scripted bad controllers bust (CD: uncaught readback; GND: runway
+> incursion + head-on deadlock). `[~]` = partial: P0.2 (SessionStart hook/type checker
+> pending); P2.2 (simplified KMDW surface, not the full diagram); P2.5 (one ground
+> error class so far). 47 tests, ruff clean.
 
 ---
 
@@ -69,7 +71,7 @@ Goal: a full CD session runs deterministically and is scorable from the log alon
 - [x] **P1.7 — Error schedule (CD subset).** Seeded per-aircraft error schedule for CD
   classes: RB-ALT, RB-HDG, RB-FREQ, RB-DROP, RB-PART, CS-CONF, CS-WRONG, SAY-AGAIN,
   BLOCKED. _Deps: P0.4, P1.6. Design §8.3._
-- [~] **P1.8 — Verbalizer + response cache.** Pinned-model client (temp 0) rendering
+- [x] **P1.8 — Verbalizer + response cache.** Pinned-model client (temp 0) rendering
   `fsm_intent`→radio string; on-disk cache keyed on `(intent_json, persona, prompt_hash)`.
   Personas: `airline_crisp`, `ga_relaxed`, `student_pilot`, `foreign_carrier`, `unfamiliar`.
   _Deps: P1.6. Design §8.3, §8.1 verbalization layer, principle #2._
@@ -117,28 +119,28 @@ Goal: a full CD session runs deterministically and is scorable from the log alon
 
 **Exit test:** oracle certifies 3/3 at standard band; scripted "bad controller" busts reliably.
 
-- [ ] **P2.1 — Taxi graph model.** Directed graph (nodes: intersections, runway
+- [x] **P2.1 — Taxi graph model.** Directed graph (nodes: intersections, runway
   entry/exit, gates, hold-short bars; edges: segments with length/direction, `runway`
   flag). Aircraft taxi kinematics (15 kt straight / 8 kt turn). _Deps: P1.1. Design §4.4._
-- [ ] **P2.2 — KMDW full taxi-diagram chart pack.** Full airport surface graph +
+- [~] **P2.2 — KMDW full taxi-diagram chart pack.** Full airport surface graph +
   human-readable diagram description. _Deps: P2.1, P1.10. Design §4.4, §5.1._
-- [ ] **P2.3 — Ground clearance parsing.** Taxi-route + explicit-crossing + hold-short
+- [x] **P2.3 — Ground clearance parsing.** Taxi-route + explicit-crossing + hold-short
   phraseology (no implied crossings). Extends the parser. _Deps: P1.5, P2.1. Design §6.2._
-- [ ] **P2.4 — Incursion & deadlock detection.** Runway incursion (RI-CTRL provenance:
+- [x] **P2.4 — Incursion & deadlock detection.** Runway incursion (RI-CTRL provenance:
   model clearance vs. injected FSM error) and head-on deadlock oracle. _Deps: P2.1.
   Design §4.4, §4.5, §13.1._
-- [ ] **P2.5 — Ground FSM states & error subset.** Wrong-turn compliance, dropped
+- [~] **P2.5 — Ground FSM states & error subset.** Wrong-turn compliance, dropped
   hold-short readback, hot-spot stop, progressive-taxi (`unfamiliar` persona). _Deps:
   P1.6, P2.1. Design §6.2, §8.3._
-- [ ] **P2.6 — GND scenario generator.** Departure pushes + scripted Tower runway demand
+- [x] **P2.6 — GND scenario generator.** Departure pushes + scripted Tower runway demand
   + arrivals exiting; difficulty bands. _Deps: P1.9, P2.1. Design §6.2, §12._
-- [ ] **P2.7 — Oracle controller policy (GND).** Heuristic controller for feasibility
+- [x] **P2.7 — Oracle controller policy (GND).** Heuristic controller for feasibility
   gating and the E-metric normalizer. Feasibility check rejects infeasible scenarios.
   _Deps: P2.6. Design §12.2, §13.2._
-- [ ] **P2.8 — GND scorer.** Taxi delay vs. shortest-path, queue-order conformity,
+- [x] **P2.8 — GND scorer.** Taxi delay vs. shortest-path, queue-order conformity,
   explicit-crossings log check, cardinal (RI-CTRL, DEADLOCK). _Deps: P2.4, P2.7.
   Design §6.2, §13._
-- [ ] **P2.9 — "Bad controller" busting policy + cert test.** Scripted bad policy that
+- [x] **P2.9 — "Bad controller" busting policy + cert test.** Scripted bad policy that
   reliably busts; oracle certifies 3/3. Wire into CI. _Deps: P2.7, P2.8. Design §15 P2 exit._
 
 ---

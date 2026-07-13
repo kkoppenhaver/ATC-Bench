@@ -130,6 +130,57 @@ class BadCDController(ModelAdapter):
         return self.wait()
 
 
+_RWY_WORD = {"l": "left", "r": "right", "c": "center"}
+
+
+def _runway_spoken(rwy: str) -> str:
+    digits, suffix = rwy[:-1], rwy[-1].lower()
+    return f"{spoken_digits(digits)} {_RWY_WORD.get(suffix, suffix)}"
+
+
+class ScriptedGNDController(ModelAdapter):
+    """Oracle ground controller: routes departures via A holding short of 31R, clears the
+    31R crossing only when the runway is idle with a safe gap, routes arrivals via B."""
+
+    CROSSING_SAFE_GAP_SEC = 40
+
+    def step(self, observation: dict) -> dict:
+        for ac in observation["aircraft"]:
+            cs = _callsign_words(ac["acid"])
+            if not ac["route_assigned"]:
+                if ac["role"] == "departure":
+                    return self.transmit(
+                        f"{cs}, runway {_runway_spoken('31C')}, taxi via alpha, "
+                        f"hold short runway {_runway_spoken('31R')}.")
+                return self.transmit(f"{cs}, taxi to the gate via bravo.")
+        for ac in observation["aircraft"]:
+            if ac["role"] == "departure" and ac["holding_short_of"] == "31R":
+                rw = observation["runways"].get("31R", {})
+                gap = rw.get("next_hot_in")
+                if not rw.get("hot") and (gap is None or gap > self.CROSSING_SAFE_GAP_SEC):
+                    cs = _callsign_words(ac["acid"])
+                    return self.transmit(f"{cs}, cross runway {_runway_spoken('31R')}.")
+        return self.wait()
+
+
+class BadGNDController(ModelAdapter):
+    """Routes arrivals against the departure flow (via A) and clears crossings blindly —
+    reliably produces a head-on deadlock and/or a runway incursion."""
+
+    def step(self, observation: dict) -> dict:
+        for ac in observation["aircraft"]:
+            cs = _callsign_words(ac["acid"])
+            if not ac["route_assigned"]:
+                if ac["role"] == "departure":
+                    return self.transmit(f"{cs}, runway {_runway_spoken('31C')}, taxi via alpha.")
+                return self.transmit(f"{cs}, taxi to the gate via alpha.")
+        for ac in observation["aircraft"]:
+            if ac["holding_short_of"] == "31R":
+                cs = _callsign_words(ac["acid"])
+                return self.transmit(f"{cs}, cross runway {_runway_spoken('31R')}.")
+        return self.wait()
+
+
 class ReplayAdapter(ModelAdapter):
     """Replays a recorded list of per-turn outputs (DESIGN §17.2)."""
 
