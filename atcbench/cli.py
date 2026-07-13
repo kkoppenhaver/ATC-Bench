@@ -18,15 +18,20 @@ from .harness.ground_session import GroundSession
 from .harness.regime import make_regime
 from .harness.session import CDSession
 from .harness.system_prompt import build_cd_system_prompt, prompt_hash
+from .harness.tower_session import TowerSession
 from .scenarios import cd as cd_scenarios
 from .scenarios import gnd as gnd_scenarios
+from .scenarios import twr as twr_scenarios
 from .scoring.cd import score_cd
 from .scoring.cd import score_run_dir as score_cd_dir
 from .scoring.gnd import score_gnd
 from .scoring.gnd import score_run_dir as score_gnd_dir
+from .scoring.twr import score_twr
+from .scoring.twr import score_run_dir as score_twr_dir
 
 _CD_CONTROLLERS = {"scripted": A.ScriptedCDController, "bad": A.BadCDController}
 _GND_CONTROLLERS = {"scripted": A.ScriptedGNDController, "bad": A.BadGNDController}
+_TWR_CONTROLLERS = {"scripted": A.ScriptedTWRController, "bad": A.BadTWRController}
 
 
 def _run_one(args: argparse.Namespace, regime_name: str):
@@ -38,11 +43,16 @@ def _run_one(args: argparse.Namespace, regime_name: str):
         result = session.run(_CD_CONTROLLERS[args.controller]())
         score = score_cd(result.log, scn.expected_clearance,
                          {a: e.to_dict() for a, e in scn.error_schedule.items()})
-    else:  # GND
+    elif args.position == "GND":
         scn = gnd_scenarios.generate(args.seed, band=args.band, session_seconds=args.session_seconds)
         session = GroundSession(scn, regime=regime)
         result = session.run(_GND_CONTROLLERS[args.controller]())
         score = score_gnd(result.log, scn.to_dict())
+    else:  # TWR
+        scn = twr_scenarios.generate(args.seed, band=args.band, session_seconds=args.session_seconds)
+        session = TowerSession(scn, regime=regime)
+        result = session.run(_TWR_CONTROLLERS[args.controller]())
+        score = score_twr(result.log, scn.to_dict())
     score["regime"] = regime_name
     return result, score
 
@@ -74,8 +84,8 @@ def _detect_position(run_dir: Path) -> str:
 
 def cmd_score(args: argparse.Namespace) -> int:
     pos = _detect_position(Path(args.dir))
-    score = score_gnd_dir(args.dir) if pos == "MRL_GND" else score_cd_dir(args.dir)
-    print(json.dumps(score, indent=2, sort_keys=True))
+    scorer = {"MRL_GND": score_gnd_dir, "MRL_TWR": score_twr_dir}.get(pos, score_cd_dir)
+    print(json.dumps(scorer(args.dir), indent=2, sort_keys=True))
     return 0
 
 
@@ -85,14 +95,20 @@ def cmd_replay(args: argparse.Namespace) -> int:
     io = json.loads((src / "model_io.json").read_text(encoding="utf-8"))
     turns = [t["output"] for t in io["turns"]]
     regime = make_regime(io.get("regime", "turn"))
-    if scn_dict.get("position") == "MRL_GND":
+    pos = scn_dict.get("position")
+    ph = io.get("prompt_hash", "replay")
+    if pos == "MRL_GND":
         scn = gnd_scenarios.generate(scn_dict["seed"], band=scn_dict["band"],
                                      session_seconds=scn_dict["session_seconds"])
-        session = GroundSession(scn, prompt_hash=io.get("prompt_hash", "replay"), regime=regime)
+        session = GroundSession(scn, prompt_hash=ph, regime=regime)
+    elif pos == "MRL_TWR":
+        scn = twr_scenarios.generate(scn_dict["seed"], band=scn_dict["band"],
+                                     session_seconds=scn_dict["session_seconds"])
+        session = TowerSession(scn, prompt_hash=ph, regime=regime)
     else:
         scn = cd_scenarios.generate(scn_dict["seed"], band=scn_dict["band"],
                                     session_seconds=scn_dict["session_seconds"])
-        session = CDSession(scn, prompt_hash=io.get("prompt_hash", "replay"), regime=regime)
+        session = CDSession(scn, prompt_hash=ph, regime=regime)
     result = session.run(A.ReplayAdapter(turns))
     result.write(args.out)
     identical = (src / "events.jsonl").read_text() == (Path(args.out) / "events.jsonl").read_text()
@@ -105,7 +121,7 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     pr = sub.add_parser("run", help="run one session")
-    pr.add_argument("--position", default="CD", choices=["CD", "GND"])
+    pr.add_argument("--position", default="CD", choices=["CD", "GND", "TWR"])
     pr.add_argument("--seed", type=int, required=True)
     pr.add_argument("--band", default="standard", choices=["calm", "standard", "heavy"])
     pr.add_argument("--regime", default="turn", choices=["turn", "metered", "both"])

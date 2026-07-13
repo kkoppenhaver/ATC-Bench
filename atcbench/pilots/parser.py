@@ -230,6 +230,33 @@ def _canon_runways(norm: str) -> str:
 
 
 @dataclass
+class ParsedTowerTransmission:
+    raw: str
+    acid: Optional[str]
+    intent: str  # "land" | "takeoff" | "luaw" | "go_around" | "handoff" | "hold" | "other"
+
+
+def parse_tower_transmission(text: str, active_acids) -> ParsedTowerTransmission:
+    acid = extract_callsign(text, active_acids)
+    lower = text.lower()
+    if "go around" in lower or "go-around" in lower:
+        intent = "go_around"
+    elif "cleared to land" in lower or "clear to land" in lower:
+        intent = "land"
+    elif "cleared for takeoff" in lower or "clear for takeoff" in lower or "cleared takeoff" in lower:
+        intent = "takeoff"
+    elif "line up and wait" in lower or "luaw" in lower:
+        intent = "luaw"
+    elif "contact" in lower and ("departure" in lower or "approach" in lower):
+        intent = "handoff"
+    elif "hold short" in lower or "hold position" in lower:
+        intent = "hold"
+    else:
+        intent = "other"
+    return ParsedTowerTransmission(raw=text, acid=acid, intent=intent)
+
+
+@dataclass
 class ParsedGroundTransmission:
     raw: str
     acid: Optional[str]

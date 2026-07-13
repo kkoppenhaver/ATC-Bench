@@ -12,7 +12,7 @@ section(s) it implements and its hard dependencies.
 > seeds/bands; scripted bad controllers bust (CD: uncaught readback; GND: runway
 > incursion + head-on deadlock). `[~]` = partial: P0.2 (SessionStart hook/type checker
 > pending); P1.10/P2.2 (a **fictional stand-in** facility, Marlow Regional/KMRL — real
-> FAA chart packs are future work); P2.5 (one ground error class so far). 56 tests, ruff clean. Token-metered regime (§4.2) live on CD+GND.
+> FAA chart packs are future work); P2.5 (one ground error class so far). 81 tests, ruff clean. Token-metered regime (§4.2) on CD+GND+TWR; **Phase 3 Tower** position live (CD→GND→TWR).
 
 ---
 
@@ -150,13 +150,13 @@ Goal: a full CD session runs deterministically and is scorable from the log alon
 
 ## Phase 3 — Tower + token-metered regime
 
-- [ ] **P3.1 — Runway occupancy + wake-interval engine** (Design §4.5, §6.3).
-- [ ] **P3.2 — Pattern/final kinematics (simplified) + go-around logic + LUAW** (§6.3).
+- [x] **P3.1 — Runway occupancy + wake-interval engine** (single-runway occupancy LoS + wake matrix; `sim/performance.py`) (§4.5, §6.3).
+- [x] **P3.2 — Pattern/final kinematics (simplified) + go-around logic + LUAW** (1-D final closure, go-around with model/env provenance, line-up-and-wait) (§6.3).
 - [x] **P3.3 — Token-metered regime accounting** (`sim_seconds = ceil(tokens / R)`, R=25;
   sim advances during "thinking"; retrofitted onto CD **and** GND; `--regime turn|metered|both`
   reports `tempo_gap`; metered runs replay byte-identically) (§4.2).
-- [ ] **P3.4 — TWR oracle + scorer** (throughput vs. feasible max, model-caused go-arounds
-  via event provenance) (§6.3, §13.2).
+- [x] **P3.4 — TWR oracle + scorer** (conservative serialized oracle + feasibility gate; throughput
+  vs. traffic, model-caused go-arounds via provenance; `atcbench run --position TWR`) (§6.3, §13.2).
 
 ---
 
@@ -196,7 +196,7 @@ Goal: a full CD session runs deterministically and is scorable from the log alon
 
 ## Cross-cutting / ongoing
 
-- [ ] **X.1 — Aircraft performance table.** Pinned per-type table (B738, A320, C172,
+- [~] **X.1 — Aircraft performance table.** _Started (`sim/performance.py`: approach speed, wake, climb; used by Tower)._  Pinned per-type table (B738, A320, C172,
   E175, B77W, …): min/max IAS by phase, climb/descent rates, turn rate, wake category.
   OpenAP-seeded, shipped pinned. _Needed from Phase 3; stub earlier._ (§3.2)
 - [ ] **X.2 — Determinism regression suite.** Grow the replay/byte-identical test as

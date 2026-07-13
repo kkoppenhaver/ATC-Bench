@@ -40,6 +40,15 @@ CROSSING_CLEARANCE = "crossing_clearance"
 RUNWAY_INCURSION = "runway_incursion"
 DEADLOCK = "deadlock"
 AIRCRAFT_ARRIVED = "aircraft_arrived"
+# Tower position
+LANDING_CLEARANCE = "landing_clearance"
+TAKEOFF_CLEARANCE = "takeoff_clearance"
+LUAW_CLEARANCE = "luaw_clearance"
+GO_AROUND = "go_around"
+LANDED = "landed"
+DEPARTED_SECTOR = "departed_sector"
+WAKE_VIOLATION = "wake_violation"
+LOS_EVENT = "los_event"
 
 
 @dataclass
