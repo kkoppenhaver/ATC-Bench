@@ -26,6 +26,7 @@ from ..sim import events as E
 from ..sim.events import EventLog
 from ..strips.store import StripStore
 from ..verbalizer import CachedVerbalizer, default_verbalizer
+from .regime import TurnBased
 
 NEGLECT_THRESHOLD_SEC = 180  # CD: unanswered/uncleared beyond this = NEGLECT (§13.1)
 MAX_TURNS_PER_WINDOW = 60
@@ -55,6 +56,7 @@ class SessionResult:
     prompt_hash: str
     harness_version: str = HARNESS_VERSION
     verbalizer_cache: Optional[dict] = None
+    regime: str = "turn"
 
     def write(self, out_dir: str | Path) -> None:
         d = Path(out_dir)
@@ -76,6 +78,7 @@ class SessionResult:
                 {
                     "harness_version": self.harness_version,
                     "prompt_hash": self.prompt_hash,
+                    "regime": self.regime,
                     "turns": self.model_io,
                 },
                 sort_keys=True,
@@ -96,11 +99,13 @@ class CDSession:
         verbalizer=None,
         correction_window_sec: int = 30,
         prompt_hash: str = "cd-template-v1",
+        regime=None,
     ):
         self.scn = scenario
         self.vb = verbalizer or default_verbalizer()
         self.correction_window_sec = correction_window_sec
         self.prompt_hash = prompt_hash
+        self.regime = regime or TurnBased()
 
         self.log = EventLog()
         self.transcript: list[dict] = []
@@ -228,11 +233,29 @@ class CDSession:
             self.log.emit(self.tick, E.MODEL_TURN_START)
             resp = adapter.step(obs)
             self.model_io.append({"tick": self.tick, "output": resp})
-            self.log.emit(self.tick, E.MODEL_TURN_END, output_tokens=int(resp.get("output_tokens", 0)))
+            tokens = int(resp.get("output_tokens", 0))
+            self.log.emit(self.tick, E.MODEL_TURN_END, output_tokens=tokens)
+            # Token-metered: the world advances while the model "thinks" (§4.2). A slow
+            # model can watch a readback correction window close before it acts.
+            self._advance_thinking(self.regime.thinking_seconds(tokens))
             waited = self._apply_tool_calls(resp)
             self.strips.snapshot(self.tick)
             if waited:
                 break
+
+    def _advance_thinking(self, seconds: int) -> None:
+        if seconds <= 0:
+            return
+        target = self.tick + seconds
+        while True:
+            nxt = self._next_event_tick()
+            if nxt is None or nxt > target:
+                break
+            self.tick = nxt
+            self._process_checkins()
+            self._process_deadlines()
+        if target > self.tick:
+            self.tick = target
 
     def _apply_tool_calls(self, resp: dict) -> bool:
         calls = resp.get("tool_calls") or []
@@ -319,4 +342,5 @@ class CDSession:
             model_io=self.model_io,
             prompt_hash=self.prompt_hash,
             verbalizer_cache=vb_cache,
+            regime=self.regime.name,
         )

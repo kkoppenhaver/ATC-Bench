@@ -12,7 +12,7 @@ section(s) it implements and its hard dependencies.
 > seeds/bands; scripted bad controllers bust (CD: uncaught readback; GND: runway
 > incursion + head-on deadlock). `[~]` = partial: P0.2 (SessionStart hook/type checker
 > pending); P1.10/P2.2 (a **fictional stand-in** facility, Marlow Regional/KMRL — real
-> FAA chart packs are future work); P2.5 (one ground error class so far). 47 tests, ruff clean.
+> FAA chart packs are future work); P2.5 (one ground error class so far). 56 tests, ruff clean. Token-metered regime (§4.2) live on CD+GND.
 
 ---
 
@@ -152,8 +152,9 @@ Goal: a full CD session runs deterministically and is scorable from the log alon
 
 - [ ] **P3.1 — Runway occupancy + wake-interval engine** (Design §4.5, §6.3).
 - [ ] **P3.2 — Pattern/final kinematics (simplified) + go-around logic + LUAW** (§6.3).
-- [ ] **P3.3 — Token-metered regime accounting** (`sim_seconds = ceil(tokens / R)`, R=25;
-  sim advances during "thinking") (§4.2).
+- [x] **P3.3 — Token-metered regime accounting** (`sim_seconds = ceil(tokens / R)`, R=25;
+  sim advances during "thinking"; retrofitted onto CD **and** GND; `--regime turn|metered|both`
+  reports `tempo_gap`; metered runs replay byte-identically) (§4.2).
 - [ ] **P3.4 — TWR oracle + scorer** (throughput vs. feasible max, model-caused go-arounds
   via event provenance) (§6.3, §13.2).
 
