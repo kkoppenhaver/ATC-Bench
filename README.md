@@ -55,8 +55,26 @@ python -m atcbench.cli replay runs/oracle_s42 --out runs/replay_check
 # Watch a "bad controller" (never closes the readback loop) bust on a safety-critical error
 python -m atcbench.cli run --seed 42 --controller bad
 
-pytest -q   # determinism, parser, and scoring tests
+# Run a Ground session (taxi graph, explicit crossings, incursion + deadlock oracle)
+python -m atcbench.cli run --position GND --seed 42
+
+# Both time regimes side by side; reports tempo_gap = S(turn) - S(metered)
+python -m atcbench.cli run --seed 42 --regime both
+
+pytest -q   # determinism, parser, scoring, and regime tests
 ```
+
+## Time regimes (DESIGN §4.2)
+
+Two regimes share the same sim; only how the model's *thinking* is charged differs:
+
+- **`turn`** — the clock freezes while the model reasons (pure decision quality).
+- **`metered`** — the model's output consumes sim time at `R = 25` tokens/sim-second
+  (`sim_seconds = ceil(output_tokens / R)`); the world keeps moving while it thinks, so a
+  verbose model literally falls behind the traffic and can watch a correction window close.
+
+Both are reported as separate columns; `tempo_gap = S(turn) − S(metered)`. Metered runs
+replay byte-identically (the recorded token counts drive the accounting).
 
 ## How scoring works (CD)
 

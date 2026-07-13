@@ -181,6 +181,22 @@ class BadGNDController(ModelAdapter):
         return self.wait()
 
 
+class ReasoningController(ModelAdapter):
+    """Wraps any controller and inflates its reported output tokens by a fixed amount,
+    standing in for a model that reasons at length before each action. Under the
+    token-metered regime (§4.2) this makes the wrapped controller fall behind the
+    traffic; under turn-based it costs nothing — which is exactly the tempo tradeoff."""
+
+    def __init__(self, base: ModelAdapter, thinking_tokens: int = 800):
+        self.base = base
+        self.thinking_tokens = thinking_tokens
+
+    def step(self, observation: dict) -> dict:
+        resp = dict(self.base.step(observation))
+        resp["output_tokens"] = int(resp.get("output_tokens", 0)) + self.thinking_tokens
+        return resp
+
+
 class ReplayAdapter(ModelAdapter):
     """Replays a recorded list of per-turn outputs (DESIGN §17.2)."""
 

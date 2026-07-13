@@ -23,6 +23,7 @@ from ..sim.events import EventLog
 from ..sim.taxi import GroundAircraft, occupied_edge
 from ..strips.store import StripStore
 from ..verbalizer import CachedVerbalizer, default_verbalizer
+from .regime import TurnBased
 
 SWEEP_SEC = 5
 DEADLOCK_SEC = 300  # head-on standoff beyond this = DEADLOCK cardinal (§13.1)
@@ -46,6 +47,7 @@ class GroundSessionResult:
     prompt_hash: str
     harness_version: str = HARNESS_VERSION
     verbalizer_cache: Optional[dict] = None
+    regime: str = "turn"
 
     def write(self, out_dir: str | Path) -> None:
         d = Path(out_dir)
@@ -59,18 +61,22 @@ class GroundSessionResult:
             "".join(json.dumps(s, sort_keys=True) + "\n" for s in self.strips_history), encoding="utf-8")
         (d / "model_io.json").write_text(
             json.dumps({"harness_version": self.harness_version, "prompt_hash": self.prompt_hash,
-                        "turns": self.model_io}, sort_keys=True, indent=2), encoding="utf-8")
+                        "regime": self.regime, "turns": self.model_io},
+                       sort_keys=True, indent=2), encoding="utf-8")
         if self.verbalizer_cache is not None:
             (d / "verbalizer_cache.json").write_text(
                 json.dumps(self.verbalizer_cache, sort_keys=True, indent=2), encoding="utf-8")
 
 
 class GroundSession:
-    def __init__(self, scenario: GNDScenario, verbalizer=None, prompt_hash: str = "gnd-template-v1"):
+    def __init__(self, scenario: GNDScenario, verbalizer=None, prompt_hash: str = "gnd-template-v1",
+                 regime=None):
         self.scn = scenario
         self.graph = kmrl_gnd.GRAPH
         self.vb = verbalizer or default_verbalizer()
         self.prompt_hash = prompt_hash
+        self.regime = regime or TurnBased()
+        self._think_remainder = 0.0
 
         self.log = EventLog()
         self.transcript: list[dict] = []
@@ -158,10 +164,25 @@ class GroundSession:
             self.log.emit(self.tick, E.MODEL_TURN_START)
             resp = adapter.step(obs)
             self.model_io.append({"tick": self.tick, "output": resp})
-            self.log.emit(self.tick, E.MODEL_TURN_END, output_tokens=int(resp.get("output_tokens", 0)))
+            tokens = int(resp.get("output_tokens", 0))
+            self.log.emit(self.tick, E.MODEL_TURN_END, output_tokens=tokens)
+            # Token-metered: taxi continues while the model thinks (§4.2). Verbose
+            # deliberation lets aircraft roll toward the crossing / each other.
+            self._advance_thinking(self.regime.thinking_seconds(tokens))
             if self._apply_calls(resp):
                 break
         self.strips.snapshot(self.tick)
+
+    def _advance_thinking(self, seconds: int) -> None:
+        """Convert model thinking time into extra taxi movement (SWEEP_SEC granular)."""
+        if seconds <= 0:
+            return
+        self._think_remainder += seconds
+        while self._think_remainder >= SWEEP_SEC and self.tick <= self.scn.session_seconds:
+            self._think_remainder -= SWEEP_SEC
+            self._step_movement()
+            self.tick += SWEEP_SEC
+            self._process_spawns()
 
     def _apply_calls(self, resp: dict) -> bool:
         calls = resp.get("tool_calls") or []
@@ -344,7 +365,7 @@ class GroundSession:
         return GroundSessionResult(
             scenario=self.scn, log=self.log, transcript=self.transcript,
             strips_history=self.strips.history, model_io=self.model_io,
-            prompt_hash=self.prompt_hash, verbalizer_cache=vb_cache)
+            prompt_hash=self.prompt_hash, verbalizer_cache=vb_cache, regime=self.regime.name)
 
     def _spawns_remaining(self) -> bool:
         return len(self._spawned) < len(self._spawns)
