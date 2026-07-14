@@ -45,21 +45,36 @@ _NODES = [
 ]
 
 _EDGES = [
-    TaxiEdge("G1", "A1", 0.2),
-    TaxiEdge("G2", "A1", 0.25),
-    TaxiEdge("A1", "A2", 0.4),
-    TaxiEdge("A2", "HS_31R", 0.15),
-    TaxiEdge("HS_31R", "RW_31R", 0.05, runway="31R"),
-    TaxiEdge("RW_31R", "A3", 0.05, runway="31R"),
-    TaxiEdge("A3", "HS_31C", 0.3),
-    TaxiEdge("RWEX", "B2", 0.25),
-    TaxiEdge("B2", "B1", 0.4),
-    TaxiEdge("B1", "G1", 0.25),
-    TaxiEdge("B1", "G2", 0.2),
-    TaxiEdge("RWEX", "A3", 0.2),  # connector enabling a misrouted head-on on taxiway A
+    TaxiEdge("G1", "A1", 0.2, taxiway="a"),
+    TaxiEdge("G2", "A1", 0.25, taxiway="a"),
+    TaxiEdge("A1", "A2", 0.4, taxiway="a"),
+    TaxiEdge("A2", "HS_31R", 0.15, taxiway="a"),
+    TaxiEdge("HS_31R", "RW_31R", 0.05, runway="31R", taxiway="a"),
+    TaxiEdge("RW_31R", "A3", 0.05, runway="31R", taxiway="a"),
+    TaxiEdge("A3", "HS_31C", 0.3, taxiway="a"),
+    TaxiEdge("RWEX", "B2", 0.25, taxiway="b"),
+    TaxiEdge("B2", "B1", 0.4, taxiway="b"),
+    TaxiEdge("B1", "G1", 0.25, taxiway="b"),
+    TaxiEdge("B1", "G2", 0.2, taxiway="b"),
+    # Connector enabling a misrouted head-on on taxiway A.
+    TaxiEdge("RWEX", "A3", 0.2, taxiway="a"),
 ]
 
 GRAPH = TaxiGraph(_NODES, _EDGES)
+
+
+def build_route(start: str, dest: str, via: list[str]) -> list[str]:
+    """The route the pilot will actually fly, from the *transmitted* via taxiways
+    (P4.0b). Unknown taxiway names are dropped (misheard on a scratchy radio); an
+    empty result means the named taxiways don't connect start to destination and the
+    pilot will ask for the route again."""
+    known = {e.taxiway for e in _EDGES}
+    # Accept parser letters ("a") or spoken words ("alpha") — same first-letter rule
+    # the phraseology parser uses.
+    allowed = {v.lower()[0] for v in via if v} & known
+    if not allowed or dest not in GRAPH.nodes:
+        return []
+    return GRAPH.route_via(start, dest, allowed)
 
 
 def departure_route(gate: str) -> list[str]:

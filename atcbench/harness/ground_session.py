@@ -321,23 +321,23 @@ class GroundSession:
         return ", ".join(bits) or "roger"
 
     def _assign_route(self, ac: GroundAircraft, pt) -> bool:
-        """Assign a route only when the model actually transmitted one that exists in
-        the chart (audit M2). Returns False when the transmission names no chart-legal
-        route — pilots don't invent routes the controller never said."""
-        if ac.route:  # amendment: keep current progress, only (re)assign if not moving far
-            return True
-        via = [v.lower() for v in pt.via]
-        gate = ac.goal_node if ac.role == "arrival" else ac.spawn_node
+        """The pilot flies the route that was actually transmitted (P4.0b): a path is
+        built from the *named* via taxiways to the *named* destination. No path on
+        those taxiways -> no route, and the pilot asks again. Misroutes (an arrival
+        sent via A, a departure taxied to the wrong hold bar) are flown as said."""
+        if ac.route:
+            # Mid-route amendments are unsupported in v1; a pilot parked at the end
+            # of a wrong route can be re-routed from where it stands.
+            if not (ac.idx >= len(ac.route) - 1 and not ac.arrived):
+                return True
         if ac.role == "departure":
-            if pt.to_runway != kmrl_gnd.DEPARTURE_RUNWAY or "a" not in via:
-                return False
-            ac.route = kmrl_gnd.departure_route(gate)
-        elif "a" in via:
-            ac.route = kmrl_gnd.arrival_route_via_a(gate)  # misroute: flown as transmitted
-        elif "b" in via:
-            ac.route = kmrl_gnd.arrival_route(gate)
+            dest = f"HS_{pt.to_runway}" if pt.to_runway else ""
         else:
+            dest = ac.goal_node  # "the gate" — arrivals taxi to their own stand
+        route = kmrl_gnd.build_route(ac.at_node(), dest, pt.via)
+        if len(route) < 2:
             return False
+        ac.route = route
         ac.idx = 0
         ac.progress = 0
         return True
@@ -433,6 +433,10 @@ class GroundSession:
     def _check_arrivals(self) -> None:
         for acid, ac in list(self.active.items()):
             if ac.route and ac.idx >= len(ac.route) - 1 and not ac.arrived:
+                # A transmitted route to the wrong place is flown to the wrong place
+                # (P4.0b): the aircraft parks at the end of it and is NOT arrived.
+                if ac.at_node() != ac.goal_node:
+                    continue
                 ac.arrived = True
                 self.log.emit(self.tick, E.AIRCRAFT_ARRIVED, acid=acid, role=ac.role,
                               at=ac.at_node(), goal=ac.goal_node)

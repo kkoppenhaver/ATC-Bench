@@ -142,12 +142,10 @@ Goal: a full CD session runs deterministically and is scorable from the log alon
   (Marlow Regional / KMRL): a hand-built surface graph with the crossing-runway geometry +
   human-readable description. Remaining: a real airport surface graph (KMDW) parsed from the
   FAA diagram. Deps: P2.1, P1.10. Design §4.4, §5.1._
-- [~] **P2.3 — Ground clearance parsing.** Taxi-route + explicit-crossing + hold-short
-  phraseology (no implied crossings). Extends the parser. _Audit: parsing exists, but
-  departures are assigned the canonical route regardless of what the model transmits
-  (bare "taxi" with no route works), and hold-short instructions are parsed but never
-  enforced or scored — the routing skill isn't measured → P3.5.10 (route production),
-  P4.0b (route robustness)._ _Deps: P1.5, P2.1. Design §6.2._
+- [x] **P2.3 — Ground clearance parsing.** Taxi-route + explicit-crossing + hold-short
+  phraseology (no implied crossings). Extends the parser. _Audit gaps closed: route
+  production required + protocol-checked by P3.5.10; pilots fly the transmitted route
+  by P4.0b._ _Deps: P1.5, P2.1. Design §6.2._
 - [x] **P2.4 — Incursion & deadlock detection.** Runway incursion (RI-CTRL provenance:
   model clearance vs. injected FSM error) and head-on deadlock oracle. _Deps: P2.1.
   Design §4.4, §4.5, §13.1._
@@ -360,13 +358,21 @@ clustered CIs reported by `atcbench evaluate`.
   forfeits the sweep's action window. `channel_busy` exposed in observations (audible
   reality); oracles/bad controllers wait for a clear channel; prompts (gnd-v2/twr-v2),
   tool descriptions, and README updated; `blocked_transmissions` in scorer counts._
-- [ ] **P4.0b — Pilots fly the transmitted route (audit M2, robustness remainder).**
+- [x] **P4.0b — Pilots fly the transmitted route (audit M2, robustness remainder).**
   Builds on P3.5.10 (route production is already required and protocol-checked). GND
   pilots follow the route the model actually transmitted, with §7.2 tier-3
   misinterpretation of ambiguous routes; hold-short becomes instruction-driven (with
   readback closure) rather than structural, with the provenance/deadlock implications
   for the oracle and feasibility gate; route efficiency scored against the transmitted
-  route. Closes the rest of the P2.3 gap. (§6.2, §7.2)
+  route. Closes the rest of the P2.3 gap. (§6.2, §7.2) _Done: taxi edges carry taxiway
+  labels; `build_route` BFS-constructs the pilot's path from the *transmitted* via set
+  and destination (`TaxiGraph.route_via`) — wrong taxiways don't connect (say again),
+  misroutes and wrong hold bars are flown as said, wrong destinations park and never
+  count as arrived (E + stranded-NEGLECT), and a parked aircraft can be re-routed from
+  where it stands. Misheard/unknown taxiways are dropped (tier-3-style partial
+  resolution). Scope note: runway hold bars remain structural — FAA-correct (no
+  crossing without explicit clearance); instruction-driven holds await charts with
+  non-runway hold points; GND-HS-DROP already covers dropped hold-short readbacks._
 - [ ] **P4.0c — Error-class completion (audit m3).** Generator + FSM paths for CS-CONF
   (the flagship similar-callsign confusion class), SAY-AGAIN, and BLOCKED (needs P4.0a);
   TWR injection classes per §6.3; broader GND classes (with P2.5). Closes the P1.7 gap.

@@ -63,6 +63,55 @@ def test_generation_is_a_feasible_fixed_point():
     assert gnd_scenarios.generate(scn.seed).to_dict() == scn.to_dict()
 
 
+def test_pilots_fly_the_transmitted_route():
+    # P4.0b: the route is built from the *named* taxiways, not a canonical lookup.
+    from atcbench.charts import kmrl_gnd as g
+
+    assert g.build_route("G1", "HS_31C", ["alpha"]) == \
+        ["G1", "A1", "A2", "HS_31R", "RW_31R", "A3", "HS_31C"]
+    assert g.build_route("G1", "HS_31C", ["bravo"]) == []  # B doesn't reach 31C
+    assert g.build_route("RWEX", "G1", ["bravo"]) == ["RWEX", "B2", "B1", "G1"]
+    # Misroute flown as said: an arrival sent via A opposes the departure flow.
+    assert g.build_route("RWEX", "G1", ["alpha"])[:3] == ["RWEX", "A3", "RW_31R"]
+    # Unknown taxiways are dropped (misheard); the rest still resolves.
+    assert g.build_route("G1", "HS_31C", ["alpha", "charlie"]) == \
+        g.build_route("G1", "HS_31C", ["alpha"])
+    assert g.build_route("G1", "HS_31C", ["charlie"]) == []
+
+
+class _WrongHoldBarController(ScriptedGNDController):
+    """Taxis the first departure to the WRONG hold bar (31R instead of 31C) and then
+    leaves it there — the pilot must park at the end of the transmitted route and
+    never count as arrived."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._sent = False
+
+    def step(self, observation):
+        if observation.get("channel_busy"):
+            return self.wait()
+        if not self._sent:
+            dep = next((a for a in observation["aircraft"] if a["role"] == "departure"), None)
+            if dep is not None:
+                self._sent = True
+                from atcbench.harness.adapters import _callsign_words, _runway_spoken
+                return self.transmit(
+                    f"{_callsign_words(dep['acid'])}, runway {_runway_spoken('31R')}, "
+                    f"taxi via alpha.")
+        return self.wait()
+
+
+def test_wrong_destination_is_flown_and_never_arrives():
+    scn = gnd_scenarios.generate(7)
+    res = GroundSession(scn).run(_WrongHoldBarController())
+    s = score_gnd(res.log, scn.to_dict())
+    assert s["gate"] == 0  # everything else neglected; the misrouted one parks wrong
+    cleared = {e.payload["acid"] for e in res.log.of_type("taxi_clearance")}
+    arrived = {e.payload["acid"] for e in res.log.of_type("aircraft_arrived")}
+    assert cleared and not (cleared & arrived)  # taxied to the wrong bar: not arrived
+
+
 def test_ground_parser():
     pt = P.parse_ground_transmission(
         "Southwest 254, runway three one center, taxi via alpha, hold short runway three one right.",

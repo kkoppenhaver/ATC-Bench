@@ -31,6 +31,7 @@ class TaxiEdge:
     v: str
     length: float  # NM
     runway: Optional[str] = None  # runway name if this segment lies on a runway
+    taxiway: Optional[str] = None  # taxiway letter this segment belongs to (lowercase)
 
     def transit_sweeps(self) -> int:
         return max(1, round(self.length * SWEEPS_PER_NM))
@@ -42,7 +43,7 @@ class TaxiGraph:
         self._edges: dict[tuple[str, str], TaxiEdge] = {}
         for e in edges:
             self._edges[(e.u, e.v)] = e
-            self._edges[(e.v, e.u)] = TaxiEdge(e.v, e.u, e.length, e.runway)
+            self._edges[(e.v, e.u)] = TaxiEdge(e.v, e.u, e.length, e.runway, e.taxiway)
 
     def edge(self, u: str, v: str) -> Optional[TaxiEdge]:
         return self._edges.get((u, v))
@@ -67,6 +68,31 @@ class TaxiGraph:
                 if nb not in prev:
                     prev[nb] = cur
                     q.append(nb)
+        if dst not in prev:
+            return []
+        path = [dst]
+        while path[-1] != src:
+            path.append(prev[path[-1]])
+        return list(reversed(path))
+
+    def route_via(self, src: str, dst: str, taxiways: set[str]) -> list[str]:
+        """BFS path from src to dst restricted to edges on the named taxiways —
+        the pilot flies the route that was actually transmitted (P4.0b). Returns []
+        when the named taxiways don't connect src to dst."""
+        from collections import deque
+
+        prev: dict[str, str] = {src: src}
+        q = deque([src])
+        while q:
+            cur = q.popleft()
+            if cur == dst:
+                break
+            for nb in self.neighbors(cur):
+                e = self.edge(cur, nb)
+                if e is None or e.taxiway not in taxiways or nb in prev:
+                    continue
+                prev[nb] = cur
+                q.append(nb)
         if dst not in prev:
             return []
         path = [dst]
