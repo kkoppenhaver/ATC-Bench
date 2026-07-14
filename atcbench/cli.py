@@ -83,7 +83,9 @@ def _run_one(args: argparse.Namespace, regime_name: str):
                           "output_tokens": adapter.total_output_tokens,
                           "spent_usd": adapter.spent_usd(),
                           "budget_exhausted": adapter.budget_exhausted,
-                          "context_trims": adapter.context_trims}
+                          "context_trims": adapter.context_trims,
+                          "context_trim_trigger": adapter.context_trim_trigger,
+                          "context_trim_target": adapter.context_trim_target}
     return result, score
 
 

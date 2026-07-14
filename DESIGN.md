@@ -505,7 +505,32 @@ Adjacent positions are environment-simulated (scripted, seeded), not agents. The
 
 - **Raw vs. enriched representation tracks:** *raw* sends lat/lon only; *enriched* adds computed `brg_rng_from` fixes and per-pair closure data for aircraft within 10 NM. Both tracks reported; the delta measures whether the model builds the picture or reads it.
 - Static context (chart pack, LOA table, wake tables, position rules, tool protocol, scoring-relevant procedures) lives in the system prompt, pinned per run.
-- History management is the model's problem — full conversation grows over 90 min; strips exist precisely so it can survive truncation. The harness never summarizes on the model's behalf; when the conversation outgrows the subject model's context window it drops the *oldest* turns (sliding window: proactive trim past a token trigger, reactive trim on a provider context-overflow error, both flagged `context_trimmed` in the turn record and counted in `score.model.context_trims`). Every observation is a complete state snapshot, so truncation costs the model exactly what it failed to externalize to strips. (Harness supports provider-side context management if the model offers it; usage is logged.)
+- History management is the model's problem — full conversation grows over 90 min; strips exist precisely so it can survive truncation. The harness never summarizes on the model's behalf; when the conversation outgrows the subject model's context window it drops the *oldest* turns (sliding window: proactive trim past a token trigger, reactive trim on a provider context-overflow error, both flagged `context_trimmed` in the turn record and counted in `score.model.context_trims`). (Harness supports provider-side context management if the model offers it; usage is logged.)
+
+  **Why a sliding window, honestly separated into its three justifications.**
+  (1) *Forced:* full-length sessions exceed every current model's context window, so
+  some overflow policy is mandatory — the alternatives are crashing the session or
+  harness-side summarization, which would inject uncontrolled harness intelligence
+  into the loop and break verbatim I/O. Drop-oldest is the only policy that keeps the
+  harness dumb and auditable. (2) *Construct-consistent:* the strip system's rationale
+  (§9.1) is that human controllers do not hold a session in working memory — strips
+  are trained, examined external memory. Observations re-present the physical world
+  every turn; what trimming erases is exactly the state this design *deliberately
+  withholds* from observations and instructs the model to track itself (coordination
+  status, wake timing, its own plans). A model leaning on transcript scrollback was
+  using a crutch human controllers don't have; trimming stops subsidizing it, and
+  `context_trims` × strip-usage gives a testable validity correlation (models that
+  externalize well should be robust to trims). (3) *Cost:* the specific trigger/target
+  values are chosen for spend (cache-reads of retained history dominate session price)
+  and cache stability, NOT by the construct. Two honest disanalogies with human
+  memory: humans decay smoothly and retain *salient* items, the window is a hard cliff
+  that retains *recent* ones; and the window is token-denominated, so verbose models
+  retain less operational history (at least on-theme: verbosity costs, principle #3).
+  Validity therefore requires only that the window comfortably exceed the
+  operationally relevant recent horizon (~1 min), be identical for every subject
+  model, and be pinned before any campaign. **Pinned campaign values: trigger 60k
+  tokens, target 20k tokens** (≈ last 2–5 sim-minutes verbatim at GND/TWR cadence),
+  recorded per run in `score.model`.
 
 ### 11.3 System prompt contract (per position, assembled from chart pack)
 

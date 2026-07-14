@@ -510,7 +510,9 @@ class AnthropicAdapter(ModelAdapter):
     observation is a complete state snapshot and strips are the model's designed
     external memory (§9.1) — and each trim is flagged ``context_trimmed`` in the turn
     record. Trims are infrequent by construction (trigger >> target) so the
-    prompt-cache prefix stays stable between them.
+    prompt-cache prefix stays stable between them. The defaults are the pinned
+    campaign values (see DESIGN §11.2); they are recorded in ``score.model`` and are
+    identical for every subject model — do not vary them per model.
     """
 
     RETRYABLE_STATUS = {408, 409, 429, 500, 502, 503, 504, 529}
@@ -519,7 +521,7 @@ class AnthropicAdapter(ModelAdapter):
                  max_tokens: int = 1024, max_usd: float | None = None,
                  usd_per_mtok_in: float | None = None, usd_per_mtok_out: float | None = None,
                  max_retries: int = 5, client: Any = None,
-                 context_trim_trigger: int = 150_000, context_trim_target: int = 50_000):
+                 context_trim_trigger: int = 60_000, context_trim_target: int = 20_000):
         if client is None:  # pragma: no cover - requires the anthropic extra + key
             from anthropic import Anthropic
 

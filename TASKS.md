@@ -32,9 +32,10 @@ section(s) it implements and its hard dependencies.
 > post-exhaustion NEGLECTs measure the cap, not the model. The only budget-clean Haiku
 > GND-standard session **certified** (pilot seed 2, S=0.89). CD runs and the TWR-calm
 > probes are clean; TWR-standard WAKE busts are real (action-caused, pre-exhaustion).
-> **Campaign rule:** size `--max-usd` so sessions finish (~$4.5 GND/TWR Haiku, more
-> for Sonnet), and treat `budget_exhausted` sessions with traffic still active as
-> invalid-for-certification, not as busts — pre-register this.
+> **Campaign rule:** size `--max-usd` so sessions finish (est. ~$3 GND/TWR Haiku at
+> the pinned 60k/20k context trims — cap at $6; scale for Sonnet prices), and treat
+> `budget_exhausted` sessions with traffic still active as invalid-for-certification,
+> not as busts — pre-register this.
 > Next after the campaign: pre-register weights, close #15, then TRACON (P4.1+).
 
 ---
@@ -439,7 +440,10 @@ clustered CIs reported by `atcbench evaluate`.
   `score.model.context_trims`. Construct-fair per §11.2: observations are complete
   snapshots and strips are the designed external memory — truncation costs the model
   exactly what it failed to externalize. Trigger >> target keeps trims rare so the
-  prompt-cache prefix stays stable between them._ _Done: `pilot_recall` event + re-call after 90 s of own-radio silence
+  prompt-cache prefix stays stable between them. Campaign values pinned 2026-07-14
+  after the full-budget re-probe showed cache-reads dominate cost: trigger 60k /
+  target 20k (defaults, recorded in score.model); the three-part defense (forced /
+  construct-consistent / cost-tuned) is written up in DESIGN §11.2._ _Done: `pilot_recall` event + re-call after 90 s of own-radio silence
   (half the 180 s NEGLECT thresholds — every neglect gets ≥1 audible second chance) at
   all three positions: CD awaiting-clearance (also the CS-CONF recovery path — the twin
   target re-calls), GND no-route + stranded-at-hold-bar (patience clock restarts while
