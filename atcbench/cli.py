@@ -1,9 +1,11 @@
 """ATCBench command-line surface (DESIGN §17.1).
 
-  atcbench run    --position CD|GND --seed N [--band standard] [--regime turn|metered|both]
-                  --controller ... --out DIR
-  atcbench score  DIR                          # re-score from the log (position auto-detected)
-  atcbench replay DIR --out DIR2               # re-run recorded outputs; determinism check
+  atcbench run      --position CD|GND|TWR --seed N [--band standard]
+                    [--regime turn|metered|both] [--controller ...|--model ID] --out DIR
+  atcbench score    DIR                        # re-score from the log (position auto-detected)
+  atcbench replay   DIR --out DIR2             # re-run recorded outputs; determinism check
+  atcbench evaluate --position ... --n-seeds N --trials T [...]
+                                               # multi-session certification statistics (§13.4)
 """
 
 from __future__ import annotations
@@ -23,6 +25,7 @@ from .harness.tower_session import TowerSession
 from .scenarios import cd as cd_scenarios
 from .scenarios import gnd as gnd_scenarios
 from .scenarios import twr as twr_scenarios
+from .scoring.aggregate import aggregate
 from .scoring.cd import score_cd
 from .scoring.cd import score_run_dir as score_cd_dir
 from .scoring.gnd import score_gnd
@@ -95,6 +98,40 @@ def cmd_run(args: argparse.Namespace) -> int:
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:
         print(json.dumps(scores[regimes[0]], indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_evaluate(args: argparse.Namespace) -> int:
+    """Run seeds x trials sessions and aggregate into certification statistics (§13.4).
+
+    The scenario is the sampling unit: trials repeat the same seed (meaningful for
+    nondeterministic live models; scripted controllers repeat identically)."""
+    seeds = ([int(s) for s in args.seeds.split(",")] if args.seeds
+             else list(range(args.seed_start, args.seed_start + args.n_seeds)))
+    runs: list[dict] = []
+    for seed in seeds:
+        for trial in range(args.trials):
+            one = argparse.Namespace(**{**vars(args), "seed": seed})
+            result, score = _run_one(one, args.regime)
+            score["seed"], score["trial"] = seed, trial
+            runs.append(score)
+            if args.out:
+                d = Path(args.out) / f"seed{seed}_t{trial}"
+                result.write(d)
+                (d / "score.json").write_text(json.dumps(score, indent=2, sort_keys=True),
+                                              encoding="utf-8")
+            print(f"  seed {seed} trial {trial}: gate={score['gate']} S={score['S']}",
+                  file=sys.stderr)
+    summary = aggregate(runs)
+    summary["position"] = args.position
+    summary["band"] = args.band
+    summary["regime"] = args.regime
+    summary["subject"] = args.model or f"controller:{args.controller}"
+    if args.out:
+        Path(args.out).mkdir(parents=True, exist_ok=True)
+        (Path(args.out) / "summary.json").write_text(
+            json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8")
+    print(json.dumps(summary, indent=2, sort_keys=True))
     return 0
 
 
@@ -184,6 +221,26 @@ def main(argv: list[str] | None = None) -> int:
     prp.add_argument("dir")
     prp.add_argument("--out", required=True)
     prp.set_defaults(func=cmd_replay)
+
+    pe = sub.add_parser("evaluate", help="seeds x trials -> certification statistics")
+    pe.add_argument("--position", default="CD", choices=["CD", "GND", "TWR"])
+    pe.add_argument("--band", default="standard", choices=["calm", "standard", "heavy"])
+    pe.add_argument("--regime", default="turn", choices=["turn", "metered"])
+    pe.add_argument("--seeds", default=None, help="comma-separated explicit seed list")
+    pe.add_argument("--n-seeds", type=int, default=30)
+    pe.add_argument("--seed-start", type=int, default=1)
+    pe.add_argument("--trials", type=int, default=1,
+                    help="trials per seed (>=3 recommended for live models)")
+    pe.add_argument("--controller", default="scripted", choices=["scripted", "bad"])
+    pe.add_argument("--model", default=None)
+    pe.add_argument("--max-tokens", type=int, default=1024)
+    pe.add_argument("--max-usd", type=float, default=None,
+                    help="hard budget PER SESSION; total <= sessions x this")
+    pe.add_argument("--usd-per-mtok-in", type=float, default=None)
+    pe.add_argument("--usd-per-mtok-out", type=float, default=None)
+    pe.add_argument("--session-seconds", type=int, default=3600)
+    pe.add_argument("--out", default=None)
+    pe.set_defaults(func=cmd_evaluate)
 
     args = parser.parse_args(argv)
     return args.func(args)

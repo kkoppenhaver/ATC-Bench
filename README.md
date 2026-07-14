@@ -111,11 +111,12 @@ The bundled oracle certifies with S=1.0 on every seed and band; the bad controll
 and the no-skill probes (`tests/test_no_skill_probes.py`) bust by construction — that
 falsification suite is CI-enforced and grows with every position.
 
-**Certification today is the per-session gate.** The statistical certification
-standard — per-session bust rate with a Wilson 95% upper bound over ≥30 sessions,
-plus pass^k and session-clustered CIs, replacing any "N/N seeds" claim — lands with
-the `evaluate` command in Phase 3.6 (issue #15). Until a real model has been run
-end-to-end, no headline numbers should be quoted from this benchmark.
+**Certification is statistical** (`atcbench evaluate`): per-session bust rate with a
+Wilson 95% upper bound below 5%, minimum 30 sessions — honest math: 30 clean sessions
+still bound at ~11%, so certifying takes ~75+ clean sessions. Reported alongside
+pass@1, pass^k (all trials of a seed pass), session-clustered bootstrap CIs on S, and
+ICC across trials. Until a real model has been run end-to-end (the Phase 3.6 pilot
+campaign, issue #15), no headline numbers should be quoted from this benchmark.
 
 ## Determinism
 

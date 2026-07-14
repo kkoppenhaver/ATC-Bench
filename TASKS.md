@@ -320,12 +320,17 @@ clustered CIs reported by `atcbench evaluate`.
   with `budget_exhausted` flagged in every turn + score.json. `model_io.json` turns
   carry observation, output, and tool_results. Fake-client tests pin conversation
   shape, retry, and budget behavior._ _Deps: P3.6.1. Design §11.1, §17.1, §17.4, §3.2._
-- [ ] **P3.6.3 — `evaluate` aggregator + certification statistics (audit M3).**
+- [x] **P3.6.3 — `evaluate` aggregator + certification statistics (audit M3).**
   Multi-seed × multi-trial runner per §17.1. Certification = per-session bust rate with
   a Wilson 95% upper bound below a pre-registered threshold over ≥30 sessions (replaces
   3/3-seeds, which is pass^3 at n=3). Report pass^k (k=3), session-clustered bootstrap
   CIs on S and components, and ICC across trials (T≥3 trials/seed for API models).
-  _Deps: P3.6.2. Design §13.4, §17.1._
+  _Done: `atcbench evaluate` + `scoring/aggregate.py` — Wilson-bounded bust rate
+  (pre-registered: upper < 5%, n ≥ 30; note 30 clean sessions bound at ~11%, so
+  certification realistically needs ~75+), pass@1, pass-all-trials, seed-clustered
+  bootstrap CI on mean S, ICC(1) across trials, per-seed detail; writes run dirs +
+  summary.json. Statistics pinned by tests, including the audit's 70%-bust
+  controller never approaching certification._ _Deps: P3.6.2. Design §13.4, §17.1._
 - [ ] **P3.6.4 — Pilot campaign + band calibration (exit test).** 2–3 models spanning
   ability × ≥20 seeds × ≥3 trials; publish run dirs in `runs/`; recalibrate difficulty
   bands so standard-band frontier cert-failure is informative (not 0% or 100%); only
