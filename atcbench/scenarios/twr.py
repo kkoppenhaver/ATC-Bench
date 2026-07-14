@@ -12,6 +12,7 @@ from dataclasses import asdict, dataclass, field
 
 from ..charts import kmrl_twr
 from ..sim.performance import wake_of
+from . import fleet
 
 BANDS = {
     "calm": {"n_arr": 4, "n_dep": 3, "arr_gap": 165, "dep_gap": 190, "forced_ga": 0},
@@ -60,13 +61,6 @@ class TWRScenario:
         return sorted(self.arrivals + self.departures, key=lambda s: s.call_tick)
 
 
-def _mk_callsign(rng, used: set[str]) -> str:
-    for _ in range(1000):
-        acid = f"{rng.choice(_AIRLINES)}{rng.randint(100, 4999)}"
-        if acid not in used:
-            used.add(acid)
-            return acid
-    raise RuntimeError("callsign space exhausted")  # pragma: no cover
 
 
 MAX_GEN_ATTEMPTS = 20
@@ -107,7 +101,8 @@ def _generate_once(seed: int, band: str, session_seconds: int) -> TWRScenario:
     for _ in range(cfg["n_arr"]):
         actype = pick_type()
         arrivals.append(TowerSpawn(
-            acid=_mk_callsign(callsigns, used), actype=actype, wake=wake_of(actype),
+            acid=fleet.make_callsign(callsigns, actype, _AIRLINES, used),
+            actype=actype, wake=wake_of(actype),
             role="arrival", call_tick=t, start_dist_nm=kmrl_twr.FINAL_START_NM))
         t += cfg["arr_gap"] + traffic.randint(-15, 15)
 
@@ -116,7 +111,8 @@ def _generate_once(seed: int, band: str, session_seconds: int) -> TWRScenario:
     for _ in range(cfg["n_dep"]):
         actype = pick_type()
         departures.append(TowerSpawn(
-            acid=_mk_callsign(callsigns, used), actype=actype, wake=wake_of(actype),
+            acid=fleet.make_callsign(callsigns, actype, _AIRLINES, used),
+            actype=actype, wake=wake_of(actype),
             role="departure", call_tick=t))
         t += cfg["dep_gap"] + traffic.randint(-15, 15)
 

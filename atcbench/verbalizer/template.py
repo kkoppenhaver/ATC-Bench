@@ -36,12 +36,27 @@ def spoken_altitude(feet: int) -> str:
     return f"{spoken_digits(str(thousands))} thousand {spoken_digits(str(hundreds))} hundred"
 
 
+_NATO = {
+    "A": "alpha", "B": "bravo", "C": "charlie", "D": "delta", "E": "echo",
+    "F": "foxtrot", "G": "golf", "H": "hotel", "I": "india", "J": "juliett",
+    "K": "kilo", "L": "lima", "M": "mike", "N": "november", "O": "oscar",
+    "P": "papa", "Q": "quebec", "R": "romeo", "S": "sierra", "T": "tango",
+    "U": "uniform", "V": "victor", "W": "whiskey", "X": "xray", "Y": "yankee",
+    "Z": "zulu",
+}
+
+
 def _callsign_words(acid: str) -> str:
-    """Best-effort telephony for a callsign, e.g. 'AAL2452' -> 'American 2452'."""
+    """Best-effort telephony: 'AAL2452' -> 'American 2452';
+    'N714KC' -> 'November seven one four kilo charlie'."""
     import re
 
     from ..pilots.parser import AIRLINE_WORDS
 
+    ga = re.fullmatch(r"N(\d{1,4})([A-Z]{0,2})", acid)
+    if ga:
+        letters = " ".join(_NATO[ch] for ch in ga.group(2))
+        return f"November {spoken_digits(ga.group(1))} {letters}".strip()
     m = re.match(r"([A-Za-z]+)(\d+)", acid)
     if not m:
         return acid
@@ -50,7 +65,6 @@ def _callsign_words(acid: str) -> str:
     spoken_num = spoken_digits(number)
     if airline:
         return f"{airline.capitalize()} {spoken_num}"
-    # GA/tail number: "N714KC" -> "November seven one four kilo charlie" (simplified)
     return f"{acid} ({spoken_num})"
 
 

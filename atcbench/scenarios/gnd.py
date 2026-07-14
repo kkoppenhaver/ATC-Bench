@@ -12,6 +12,7 @@ from dataclasses import asdict, dataclass, field
 
 from ..charts import kmrl_gnd
 from ..domain import ErrorEvent
+from . import fleet
 from .seeds import SeedManager
 
 BANDS = {
@@ -76,13 +77,6 @@ class GNDScenario:
         return min(upcoming) if upcoming else None
 
 
-def _mk_callsign(rng, used: set[str]) -> str:
-    for _ in range(1000):
-        acid = f"{rng.choice(_AIRLINES)}{rng.randint(100, 4999)}"
-        if acid not in used:
-            used.add(acid)
-            return acid
-    raise RuntimeError("callsign space exhausted")  # pragma: no cover
 
 
 MAX_GEN_ATTEMPTS = 20
@@ -119,7 +113,8 @@ def _generate_once(seed: int, band: str, session_seconds: int) -> GNDScenario:
         actype, wake = traffic.choice(_TYPES)
         gate = traffic.choice(kmrl_gnd.GATES)
         departures.append(GroundSpawn(
-            acid=_mk_callsign(callsigns, used), actype=actype, wake=wake, role="departure",
+            acid=fleet.make_callsign(callsigns, actype, _AIRLINES, used),
+            actype=actype, wake=wake, role="departure",
             gate=gate, node=gate, goal="HS_31C",
             call_tick=traffic.randint(20, max(40, session_seconds - 400)),
         ))
@@ -128,7 +123,8 @@ def _generate_once(seed: int, band: str, session_seconds: int) -> GNDScenario:
         actype, wake = traffic.choice(_TYPES)
         gate = traffic.choice(kmrl_gnd.GATES)
         arrivals.append(GroundSpawn(
-            acid=_mk_callsign(callsigns, used), actype=actype, wake=wake, role="arrival",
+            acid=fleet.make_callsign(callsigns, actype, _AIRLINES, used),
+            actype=actype, wake=wake, role="arrival",
             gate=gate, node="RWEX", goal=gate,
             call_tick=traffic.randint(20, max(40, session_seconds - 400)),
         ))

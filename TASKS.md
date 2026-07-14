@@ -377,12 +377,17 @@ clustered CIs reported by `atcbench evaluate`.
   (the flagship similar-callsign confusion class), SAY-AGAIN, and BLOCKED (needs P4.0a);
   TWR injection classes per §6.3; broader GND classes (with P2.5). Closes the P1.7 gap.
   (§8.3, §8.4)
-- [ ] **P4.0e — Realistic fleet/callsign pairing.** GA types (C172) currently fly
+- [x] **P4.0e — Realistic fleet/callsign pairing.** GA types (C172) currently fly
   under airline callsigns (pilot campaign produced "American 4143" as a Cessna 172).
   Assign N-number registrations to GA types (verbalizer/parser already carry partial
   N-number support), airline callsigns only to airliner types, and make the type mix
   per role/band plausible. Changes the seeded callsign streams → score-perturbing, so
-  it lands with this batch, before the full campaign. (§5.1, §8.1)
+  it lands with this batch, before the full campaign. (§5.1, §8.1) _Done:
+  `scenarios/fleet.py` pairs callsign style to airframe at all three positions
+  (N + 3 digits + 2 letters, no I/O); GA airframes get GA voices at CD
+  (ga_relaxed/student_pilot); similar-callsign twins are airline-only; full NATO
+  telephony for registrations ("November seven one four kilo charlie");
+  extract_callsign hardened so single-letter prefixes can't soak up unrelated text._
 - [x] **P4.0d — Seed-drawn chart-pack constants (audit M6).** LOA initial altitude,
   frequencies, SID names/sets, and filing-error content drawn from seeded streams per
   scenario — currently the correct answers are seed-independent constants (always 5000,

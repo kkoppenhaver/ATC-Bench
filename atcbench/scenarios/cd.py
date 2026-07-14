@@ -13,6 +13,7 @@ from typing import Optional
 
 from ..charts import kmrl_cd
 from ..domain import ErrorEvent, FlightPlan, Persona
+from . import fleet
 from .seeds import SeedManager
 
 # Difficulty bands (§12.3). Certification uses "standard".
@@ -27,10 +28,11 @@ BANDS = {
 CATCHABLE_CLASSES = {"RB-ALT", "RB-FREQ", "RB-PART", "RB-DROP", "CS-WRONG"}
 SPECIAL_SQUAWKS = {"7500", "7600", "7700"}  # hijack/radio-failure/emergency — never assigned
 
-_PERSONAS = [
+_AIRLINE_PERSONAS = [
     Persona.AIRLINE_CRISP, Persona.AIRLINE_CRISP, Persona.AIRLINE_CRISP,
-    Persona.GA_RELAXED, Persona.FOREIGN_CARRIER, Persona.STUDENT_PILOT,
+    Persona.AIRLINE_CRISP, Persona.FOREIGN_CARRIER,
 ]
+_GA_PERSONAS = [Persona.GA_RELAXED, Persona.GA_RELAXED, Persona.STUDENT_PILOT]
 _AIRLINES = ["AAL", "UAL", "SWA", "DAL"]
 _DESTINATIONS = list(kmrl_cd.KNOWN_DESTINATIONS)
 
@@ -67,15 +69,6 @@ class Scenario:
         return next((fp for fp in self.flight_plans if fp.acid == acid), None)
 
 
-def _make_callsign(rng, used: set[str]) -> str:
-    for _ in range(1000):
-        airline = rng.choice(_AIRLINES)
-        num = rng.randint(100, 4999)
-        acid = f"{airline}{num}"
-        if acid not in used:
-            used.add(acid)
-            return acid
-    raise RuntimeError("callsign space exhausted")  # pragma: no cover
 
 
 def _correct_clearance(fp: FlightPlan, squawk: str, pack: kmrl_cd.CDChartPack) -> dict:
@@ -128,9 +121,12 @@ def generate(seed: int, band: str = "standard", session_seconds: int = 3600) -> 
     call_ticks = sorted(traffic.randint(30, session_seconds - 120) for _ in range(n))
 
     for i in range(n):
-        acid = _make_callsign(callsigns, used)
+        # Airframe first, then a type-appropriate callsign and persona (P4.0e):
+        # GA types fly N-number registrations with GA voices, never airline flags.
         actype = traffic.choice(["B738", "A320", "B739", "E175", "C172"])
-        persona = traffic.choice(_PERSONAS)
+        acid = fleet.make_callsign(callsigns, actype, _AIRLINES, used)
+        persona = traffic.choice(_GA_PERSONAS if actype in fleet.GA_TYPES
+                                 else _AIRLINE_PERSONAS)
         dest = traffic.choice(_DESTINATIONS)
         filed_sid = traffic.choice(sorted(pack.sids))
         filed_alt = traffic.choice([16000, 17000, 23000, 35000])
@@ -162,9 +158,13 @@ def generate(seed: int, band: str = "standard", session_seconds: int = 3600) -> 
         )
 
     # Similar-callsign pairs (§8.4): mint edit-distance-1 numeric twins, same airline.
+    # Twins are an airline phenomenon — never minted from N-number registrations.
     similar_pairs: list[tuple[str, str]] = []
+    airline_plans = [p for p in plans if not p.acid.startswith("N")]
     for _ in range(cfg["similar_pairs"]):
-        base = callsigns.choice(plans)
+        if not airline_plans:
+            break
+        base = callsigns.choice(airline_plans)
         import re
 
         m = re.match(r"([A-Za-z]+)(\d+)", base.acid)

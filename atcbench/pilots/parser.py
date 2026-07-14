@@ -155,7 +155,9 @@ def extract_callsign(text: str, candidates: Iterable[str]) -> Optional[str]:
         airline = next((w for w, d in AIRLINE_WORDS.items() if d == prefix), None)
         if airline and airline in lower:
             score += 2
-        if prefix.lower() in lower or acid.lower() in lower:
+        # Single-letter prefixes (N-number registrations) would match almost any text;
+        # require a multi-letter prefix or the full written callsign.
+        if (len(prefix) > 1 and prefix.lower() in lower) or acid.lower() in lower:
             score += 2
         if score > best_score:
             best_score, best = score, acid
