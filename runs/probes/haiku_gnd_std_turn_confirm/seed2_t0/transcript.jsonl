@@ -1,0 +1,107 @@
+{"from": "MRL_TWR", "t": 110, "text": "Ground, Tower, departure traffic runway three one right, hold all crossings."}
+{"from": "MRL_TWR", "t": 180, "text": "Ground, Tower, runway three one right traffic complete, crossings at your discretion."}
+{"from": "DAL1411", "t": 260, "text": "Marlow Ground, Delta one four one one, G2, ready to taxi"}
+{"from": "MRL_GND", "t": 265, "text": "Delta one four one one, runway three one center, taxi via alpha, cross runway three one right, hold short runway three one center."}
+{"from": "DAL1411", "t": 273, "text": "cross runway 31R, Delta one four one one"}
+{"from": "MRL_GND", "t": 285, "text": "Delta one four one one, taxi via alpha, cross runway three one right, hold short runway three one center."}
+{"from": "DAL1411", "t": 291, "text": "cross runway 31R, Delta one four one one"}
+{"from": "MRL_GND", "t": 295, "text": "Delta one four one one, runway three one center, taxi via alpha one, alpha two, hold short three one right."}
+{"from": "DAL1411", "t": 302, "text": "runway 31C, via a, Delta one four one one"}
+{"from": "MRL_TWR", "t": 305, "text": "Ground, Tower, departure traffic runway three one right, hold all crossings."}
+{"from": "MRL_GND", "t": 310, "text": "Delta one four one one, hold position."}
+{"from": "MRL_TWR", "t": 375, "text": "Ground, Tower, runway three one right traffic complete, crossings at your discretion."}
+{"from": "MRL_GND", "t": 380, "text": "Delta one four one one, continue taxi."}
+{"from": "DAL1411", "t": 382, "text": "Say again for Delta one four one one?"}
+{"from": "MRL_GND", "t": 385, "text": "Delta one four one one, taxi via alpha one, alpha two, cross runway three one right, alpha three, hold short runway three one center."}
+{"from": "DAL1411", "t": 393, "text": "cross runway 31R, Delta one four one one"}
+{"from": "MRL_TWR", "t": 460, "text": "Ground, Tower, departure traffic runway three one right, hold all crossings."}
+{"from": "MRL_GND", "t": 465, "text": "Delta one four one one, hold position."}
+{"from": "DAL3950", "t": 485, "text": "Marlow Ground, Delta three niner five zero, G2, ready to taxi"}
+{"from": "MRL_TWR", "t": 530, "text": "Ground, Tower, runway three one right traffic complete, crossings at your discretion."}
+{"from": "MRL_GND", "t": 535, "text": "Delta one four one one, continue taxi."}
+{"from": "DAL1411", "t": 537, "text": "Say again for Delta one four one one?"}
+{"from": "MRL_GND", "t": 540, "text": "Delta one four one one, taxi alpha two, cross runway three one right, alpha three, hold short runway three one center."}
+{"from": "DAL1411", "t": 547, "text": "cross runway 31R, Delta one four one one"}
+{"from": "MRL_GND", "t": 550, "text": "Delta three niner five zero, runway three one center, taxi via alpha one, alpha two, hold short runway three one right."}
+{"from": "DAL3950", "t": 557, "text": "runway 31C, via a, hold short runway 31R, Delta three niner five zero"}
+{"from": "MRL_TWR", "t": 635, "text": "Ground, Tower, departure traffic runway three one right, hold all crossings."}
+{"from": "MRL_GND", "t": 640, "text": "Delta three niner five zero, hold position."}
+{"from": "N600QP", "t": 700, "text": "Marlow Ground, November six zero zero quebec papa, G2, ready to taxi"}
+{"from": "MRL_TWR", "t": 705, "text": "Ground, Tower, runway three one right traffic complete, crossings at your discretion."}
+{"from": "MRL_GND", "t": 710, "text": "Delta three niner five zero, continue taxi."}
+{"from": "DAL3950", "t": 712, "text": "Say again for Delta three niner five zero?"}
+{"from": "MRL_GND", "t": 715, "text": "Delta three niner five zero, taxi alpha two, cross runway three one right, alpha three, hold short runway three one center."}
+{"from": "DAL3950", "t": 722, "text": "cross runway 31R, Delta three niner five zero"}
+{"from": "MRL_GND", "t": 725, "text": "November six zero zero quebec papa, runway three one center, taxi via alpha one, alpha two, hold short runway three one right."}
+{"from": "N600QP", "t": 733, "text": "runway 31C, via a, hold short runway 31R, November six zero zero quebec papa"}
+{"from": "MRL_TWR", "t": 815, "text": "Ground, Tower, departure traffic runway three one right, hold all crossings."}
+{"from": "MRL_GND", "t": 820, "text": "November six zero zero quebec papa, hold position."}
+{"from": "MRL_TWR", "t": 885, "text": "Ground, Tower, runway three one right traffic complete, crossings at your discretion."}
+{"from": "MRL_GND", "t": 890, "text": "November six zero zero quebec papa, taxi alpha two, cross runway three one right, alpha three, hold short runway three one center."}
+{"from": "N600QP", "t": 898, "text": "cross runway 31R, November six zero zero quebec papa"}
+{"from": "MRL_TWR", "t": 980, "text": "Ground, Tower, departure traffic runway three one right, hold all crossings."}
+{"from": "MRL_GND", "t": 985, "text": "November six zero zero quebec papa, hold position."}
+{"from": "MRL_TWR", "t": 1050, "text": "Ground, Tower, runway three one right traffic complete, crossings at your discretion."}
+{"from": "MRL_GND", "t": 1055, "text": "November six zero zero quebec papa, cross runway three one right."}
+{"from": "N600QP", "t": 1059, "text": "cross runway 31R, November six zero zero quebec papa"}
+{"from": "MRL_TWR", "t": 1155, "text": "Ground, Tower, departure traffic runway three one right, hold all crossings."}
+{"from": "MRL_TWR", "t": 1225, "text": "Ground, Tower, runway three one right traffic complete, crossings at your discretion."}
+{"from": "MRL_TWR", "t": 1320, "text": "Ground, Tower, departure traffic runway three one right, hold all crossings."}
+{"from": "UAL2454", "t": 1325, "text": "Marlow Ground, United two four five four, clear of the runway, taxi to the gate"}
+{"from": "MRL_GND", "t": 1330, "text": "United two four five four, taxi to the gate via bravo."}
+{"from": "UAL2454", "t": 1334, "text": "via b, United two four five four"}
+{"from": "MRL_TWR", "t": 1390, "text": "Ground, Tower, runway three one right traffic complete, crossings at your discretion."}
+{"from": "MRL_TWR", "t": 1485, "text": "Ground, Tower, departure traffic runway three one right, hold all crossings."}
+{"from": "MRL_TWR", "t": 1555, "text": "Ground, Tower, runway three one right traffic complete, crossings at your discretion."}
+{"from": "MRL_TWR", "t": 1645, "text": "Ground, Tower, departure traffic runway three one right, hold all crossings."}
+{"from": "MRL_TWR", "t": 1715, "text": "Ground, Tower, runway three one right traffic complete, crossings at your discretion."}
+{"from": "MRL_GND", "t": 1720, "text": "DAL1411, cross runway three one right."}
+{"from": "DAL1411", "t": 1723, "text": "cross runway 31R, Delta one four one one"}
+{"from": "MRL_GND", "t": 1735, "text": "DAL1411, runway three one center, taxi via alpha, hold short runway three one right."}
+{"from": "DAL1411", "t": 1741, "text": "runway 31C, via a, hold short runway 31R, Delta one four one one"}
+{"from": "MRL_GND", "t": 1750, "text": "DAL1411, cross runway three one right."}
+{"from": "DAL1411", "t": 1753, "text": "cross runway 31R, Delta one four one one"}
+{"from": "AAL114", "t": 1825, "text": "Marlow Ground, American one one four, G1, ready to taxi"}
+{"from": "MRL_GND", "t": 1830, "text": "American one one four, runway three one center, taxi via alpha, hold short runway three one right."}
+{"from": "AAL114", "t": 1836, "text": "runway 31C, via a, hold short runway 31R, American one one four"}
+{"from": "MRL_TWR", "t": 1841, "text": "Ground, Tower, departure traffic runway three one right, hold all crossings."}
+{"from": "MRL_TWR", "t": 1905, "text": "Ground, Tower, runway three one right traffic complete, crossings at your discretion."}
+{"from": "MRL_GND", "t": 1910, "text": "DAL1411, cross runway three one right."}
+{"from": "DAL1411", "t": 1913, "text": "cross runway 31R, Delta one four one one"}
+{"from": "MRL_TWR", "t": 1995, "text": "Ground, Tower, departure traffic runway three one right, hold all crossings."}
+{"from": "MRL_TWR", "t": 2065, "text": "Ground, Tower, runway three one right traffic complete, crossings at your discretion."}
+{"from": "MRL_GND", "t": 2070, "text": "American one one four, cross runway three one right."}
+{"from": "AAL114", "t": 2073, "text": "cross runway 31R, American one one four"}
+{"from": "MRL_GND", "t": 2090, "text": "DAL1411, cross runway three one right."}
+{"from": "DAL1411", "t": 2093, "text": "cross runway 31R, Delta one four one one"}
+{"from": "MRL_TWR", "t": 2150, "text": "Ground, Tower, departure traffic runway three one right, hold all crossings."}
+{"from": "MRL_TWR", "t": 2220, "text": "Ground, Tower, runway three one right traffic complete, crossings at your discretion."}
+{"from": "MRL_TWR", "t": 2340, "text": "Ground, Tower, departure traffic runway three one right, hold all crossings."}
+{"from": "MRL_TWR", "t": 2410, "text": "Ground, Tower, runway three one right traffic complete, crossings at your discretion."}
+{"from": "SWA2476", "t": 2500, "text": "Marlow Ground, Southwest two four seven six, G2, ready to taxi"}
+{"from": "MRL_GND", "t": 2505, "text": "Southwest two four seven six, runway three one center, taxi via alpha, hold short runway three one right."}
+{"from": "SWA2476", "t": 2511, "text": "runway 31C, via a, hold short runway 31R, Southwest two four seven six"}
+{"from": "MRL_TWR", "t": 2520, "text": "Ground, Tower, departure traffic runway three one right, hold all crossings."}
+{"from": "MRL_TWR", "t": 2590, "text": "Ground, Tower, runway three one right traffic complete, crossings at your discretion."}
+{"from": "MRL_GND", "t": 2660, "text": "Southwest two four seven six, cross runway three one right."}
+{"from": "SWA2476", "t": 2663, "text": "cross runway 31R, Southwest two four seven six"}
+{"from": "MRL_TWR", "t": 2666, "text": "Ground, Tower, departure traffic runway three one right, hold all crossings."}
+{"from": "MRL_TWR", "t": 2735, "text": "Ground, Tower, runway three one right traffic complete, crossings at your discretion."}
+{"from": "MRL_TWR", "t": 2835, "text": "Ground, Tower, departure traffic runway three one right, hold all crossings."}
+{"from": "MRL_TWR", "t": 2905, "text": "Ground, Tower, runway three one right traffic complete, crossings at your discretion."}
+{"from": "MRL_GND", "t": 2910, "text": "DAL1411, cross runway three one right."}
+{"from": "DAL1411", "t": 2913, "text": "cross runway 31R, Delta one four one one"}
+{"from": "UAL4270", "t": 2990, "text": "Marlow Ground, United four two seven zero, clear of the runway, taxi to the gate"}
+{"from": "MRL_GND", "t": 2995, "text": "UAL4270, taxi to the gate via bravo."}
+{"from": "UAL4270", "t": 2999, "text": "via b, United four two seven zero"}
+{"from": "MRL_TWR", "t": 3015, "text": "Ground, Tower, departure traffic runway three one right, hold all crossings."}
+{"from": "MRL_TWR", "t": 3085, "text": "Ground, Tower, runway three one right traffic complete, crossings at your discretion."}
+{"from": "UAL4270", "t": 3090, "text": "Marlow Ground, United four two seven zero, holding short runway three one right"}
+{"from": "MRL_GND", "t": 3095, "text": "UAL4270, cross runway three one right."}
+{"from": "UAL4270", "t": 3098, "text": "cross runway 31R, United four two seven zero"}
+{"from": "AAL4017", "t": 3180, "text": "Marlow Ground, American four zero one seven, clear of the runway, taxi to the gate"}
+{"from": "MRL_GND", "t": 3185, "text": "AAL4017, taxi to the gate via bravo."}
+{"from": "AAL4017", "t": 3189, "text": "via b, American four zero one seven"}
+{"from": "MRL_TWR", "t": 3200, "text": "Ground, Tower, departure traffic runway three one right, hold all crossings."}
+{"from": "MRL_TWR", "t": 3270, "text": "Ground, Tower, runway three one right traffic complete, crossings at your discretion."}
+{"from": "MRL_TWR", "t": 3370, "text": "Ground, Tower, departure traffic runway three one right, hold all crossings."}

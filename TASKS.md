@@ -32,10 +32,15 @@ section(s) it implements and its hard dependencies.
 > post-exhaustion NEGLECTs measure the cap, not the model. The only budget-clean Haiku
 > GND-standard session **certified** (pilot seed 2, S=0.89). CD runs and the TWR-calm
 > probes are clean; TWR-standard WAKE busts are real (action-caused, pre-exhaustion).
-> **Campaign rule:** size `--max-usd` so sessions finish (est. ~$3 GND/TWR Haiku at
-> the pinned 60k/20k context trims — cap at $6; scale for Sonnet prices), and treat
+> **Campaign rule:** size `--max-usd` so sessions finish (confirmed $3.50 GND Haiku
+> at the pinned 60k/20k context trims — cap at $6; scale for Sonnet prices), and treat
 > `budget_exhausted` sessions with traffic still active as invalid-for-certification,
-> not as busts — pre-register this.
+> not as busts — pre-register this. **Confirmation run** (`haiku_gnd_std_turn_confirm`,
+> seed 2): full session, un-exhausted, 9 trims, no crash — and Haiku **certified**
+> (S=0.814, 8/8 arrived, 0 cardinals) on the seed that scored 0.0 under truncation;
+> the lone pilot re-call was answered in 5 s. GND-standard is a live band for Haiku;
+> the discriminating failure classes are real incursions (crossing pre-clearance) and
+> checkout-state neglect (see `haiku_gnd_std_turn_recall`), not a floor.
 > Next after the campaign: pre-register weights, close #15, then TRACON (P4.1+).
 
 ---
