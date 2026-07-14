@@ -41,6 +41,12 @@ class PilotFSM:
         self.readback_acid: str = self.acid  # callsign used in the readback (CS-WRONG twists this)
         self.error_caught: bool = False
         self.readback_dropped: bool = False
+        self.blocked_readback: bool = False  # BLOCKED: readback stepped on, unreadable
+        self.confused: bool = False  # CS-CONF: holding a clearance meant for a twin
+        self._say_again_used: bool = False
+        # CS-CONF only fires if this aircraft actually intercepts the twin's clearance;
+        # every other class triggers the moment the clearance arrives.
+        self.error_triggered: bool = error is not None and error.code != "CS-CONF"
         self.readback_deadline: Optional[int] = None
 
     # --- transitions ---------------------------------------------------------
@@ -62,6 +68,20 @@ class PilotFSM:
 
         ``verbalizer_intent`` is None when the pilot drops the readback (RB-DROP).
         """
+        code = self.error.code if self.error else None
+
+        # SAY-AGAIN (§8.3): the pilot didn't catch it and asks for a repeat — the
+        # aircraft stays uncleared until the controller transmits the clearance again.
+        if code == "SAY-AGAIN" and not self._say_again_used:
+            self._say_again_used = True
+            fsm_event = {"acid": self.acid, "instruction_understood": None,
+                         "readback_content": None, "readback_acid": self.acid,
+                         "will_comply_as": None, "error_code": code}
+            return ({"kind": "say_again", "acid": self.acid,
+                     "persona": self.persona.value}, fsm_event)
+        if code == "SAY-AGAIN" and self._say_again_used and not self.error_caught:
+            self.error_caught = True  # the controller repeated the clearance: caught
+
         self.understood = {
             "clearance_limit": parsed.destination,
             "route": parsed.sid,
@@ -71,7 +91,6 @@ class PilotFSM:
         }
         self.readback = dict(self.understood)
         self.readback_acid = self.acid
-        code = self.error.code if self.error else None
 
         if code == "RB-ALT":
             self.readback["altitude"] = self.error.detail.get("wrong_altitude")
@@ -83,10 +102,12 @@ class PilotFSM:
             self.readback_acid = self.error.detail.get("wrong_callsign", self.acid)
         elif code == "RB-DROP":
             self.readback_dropped = True
+        elif code == "BLOCKED":
+            self.blocked_readback = True  # readback transmitted but stepped on
 
-        # The aircraft flies the accepted readback. RB-DROP/CS-WRONG are pure
-        # readback artifacts (understood is correct) -> comply with understood.
-        if code in (None, "RB-DROP", "CS-WRONG"):
+        # The aircraft flies the accepted readback. RB-DROP/CS-WRONG/BLOCKED/SAY-AGAIN
+        # are readback/channel artifacts (understood is correct) -> comply understood.
+        if code in (None, "RB-DROP", "CS-WRONG", "BLOCKED", "SAY-AGAIN"):
             self.comply_as = dict(self.understood)
         else:
             self.comply_as = dict(self.readback)
@@ -105,6 +126,10 @@ class PilotFSM:
 
         if self.readback_dropped:
             return None, fsm_intent_event
+        if self.blocked_readback:
+            # The readback goes out but is stepped on — the controller hears squeal.
+            return ({"kind": "blocked_noise", "acid": self.acid,
+                     "persona": self.persona.value}, fsm_intent_event)
 
         rb = {
             "altitude": self.readback["altitude"],
@@ -119,6 +144,39 @@ class PilotFSM:
         }
         return verb, fsm_intent_event
 
+    def intercept_clearance(self, tick: int, parsed) -> tuple[dict, dict]:
+        """CS-CONF (§8.4): this aircraft takes a clearance addressed to its twin,
+        reads it back under its OWN callsign, and will fly it unless the controller
+        notices the wrong voice answered and disregards it in the window."""
+        self.error_triggered = True
+        self.confused = True
+        self.understood = {
+            "clearance_limit": parsed.destination,
+            "route": parsed.sid,
+            "altitude": parsed.altitude,
+            "frequency": parsed.frequency,
+            "squawk": parsed.squawk,
+        }
+        self.readback = dict(self.understood)
+        self.comply_as = dict(self.understood)  # the twin's clearance, flown by us
+        self.readback_acid = self.acid
+        self.state = CDState.READBACK_PENDING
+        self.readback_deadline = tick + self.correction_window_sec
+        fsm_event = {
+            "acid": self.acid,
+            "instruction_understood": self.understood,
+            "readback_content": self.readback,
+            "readback_acid": self.acid,
+            "will_comply_as": self.comply_as,
+            "error_code": "CS-CONF",
+            "confused_with": parsed.acid,
+        }
+        verb = {"kind": "readback", "acid": self.acid, "persona": self.persona.value,
+                "readback": {"altitude": self.readback["altitude"],
+                             "frequency": self.readback["frequency"],
+                             "squawk": self.readback["squawk"]}}
+        return verb, fsm_event
+
     def receive_correction(self, tick: int, parsed) -> tuple[Optional[dict], bool]:
         """Apply a controller correction if it's in-window.
 
@@ -131,6 +189,17 @@ class PilotFSM:
             return None, False
         if self.readback_deadline is not None and tick > self.readback_deadline:
             return None, False  # too late — no longer a catch
+
+        if self.confused:
+            # CS-CONF: any in-window re-address makes the twin drop the clearance it
+            # took by mistake and go back to waiting for its own.
+            self.confused = False
+            self.state = CDState.AWAITING_CLEARANCE
+            self.understood, self.readback, self.comply_as = {}, {}, {}
+            self.readback_deadline = None
+            self.error_caught = True
+            return ({"kind": "standby_ack", "acid": self.acid,
+                     "persona": self.persona.value}, False)
 
         touched: set[str] = set()
         if parsed.altitude is not None:
@@ -145,11 +214,12 @@ class PilotFSM:
             self.readback["squawk"] = parsed.squawk
             self.comply_as["squawk"] = parsed.squawk
             touched.add("squawk")
-        # A bare prompt (e.g., re-addressing after RB-DROP or wrong callsign) also
-        # closes the loop: the pilot re-reads back correctly with the right callsign.
+        # A bare prompt (e.g., re-addressing after RB-DROP, a blocked readback, or a
+        # wrong callsign) closes the loop: the pilot re-reads back correctly.
         bare_prompt = False
-        if self.readback_dropped or self.readback_acid != self.acid:
+        if self.readback_dropped or self.blocked_readback or self.readback_acid != self.acid:
             self.readback_dropped = False
+            self.blocked_readback = False
             self.readback_acid = self.acid
             bare_prompt = True
 
@@ -162,7 +232,7 @@ class PilotFSM:
             addressed = {"RB-ALT": "altitude", "RB-FREQ": "frequency"}[code] in touched
         elif code == "RB-PART":
             addressed = self.error.detail.get("omit", "squawk") in touched
-        elif code in ("RB-DROP", "CS-WRONG"):
+        elif code in ("RB-DROP", "CS-WRONG", "BLOCKED"):
             addressed = True  # any in-window re-address closes the loop
         else:
             addressed = False
@@ -191,5 +261,6 @@ class PilotFSM:
             "understood": self.understood,
             "error_code": self.error.code if self.error else None,
             "error_caught": self.error_caught,
+            "error_triggered": self.error_triggered,
             "readback_dropped": self.readback_dropped,
         }

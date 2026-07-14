@@ -141,11 +141,15 @@ def _generate_once(seed: int, band: str, session_seconds: int) -> GNDScenario:
         hot.append([start, start + HOT_DURATION])
         t += cfg["hot_period"]
 
-    # Light ground error schedule (dropped hold-short readback -> reported deviation).
+    # Ground error schedule: departures may drop the hold-short readback; arrivals
+    # may take a wrong turn (fly A when cleared via B) — both pilot-provenance.
     schedule: dict[str, ErrorEvent] = {}
     for sp in departures:
         if errors.random() < cfg["error_rate"]:
             schedule[sp.acid] = ErrorEvent(code="GND-HS-DROP", detail={})
+    for sp in arrivals:
+        if errors.random() < cfg["error_rate"]:
+            schedule[sp.acid] = ErrorEvent(code="GND-WRONG-TURN", detail={})
 
     return GNDScenario(
         seed=seed, band=band, position=kmrl_gnd.POSITION, session_seconds=session_seconds,

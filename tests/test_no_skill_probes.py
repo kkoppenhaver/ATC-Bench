@@ -65,7 +65,10 @@ def test_do_nothing_never_certifies(runner, seed):
 @pytest.mark.parametrize("seed", SEEDS + (100,))
 def test_blind_corrector_scores_zero_hearback(seed):
     s = _cd(BlindCDCorrector, seed)
-    assert s["components"]["H"] == 0.0
+    # Near-zero hearback signal: false alarms cancel the catches. (Exact 0.0 held
+    # before SAY-AGAIN existed; blind spam can't answer a repeat request, which also
+    # NEGLECT-busts it on seeds that schedule one.)
+    assert s["components"]["H"] <= 0.1
     assert s["counts"]["spurious_corrections"] >= 1
     assert s["S"] <= 0.80
     # And the oracle stays strictly above it — blind spam is never oracle-equal.

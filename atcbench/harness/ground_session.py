@@ -337,6 +337,17 @@ class GroundSession:
         route = kmrl_gnd.build_route(ac.at_node(), dest, pt.via)
         if len(route) < 2:
             return False
+        # GND-WRONG-TURN (§8.3, P2.5): the arrival mishears the taxiway and flies A
+        # against the departure flow. Pilot provenance; the model must notice the
+        # position drift and manage the conflict (crossing + sequencing recover it).
+        if (ac.error_code == "GND-WRONG-TURN" and ac.role == "arrival"
+                and not ac.wrong_turned):
+            wrong = kmrl_gnd.build_route(ac.at_node(), dest, ["a"])
+            if len(wrong) >= 2 and wrong != route:
+                ac.wrong_turned = True
+                route = wrong
+                self.log.emit(self.tick, E.PILOT_DEVIATION, acid=ac.acid,
+                              kind="wrong_turn", cleared_via=pt.via)
         ac.route = route
         ac.idx = 0
         ac.progress = 0

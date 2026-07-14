@@ -53,6 +53,10 @@ class TowerAircraft:
     reentry_at: int = 0
     forced_done: bool = False
     approaches: int = 0
+    error_code: Optional[str] = None
+    error_detail: dict = None  # type: ignore[assignment]
+    luaw_missed: bool = False
+    slow_exit_done: bool = False
 
     def on_runway(self) -> bool:
         return self.phase in ("landing", "luaw", "takeoff")
@@ -130,9 +134,12 @@ class TowerSession:
             if sp.acid in self._spawned or sp.call_tick > self.tick:
                 continue
             self._spawned.add(sp.acid)
+            err = self.scn.error_schedule.get(sp.acid)
             ac = TowerAircraft(acid=sp.acid, actype=sp.actype, wake=sp.wake, role=sp.role,
                                dist_nm=sp.start_dist_nm,
-                               phase="final" if sp.role == "arrival" else "hold_short")
+                               phase="final" if sp.role == "arrival" else "hold_short",
+                               error_code=err.code if err else None,
+                               error_detail=dict(err.detail) if err else {})
             self.active[sp.acid] = ac
             bay = "arrivals" if sp.role == "arrival" else "departures"
             self.strips.strip_create(sp.acid, bay, {"type": sp.actype, "wake": sp.wake})
@@ -267,11 +274,17 @@ class TowerSession:
                                               "persona": "airline_crisp",
                                               "text": "cleared to land runway three one center"}))
         elif pt.intent == "luaw" and ac.role == "departure" and ac.phase == "hold_short":
-            ac.phase = "luaw"
             self.log.emit(self.tick, E.LUAW_CLEARANCE, acid=ac.acid)
-            self._tx(ac.acid, self.vb.render({"kind": "tower_readback", "acid": ac.acid,
-                                              "persona": "airline_crisp",
-                                              "text": "line up and wait runway three one center"}))
+            if ac.error_code == "TWR-LUAW-MISS" and not ac.luaw_missed:
+                # §6.3 "missed LUAW readback": the pilot never heard it — no readback,
+                # no lineup. The model must notice the phase never changed and re-issue.
+                ac.luaw_missed = True
+                self.log.emit(self.tick, E.PILOT_DEVIATION, acid=ac.acid, kind="luaw_missed")
+            else:
+                ac.phase = "luaw"
+                self._tx(ac.acid, self.vb.render({"kind": "tower_readback", "acid": ac.acid,
+                                                  "persona": "airline_crisp",
+                                                  "text": "line up and wait runway three one center"}))
         elif pt.intent == "takeoff" and ac.role == "departure" and ac.phase in ("hold_short", "luaw"):
             ac.phase = "takeoff"
             ac.occupy_until = self.tick + kmrl_twr.OCCUPY_DEP_SEC
@@ -340,6 +353,14 @@ class TowerSession:
                 if self._runway_free(excluding=ac.acid):
                     ac.phase = "landing"
                     ac.occupy_until = self.tick + kmrl_twr.OCCUPY_LAND_SEC
+                    if ac.error_code == "TWR-SLOW-EXIT" and not ac.slow_exit_done:
+                        # §6.3 "slow to exit": lingers on the runway — the model must
+                        # watch occupancy, not assume standard rollout timing.
+                        ac.slow_exit_done = True
+                        extra = int(ac.error_detail.get("extra_sec", 20))
+                        ac.occupy_until += extra
+                        self.log.emit(self.tick, E.PILOT_DEVIATION, acid=ac.acid,
+                                      kind="slow_exit", extra_sec=extra)
                     self._begin_use(ac)
                 else:
                     self._go_around(ac, provenance="model")  # runway occupied at threshold

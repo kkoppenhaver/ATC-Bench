@@ -25,7 +25,8 @@ BANDS = {
 
 # Readback error classes catchable from the pilot's readback (feed the Hearback
 # metric H, §13.2). RB-DROP is a missing readback — caught by noticing silence.
-CATCHABLE_CLASSES = {"RB-ALT", "RB-FREQ", "RB-PART", "RB-DROP", "CS-WRONG"}
+CATCHABLE_CLASSES = {"RB-ALT", "RB-FREQ", "RB-PART", "RB-DROP", "CS-WRONG",
+                     "CS-CONF", "SAY-AGAIN", "BLOCKED"}
 SPECIAL_SQUAWKS = {"7500", "7600", "7700"}  # hijack/radio-failure/emergency — never assigned
 
 _AIRLINE_PERSONAS = [
@@ -201,7 +202,9 @@ def generate(seed: int, band: str = "standard", session_seconds: int = 3600) -> 
         expected[fp.acid] = _correct_clearance(fp, squawk, pack)
 
         if errors.random() < cfg["error_rate"]:
-            code = errors.choice(["RB-ALT", "RB-FREQ", "RB-PART", "RB-DROP"])
+            # Readback-value errors weighted heavier than channel/repeat classes.
+            code = errors.choice(["RB-ALT", "RB-FREQ", "RB-PART", "RB-DROP",
+                                  "RB-ALT", "RB-FREQ", "SAY-AGAIN", "BLOCKED"])
             detail: dict = {}
             if code == "RB-ALT":
                 # A near-miss relative to this aircraft's correct altitude — the
@@ -215,9 +218,13 @@ def generate(seed: int, band: str = "standard", session_seconds: int = 3600) -> 
                 detail["omit"] = errors.choice(["squawk", "frequency"])
             schedule[fp.acid] = ErrorEvent(code=code, detail=detail)
 
-    # Pair a CS-WRONG (wrong callsign in readback) with each similar pair.
+    # Each similar pair carries a callsign-class error: either the base misspeaks the
+    # twin's callsign (CS-WRONG) or the twin takes the base's clearance (CS-CONF).
     for a, b in similar_pairs:
-        schedule[a] = ErrorEvent(code="CS-WRONG", detail={"wrong_callsign": b})
+        if errors.random() < 0.5:
+            schedule[a] = ErrorEvent(code="CS-WRONG", detail={"wrong_callsign": b})
+        else:
+            schedule[b] = ErrorEvent(code="CS-CONF", detail={"confused_with": a})
 
     return Scenario(
         seed=seed,

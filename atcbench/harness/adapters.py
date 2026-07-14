@@ -76,9 +76,12 @@ class ScriptedCDController(ModelAdapter):
     the pilot's actual radio call, never a pre-parsed readback. A dropped readback is
     heard as silence — cleared aircraft that said nothing back get a prompt."""
 
+    MAX_ISSUES = 3  # initial clearance + repeats after say-again / confusion recovery
+
     def __init__(self) -> None:
-        self._issued: set[str] = set()
+        self._issues: dict[str, int] = {}
         self._prompted: set[str] = set()
+        self._disregarded: set[str] = set()
         self._heard: dict[str, str] = {}   # acid -> latest transmission since clearance
         self._judged: dict[str, str] = {}  # acid -> last transmission already acted on
 
@@ -87,31 +90,47 @@ class ScriptedCDController(ModelAdapter):
         for msg in observation["frequency"]:
             if msg.get("from") != position:
                 self._heard[msg["from"]] = msg["text"]
+        # Pass 1 — pending readbacks FIRST: corrections and disregards race a 30 s
+        # window, while an unserviced check-in has 180 s. Prioritizing new clearances
+        # over hearback loses confusions to the deadline under load.
         for ac in observation["aircraft"]:
             acid = ac["acid"]
-            if ac["status"] == "awaiting_clearance" and acid not in self._issued:
-                self._issued.add(acid)
-                self._heard.pop(acid, None)  # forget the check-in; listen for the readback
+            if ac["status"] != "readback_pending":
+                continue
+            if acid not in self._issues:
+                # A readback from an aircraft we never cleared: a similar-callsign
+                # twin took someone else's clearance (CS-CONF). Disregard it.
+                if acid not in self._disregarded:
+                    self._disregarded.add(acid)
+                    cs = _callsign_words(acid)
+                    return self.transmit(f"{cs}, disregard, that was not for you, standby.")
+                continue
+            text = self._heard.get(acid)
+            if text is None:
+                # Cleared, and nothing came back on frequency: dropped readback.
+                if acid not in self._prompted:
+                    self._prompted.add(acid)
+                    c = _correct_clearance_for(ac, self._pack)
+                    cs = _callsign_words(acid)
+                    return self.transmit(
+                        f"{cs}, I need a full readback, "
+                        f"maintain {spoken_altitude(c['altitude'])}, "
+                        f"squawk {spoken_digits(c['squawk'])}.")
+                continue
+            if self._judged.get(acid) == text:
+                continue
+            self._judged[acid] = text
+            corr = self._correction_text(ac, text)
+            if corr:
+                return self.transmit(corr)
+        # Pass 2 — new clearances (first issue, SAY-AGAIN repeat, post-confusion
+        # re-clear).
+        for ac in observation["aircraft"]:
+            acid = ac["acid"]
+            if ac["status"] == "awaiting_clearance" and self._issues.get(acid, 0) < self.MAX_ISSUES:
+                self._issues[acid] = self._issues.get(acid, 0) + 1
+                self._heard.pop(acid, None)  # listen for the readback, not the check-in
                 return self.transmit(self._clearance_text(ac))
-            if ac["status"] == "readback_pending" and acid in self._issued:
-                text = self._heard.get(acid)
-                if text is None:
-                    # Cleared, and nothing came back on frequency: dropped readback.
-                    if acid not in self._prompted:
-                        self._prompted.add(acid)
-                        c = _correct_clearance_for(ac, self._pack)
-                        cs = _callsign_words(acid)
-                        return self.transmit(
-                            f"{cs}, I need a full readback, "
-                            f"maintain {spoken_altitude(c['altitude'])}, "
-                            f"squawk {spoken_digits(c['squawk'])}.")
-                    continue
-                if self._judged.get(acid) == text:
-                    continue
-                self._judged[acid] = text
-                corr = self._correction_text(ac, text)
-                if corr:
-                    return self.transmit(corr)
         return self.wait()
 
     def _clearance_text(self, ac: dict) -> str:
@@ -206,7 +225,9 @@ class ScriptedGNDController(ModelAdapter):
                         f"hold short runway {_runway_spoken('31R')}.")
                 return self.transmit(f"{cs}, taxi to the gate via bravo.")
         for ac in observation["aircraft"]:
-            if ac["role"] == "departure" and ac["holding_short_of"] == "31R":
+            # Any aircraft held at the 31R bar gets crossed when cold — including a
+            # wrong-turned arrival coming down A the other way (GND-WRONG-TURN).
+            if ac["holding_short_of"] == "31R":
                 rw = observation["runways"].get("31R", {})
                 if not rw.get("hot") and self._tower_holds == 0:
                     cs = _callsign_words(ac["acid"])

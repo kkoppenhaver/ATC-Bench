@@ -77,11 +77,11 @@ Goal: a full CD session runs deterministically and is scorable from the log alon
   loop: draw error → emit `fsm_intent` → verbalize → apply `will_comply_as`. Correction
   window logic. Pure function of `(state, parsed_instruction, error_schedule, tick)`.
   _Deps: P1.5, P1.2. Design §8.1, §8.2._
-- [~] **P1.7 — Error schedule (CD subset).** Seeded per-aircraft error schedule for CD
+- [x] **P1.7 — Error schedule (CD subset).** Seeded per-aircraft error schedule for CD
   classes: RB-ALT, RB-HDG, RB-FREQ, RB-DROP, RB-PART, CS-CONF, CS-WRONG, SAY-AGAIN,
-  BLOCKED. _Audit: generator emits only RB-ALT/RB-FREQ/RB-PART/RB-DROP (+CS-WRONG via
-  twin callsigns); RB-HDG, CS-CONF, SAY-AGAIN, BLOCKED have no generator/FSM path →
-  P4.0c._ _Deps: P0.4, P1.6. Design §8.3._
+  BLOCKED. _Audit gap closed by P4.0c: CS-CONF, SAY-AGAIN, BLOCKED now have full
+  generator + FSM paths. RB-HDG deferred to P4.1 by design — there are no headings at
+  CD; it becomes meaningful with TRACON kinematics._ _Deps: P0.4, P1.6. Design §8.3._
 - [x] **P1.8 — Verbalizer + response cache.** Pinned-model client (temp 0) rendering
   `fsm_intent`→radio string; on-disk cache keyed on `(intent_json, persona, prompt_hash)`.
   Personas: `airline_crisp`, `ga_relaxed`, `student_pilot`, `foreign_carrier`, `unfamiliar`.
@@ -150,8 +150,9 @@ Goal: a full CD session runs deterministically and is scorable from the log alon
   model clearance vs. injected FSM error) and head-on deadlock oracle. _Deps: P2.1.
   Design §4.4, §4.5, §13.1._
 - [~] **P2.5 — Ground FSM states & error subset.** Wrong-turn compliance, dropped
-  hold-short readback, hot-spot stop, progressive-taxi (`unfamiliar` persona). _Deps:
-  P1.6, P2.1. Design §6.2, §8.3._
+  hold-short readback, hot-spot stop, progressive-taxi (`unfamiliar` persona).
+  _Wrong-turn landed with P4.0c (GND-WRONG-TURN); hold-short drop existed (GND-HS-DROP).
+  Remaining: hot-spot stop, progressive taxi._ _Deps: P1.6, P2.1. Design §6.2, §8.3._
 - [x] **P2.6 — GND scenario generator.** Departure pushes + scripted Tower runway demand
   + arrivals exiting; difficulty bands. _Deps: P1.9, P2.1. Design §6.2, §12._
 - [x] **P2.7 — Oracle controller policy (GND).** Heuristic controller for feasibility
@@ -373,10 +374,22 @@ clustered CIs reported by `atcbench evaluate`.
   resolution). Scope note: runway hold bars remain structural — FAA-correct (no
   crossing without explicit clearance); instruction-driven holds await charts with
   non-runway hold points; GND-HS-DROP already covers dropped hold-short readbacks._
-- [ ] **P4.0c — Error-class completion (audit m3).** Generator + FSM paths for CS-CONF
+- [x] **P4.0c — Error-class completion (audit m3).** Generator + FSM paths for CS-CONF
   (the flagship similar-callsign confusion class), SAY-AGAIN, and BLOCKED (needs P4.0a);
   TWR injection classes per §6.3; broader GND classes (with P2.5). Closes the P1.7 gap.
-  (§8.3, §8.4)
+  (§8.3, §8.4) _Done: CS-CONF — the twin intercepts a clearance addressed to its base,
+  reads it back under its own callsign, flies it uncaught (cardinal) or reverts on any
+  in-window re-address; trigger-aware catchable counting means clearing the twin first
+  legitimately evaporates the error. SAY-AGAIN — pilot requests a repeat, stays
+  uncleared (neglect clock refreshed), caught by re-transmitting. BLOCKED — readback
+  stepped on ([BLOCKED] noise on frequency), caught by re-prompting. GND-WRONG-TURN —
+  arrival flies A when cleared via B (pilot deviation; recoverable via crossing +
+  sequencing; oracle crossing rule generalized to any held aircraft). TWR-SLOW-EXIT
+  and TWR-LUAW-MISS per §6.3. Oracle re-prioritized: pending readbacks judged before
+  new clearances (corrections race a 30 s window; clearances have 180 s) — found when
+  a CS-CONF disregard lost the race under heavy load. Scope notes: RB-HDG → P4.1;
+  COMP-*/REQ-*/NORDO/DEV-WX/EMERG/PROMPT-INJ remain P5-era classes; H stays CD-only
+  (GND/TWR classes are deviation/monitoring, not hearback)._
 - [x] **P4.0e — Realistic fleet/callsign pairing.** GA types (C172) currently fly
   under airline callsigns (pilot campaign produced "American 4143" as a Cessna 172).
   Assign N-number registrations to GA types (verbalizer/parser already carry partial

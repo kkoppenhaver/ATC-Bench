@@ -115,6 +115,7 @@ class GroundAircraft:
     crossings_cleared: set[str] = field(default_factory=set)
     arrived: bool = False
     error_code: Optional[str] = None
+    wrong_turned: bool = False  # GND-WRONG-TURN fired for this aircraft
     # provenance: did the model explicitly clear every crossing this aircraft made?
     crossed_without_clearance: bool = False
 

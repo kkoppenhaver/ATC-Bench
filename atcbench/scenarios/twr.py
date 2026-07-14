@@ -11,13 +11,17 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 
 from ..charts import kmrl_twr
+from ..domain import ErrorEvent
 from ..sim.performance import wake_of
 from . import fleet
 
 BANDS = {
-    "calm": {"n_arr": 4, "n_dep": 3, "arr_gap": 165, "dep_gap": 190, "forced_ga": 0},
-    "standard": {"n_arr": 6, "n_dep": 5, "arr_gap": 140, "dep_gap": 165, "forced_ga": 1},
-    "heavy": {"n_arr": 9, "n_dep": 8, "arr_gap": 105, "dep_gap": 120, "forced_ga": 1},
+    "calm": {"n_arr": 4, "n_dep": 3, "arr_gap": 165, "dep_gap": 190, "forced_ga": 0,
+             "error_rate": 0.0},
+    "standard": {"n_arr": 6, "n_dep": 5, "arr_gap": 140, "dep_gap": 165, "forced_ga": 1,
+                 "error_rate": 0.15},
+    "heavy": {"n_arr": 9, "n_dep": 8, "arr_gap": 105, "dep_gap": 120, "forced_ga": 1,
+              "error_rate": 0.3},
 }
 
 _AIRLINES = ["AAL", "UAL", "SWA", "DAL"]
@@ -47,6 +51,8 @@ class TWRScenario:
     arrivals: list[TowerSpawn]
     departures: list[TowerSpawn]
     forced_go_arounds: list[str] = field(default_factory=list)
+    # Per-aircraft injections (§6.3): TWR-SLOW-EXIT (arrivals), TWR-LUAW-MISS (departures).
+    error_schedule: dict[str, ErrorEvent] = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return {
@@ -55,6 +61,7 @@ class TWRScenario:
             "arrivals": [a.to_dict() for a in self.arrivals],
             "departures": [d.to_dict() for d in self.departures],
             "forced_go_arounds": list(self.forced_go_arounds),
+            "error_schedule": {k: v.to_dict() for k, v in self.error_schedule.items()},
         }
 
     def all_spawns(self) -> list[TowerSpawn]:
@@ -122,6 +129,18 @@ def _generate_once(seed: int, band: str, session_seconds: int) -> TWRScenario:
         victim = arrivals[len(arrivals) // 2]
         forced.append(victim.acid)
 
+    # Tower injections (§6.3): slow runway exits and missed LUAW readbacks.
+    errors = sm.stream("errors")
+    schedule: dict[str, ErrorEvent] = {}
+    for sp in arrivals:
+        if sp.acid not in forced and errors.random() < cfg["error_rate"]:
+            schedule[sp.acid] = ErrorEvent(code="TWR-SLOW-EXIT",
+                                           detail={"extra_sec": errors.choice([15, 25, 35])})
+    for sp in departures:
+        if errors.random() < cfg["error_rate"]:
+            schedule[sp.acid] = ErrorEvent(code="TWR-LUAW-MISS", detail={})
+
     return TWRScenario(
         seed=seed, band=band, position=kmrl_twr.POSITION, session_seconds=session_seconds,
-        arrivals=arrivals, departures=departures, forced_go_arounds=forced)
+        arrivals=arrivals, departures=departures, forced_go_arounds=forced,
+        error_schedule=schedule)

@@ -114,7 +114,16 @@ def score_cd(log: EventLog, scenario: dict) -> dict:
     # rate on correct readbacks. Silence after a correct readback is a correct accept;
     # blanket "negative ..." spam catches everything but false-alarms everything and
     # scores 0 — listening, not re-clearing, is what H measures (§13.3).
-    catchable = [a for a, e in error_schedule.items() if e.get("code") in CATCHABLE_CLASSES]
+    # An error is catchable only if it actually fired: a CS-CONF that never triggered
+    # (e.g. the model cleared the twin first — legitimate sequencing) doesn't count.
+    catchable = []
+    for a, e in error_schedule.items():
+        if e.get("code") not in CATCHABLE_CLASSES:
+            continue
+        ev = cleared.get(a)
+        if ev is not None and ev.payload.get("error_triggered") is False:
+            continue
+        catchable.append(a)
     caught = sum(1 for a in catchable if cleared.get(a) and cleared[a].payload.get("error_caught"))
     tpr = (caught / len(catchable)) if catchable else 1.0
     spurious_acids = {e.payload["acid"] for e in log.of_type("spurious_correction")}

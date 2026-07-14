@@ -307,9 +307,25 @@ class CDSession:
             self.log.emit(self.tick, E.CLEARANCE_ISSUED, acid=acid,
                           altitude=parsed.altitude, frequency=parsed.frequency,
                           squawk=parsed.squawk, route=parsed.sid, destination=parsed.destination)
+            # CS-CONF (§8.4): a similar-callsign twin may take this clearance instead.
+            twin = self._csconf_interceptor(acid)
+            if twin is not None:
+                verb_intent, fsm_event = twin.intercept_clearance(self.tick, parsed)
+                self.log.emit(self.tick, E.FSM_INTENT, **fsm_event)
+                self._emit_transmission(twin.acid, self.vb.render(verb_intent))
+                self.log.emit(self.tick, E.READBACK, acid=twin.acid, readback=twin.readback,
+                              readback_acid=twin.acid, confused_with=acid)
+                return  # the addressed aircraft never heard its clearance
             verb_intent, fsm_event = fsm.receive_clearance(self.tick, parsed)
             self.log.emit(self.tick, E.FSM_INTENT, **fsm_event)
-            if verb_intent is not None:
+            if fsm.state == CDState.AWAITING_CLEARANCE:
+                # SAY-AGAIN: the pilot asked for a repeat and remains uncleared; the
+                # neglect clock refreshes so the repeat is judged on its own timing.
+                self.log.emit(self.tick, E.SAY_AGAIN, acid=acid, tier=int(parsed.tier),
+                              intent="clearance", reason="pilot_request")
+                self.neglect_deadline[acid] = self.tick + NEGLECT_THRESHOLD_SEC
+                self._emit_transmission(acid, self.vb.render(verb_intent))
+            elif verb_intent is not None:
                 self._emit_transmission(acid, self.vb.render(verb_intent))
                 self.log.emit(self.tick, E.READBACK, acid=acid, readback=fsm.readback,
                               readback_acid=fsm.readback_acid)
@@ -317,6 +333,10 @@ class CDSession:
                 self.log.emit(self.tick, E.PILOT_DEVIATION, acid=acid, kind="readback_dropped")
         elif fsm.state == CDState.READBACK_PENDING and parsed.intent in ("correction", "clearance"):
             ack, spurious = fsm.receive_correction(self.tick, parsed)
+            if ack is not None and ack.get("kind") == "standby_ack":
+                # CS-CONF caught: the twin dropped the foreign clearance and is
+                # waiting again — refresh its neglect clock accordingly.
+                self.neglect_deadline[acid] = self.tick + NEGLECT_THRESHOLD_SEC
             if ack is not None:
                 if spurious:
                     self.log.emit(self.tick, E.SPURIOUS_CORRECTION, acid=acid)
@@ -330,6 +350,17 @@ class CDSession:
             # Addressed but unusable for this aircraft's state (§7.2 tier 3/4):
             # the pilot asks for a repeat instead of the harness dropping it silently.
             self._say_again(acid, fsm.persona.value, parsed)
+
+    def _csconf_interceptor(self, target_acid: str):
+        """The twin that takes a clearance addressed to ``target_acid``, if its
+        scheduled CS-CONF confusion is armed and it is on frequency waiting."""
+        for fsm in self.active.values():
+            if (fsm.error is not None and fsm.error.code == "CS-CONF"
+                    and fsm.error.detail.get("confused_with") == target_acid
+                    and fsm.state == CDState.AWAITING_CLEARANCE
+                    and not fsm.error_triggered):
+                return fsm
+        return None
 
     def _say_again(self, acid: str, persona: str, parsed) -> None:
         self.log.emit(self.tick, E.SAY_AGAIN, acid=acid, tier=int(parsed.tier),

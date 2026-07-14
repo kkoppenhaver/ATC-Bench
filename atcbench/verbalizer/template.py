@@ -114,6 +114,13 @@ class TemplateVerbalizer:
         acid = _callsign_words(intent["acid"])
         return f"Say again for {acid}?"
 
+    def _render_blocked_noise(self, intent: dict, persona: Persona) -> str:
+        return "[BLOCKED — two stations transmitting at once]"
+
+    def _render_standby_ack(self, intent: dict, persona: Persona) -> str:
+        acid = _callsign_words(intent["acid"])
+        return f"Roger, disregarding, standing by, {acid}"
+
     # --- GND-position intents ------------------------------------------------
 
     def _render_taxi_checkin(self, intent: dict, persona: Persona) -> str:
