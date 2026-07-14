@@ -114,12 +114,10 @@ Goal: a full CD session runs deterministically and is scorable from the log alon
   Design §11.3._
 
 ### Scoring
-- [~] **P1.14 — CD scorer.** Pure function of the log. Cardinal detection (NEGLECT,
+- [x] **P1.14 — CD scorer.** Pure function of the log. Cardinal detection (NEGLECT,
   uncorrected bad readback on departed queue item), severe cap, S_raw components with
-  CD-specific E (service time). Hearback H from RB-*/CS-* catch rate. _Audit: blind
-  "negative …" re-clearance scored H=1.0 without listening — fixed by P3.5.2 (H is
-  catch rate minus false-alarm rate; spurious corrections dock F). Remaining: E uses
-  fixed thresholds instead of §13.2 oracle normalization → P3.5.5._ _Deps: P1.2.
+  CD-specific E (service time). Hearback H from RB-*/CS-* catch rate. _Audit gaps
+  closed: hearback integrity by P3.5.2, oracle-normalized E/A by P3.5.5._ _Deps: P1.2.
   Design §13.1–§13.3, §6.1._
 - [x] **P1.15 — Flight strip store + tools.** Bay/strip data structures, tool impls
   (`strip_create/update/move/delete`, `bay_read`), auto-strip on handoff_offered,
@@ -161,14 +159,13 @@ Goal: a full CD session runs deterministically and is scorable from the log alon
   + arrivals exiting; difficulty bands. _Deps: P1.9, P2.1. Design §6.2, §12._
 - [~] **P2.7 — Oracle controller policy (GND).** Heuristic controller for feasibility
   gating and the E-metric normalizer. Feasibility check rejects infeasible scenarios.
-  _Audit: the gate (`baselines/feasibility.py`) is called only from tests — scenario
-  generation never rejects-and-regenerates, and the oracle is not used as the E
-  normalizer → P3.5.5, P3.5.6._ _Deps: P2.6. Design §12.2, §13.2._
-- [~] **P2.8 — GND scorer.** Taxi delay vs. shortest-path, queue-order conformity,
-  explicit-crossings log check, cardinal (RI-CTRL, DEADLOCK). _Audit: do-nothing scored
-  S=1.0 gate=1 — fixed by P3.5.1 (NEGLECT cardinals, all-spawned denominators, H
-  renormalized). Remaining: oracle-normalized E → P3.5.5._ _Deps: P2.4, P2.7.
-  Design §6.2, §13._
+  _Audit: E-normalizer half fixed by P3.5.5 (scorers run the oracle per seed).
+  Remaining: generation never rejects-and-regenerates → P3.5.6._ _Deps: P2.6.
+  Design §12.2, §13.2._
+- [x] **P2.8 — GND scorer.** Taxi delay vs. oracle baseline, queue-order conformity,
+  explicit-crossings log check, cardinal (RI-CTRL, DEADLOCK). _Audit gaps closed:
+  NEGLECT cardinals + honest denominators by P3.5.1, oracle-normalized E/A by
+  P3.5.5._ _Deps: P2.4, P2.7. Design §6.2, §13._
 - [x] **P2.9 — "Bad controller" busting policy + cert test.** Scripted bad policy that
   reliably busts; oracle certifies 3/3. Wire into CI. _Deps: P2.7, P2.8. Design §15 P2 exit._
 
@@ -181,11 +178,10 @@ Goal: a full CD session runs deterministically and is scorable from the log alon
 - [x] **P3.3 — Token-metered regime accounting** (`sim_seconds = ceil(tokens / R)`, R=25;
   sim advances during "thinking"; retrofitted onto CD **and** GND; `--regime turn|metered|both`
   reports `tempo_gap`; metered runs replay byte-identically) (§4.2).
-- [~] **P3.4 — TWR oracle + scorer** (conservative serialized oracle + feasibility gate; throughput
+- [x] **P3.4 — TWR oracle + scorer** (conservative serialized oracle + feasibility gate; throughput
   vs. traffic, model-caused go-arounds via provenance; `atcbench run --position TWR`) (§6.3, §13.2).
-  _Audit: do-nothing certified (S=0.65, gate=1) — fixed by P3.5.1 (NEGLECT cardinal,
-  honest denominators, H renormalized). Remaining: oracle-normalized E + purposeful-set
-  fix → P3.5.5._
+  _Audit gaps closed: NEGLECT cardinal + honest denominators by P3.5.1,
+  oracle-normalized E/A + purposeful-set fix by P3.5.5._
 
 ---
 
@@ -239,11 +235,17 @@ CI at every position and must **never** certify (extends the P2.9 falsification 
   frequency; formatting failures logged verbatim. Known edge for X.3: flight numbers
   divisible by 100 can still hit the altitude fallback; GND/TWR tiers are coarse until
   the variant corpus lands._ _Deps: none. Design §7.2._
-- [ ] **P3.5.5 — Oracle-normalized efficiency (audit M7).** Run the oracle per seed at
+- [x] **P3.5.5 — Oracle-normalized efficiency (audit M7).** Run the oracle per seed at
   score time and compute `E = clamp(model_metric / oracle_metric)` per §13.2, replacing
   the fixed absolute thresholds (which the oracle saturates on 97% of seeds). Fix the
   TWR "purposeful" set — `departed_sector` and go-around events are not model
-  transmissions. _Deps: P3.5.1. Design §13.2._
+  transmissions. _Done: all three scorers regenerate the scenario from (seed, band,
+  session_seconds), run the oracle (cached), and normalize E/A per aircraft against
+  it — the oracle scores exactly 1.0 by construction (TWR A was silently capped at
+  ~0.42 by the unreachable 60 s threshold). TWR go-arounds carry a `commanded` flag:
+  only commanded ones are purposeful, and only go-arounds in excess of the oracle's
+  count against E. CD affirmations of pending readbacks (`readback_affirmed`) count
+  as purposeful._ _Deps: P3.5.1. Design §13.2._
 - [ ] **P3.5.6 — Generation hygiene (audit m1, m5).** Wire `baselines/feasibility.py`
   into scenario generation as reject-and-regenerate per §12.2 (currently test-only).
   Exclude special-purpose squawks (7500/7600/7700) from assignment. _Deps: none.

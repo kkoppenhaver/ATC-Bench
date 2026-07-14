@@ -18,8 +18,7 @@ from atcbench.scoring.cd import score_cd
 def _score(adapter_cls, seed, band="standard"):
     scn = cd_scenarios.generate(seed, band=band, session_seconds=3600)
     res = CDSession(scn).run(adapter_cls())
-    sched = {a: e.to_dict() for a, e in scn.error_schedule.items()}
-    return score_cd(res.log, scn.expected_clearance, sched)
+    return score_cd(res.log, scn.to_dict())
 
 
 @pytest.mark.parametrize("seed", [1, 7, 42, 100])

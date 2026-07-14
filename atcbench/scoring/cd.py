@@ -17,15 +17,47 @@ from ..sim.events import EventLog
 
 # Pinned component weights (§13.2).
 W_E, W_H, W_F, W_A = 0.35, 0.25, 0.20, 0.20
-SERVICE_THRESHOLD_SEC = 90  # CD per-clearance service-time target (§6.1)
-RESPONSE_THRESHOLD_SEC = 30  # target latency to first clearance after check-in
+
+_ORACLE_CACHE: dict[tuple, dict] = {}
 
 
 def _clamp(x: float, lo: float = 0.0, hi: float = 1.0) -> float:
     return max(lo, min(hi, x))
 
 
-def score_cd(log: EventLog, expected: dict[str, dict], error_schedule: dict[str, dict]) -> dict:
+def _oracle_metrics(scenario: dict) -> dict:
+    """Per-aircraft oracle service/latency for this seed — the §13.2 E/A normalizer.
+
+    The oracle run is regenerated deterministically from (seed, band, session_seconds),
+    so E and A are anchored to what a competent controller achieves on exactly this
+    traffic, not to arbitrary absolute thresholds the oracle itself saturates."""
+    key = (scenario["seed"], scenario["band"], scenario["session_seconds"])
+    if key not in _ORACLE_CACHE:
+        from ..harness.adapters import ScriptedCDController
+        from ..harness.session import CDSession
+        from ..scenarios.cd import generate
+
+        olog = CDSession(generate(key[0], band=key[1], session_seconds=key[2])).run(
+            ScriptedCDController()).log
+        ospawns = {e.payload["acid"]: e.tick for e in olog.of_type("aircraft_spawn")}
+        service: dict[str, int] = {}
+        for e in olog.of_type("aircraft_cleared"):
+            a = e.payload["acid"]
+            if a in ospawns:
+                service.setdefault(a, max(1, e.tick - ospawns[a]))
+        latency: dict[str, int] = {}
+        for e in olog.of_type("clearance_issued"):
+            a = e.payload["acid"]
+            if a in ospawns:
+                latency.setdefault(a, max(1, e.tick - ospawns[a]))
+        _ORACLE_CACHE[key] = {"service": service, "latency": latency}
+    return _ORACLE_CACHE[key]
+
+
+def score_cd(log: EventLog, scenario: dict) -> dict:
+    expected: dict[str, dict] = scenario.get("expected_clearance", {})
+    error_schedule: dict[str, dict] = scenario.get("error_schedule", {})
+    oracle = _oracle_metrics(scenario)
     spawns = {e.payload["acid"]: e.tick for e in log.of_type("aircraft_spawn")}
     cleared = {e.payload["acid"]: e for e in log.of_type("aircraft_cleared")}
     clearance_issued = {}
@@ -62,15 +94,21 @@ def score_cd(log: EventLog, expected: dict[str, dict], error_schedule: dict[str,
             if not freq_ok:
                 severes.append({"code": "wrong_frequency", "acid": acid})
 
-        # Efficiency: service time from check-in to cleared.
+        # Efficiency: service time from check-in to cleared, normalized per aircraft
+        # against the oracle on the same seed (§13.2). Neutral if the oracle somehow
+        # lacks the aircraft — never a free 1.0 for skipping it.
         t0 = spawns.get(acid)
         if t0 is not None:
             service = max(1, ev.tick - t0)
-            service_ratios.append(_clamp(SERVICE_THRESHOLD_SEC / service))
-        # Attention proxy: latency from check-in to first clearance issued.
-        if t0 is not None and acid in clearance_issued:
-            latency = max(1, clearance_issued[acid] - t0)
-            response_ratios.append(_clamp(RESPONSE_THRESHOLD_SEC / latency))
+            service_ratios.append(_clamp(oracle["service"].get(acid, service) / service))
+        # Attention proxy: latency to first clearance, oracle-normalized; never
+        # addressed at all scores 0.
+        if t0 is not None:
+            if acid in clearance_issued:
+                latency = max(1, clearance_issued[acid] - t0)
+                response_ratios.append(_clamp(oracle["latency"].get(acid, latency) / latency))
+            else:
+                response_ratios.append(0.0)
 
     # Hearback as signal detection: catch rate on scheduled errors minus false-alarm
     # rate on correct readbacks. Silence after a correct readback is a correct accept;
@@ -86,14 +124,16 @@ def score_cd(log: EventLog, expected: dict[str, dict], error_schedule: dict[str,
 
     # Frequency & protocol discipline: fraction of controller transmissions that
     # parsed to a purposeful, addressed intent (proxy for phraseology cleanliness).
-    # Spurious corrections land in the denominator only — spam costs F.
+    # Affirming a correct readback is purposeful; spurious corrections land in the
+    # denominator only — spam costs F.
     ctrl_tx = [e for e in log.of_type("transmission") if e.payload.get("speaker", "").endswith("_CD")]
     n_ctrl = len(ctrl_tx)
-    purposeful = len(log.of_type("clearance_issued")) + len(log.of_type("clearance_corrected"))
-    F = _clamp(purposeful / n_ctrl) if n_ctrl else 1.0
+    purposeful = (len(log.of_type("clearance_issued")) + len(log.of_type("clearance_corrected"))
+                  + len(log.of_type("readback_affirmed")))
+    F = _clamp(purposeful / n_ctrl) if n_ctrl else (0.0 if spawns else 1.0)
 
-    E = (sum(service_ratios) / len(service_ratios)) if service_ratios else 1.0
-    A = (sum(response_ratios) / len(response_ratios)) if response_ratios else 1.0
+    E = (sum(service_ratios) / len(service_ratios)) if service_ratios else (0.0 if spawns else 1.0)
+    A = (sum(response_ratios) / len(response_ratios)) if response_ratios else (0.0 if spawns else 1.0)
 
     severe_count = len(severes)
     gate = 0 if cardinals else (0 if severe_count > 2 else 1)
@@ -131,4 +171,4 @@ def score_run_dir(run_dir: str | Path) -> dict:
     d = Path(run_dir)
     log = EventLog.read(d / "events.jsonl")
     scn: dict[str, Any] = json.loads((d / "scenario.json").read_text(encoding="utf-8"))
-    return score_cd(log, scn.get("expected_clearance", {}), scn.get("error_schedule", {}))
+    return score_cd(log, scn)

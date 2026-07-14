@@ -251,7 +251,7 @@ class TowerSession:
                                               "persona": "airline_crisp",
                                               "text": "cleared for takeoff runway three one center"}))
         elif pt.intent == "go_around" and ac.role == "arrival" and ac.phase in ("final", "cleared_land"):
-            self._go_around(ac, provenance="model")
+            self._go_around(ac, provenance="model", commanded=True)
         elif pt.intent == "handoff" and ac.role == "departure" and ac.phase == "airborne":
             ac.phase = "departed"
             self.log.emit(self.tick, E.DEPARTED_SECTOR, acid=ac.acid)
@@ -279,13 +279,13 @@ class TowerSession:
         self.rw_last_use_start = self.tick
         self.rw_last_wake = ac.wake
 
-    def _go_around(self, ac: TowerAircraft, provenance: str) -> None:
+    def _go_around(self, ac: TowerAircraft, provenance: str, commanded: bool = False) -> None:
         ac.phase = "go_around"
         ac.cleared = False
         ac.reentry_at = self.tick + kmrl_twr.GO_AROUND_REENTRY_SEC
         ac.approaches += 1
         self.log.emit(self.tick, E.GO_AROUND, acid=ac.acid, provenance=provenance,
-                      dist_nm=round(ac.dist_nm, 2))
+                      commanded=commanded, dist_nm=round(ac.dist_nm, 2))
         self._tx(ac.acid, self.vb.render({"kind": "tower_goaround", "acid": ac.acid,
                                           "persona": "airline_crisp"}))
 

@@ -41,8 +41,7 @@ def _run_one(args: argparse.Namespace, regime_name: str):
         ph = prompt_hash(build_cd_system_prompt(args.session_seconds, regime_name))
         session = CDSession(scn, prompt_hash=ph, regime=regime)
         result = session.run(_CD_CONTROLLERS[args.controller]())
-        score = score_cd(result.log, scn.expected_clearance,
-                         {a: e.to_dict() for a, e in scn.error_schedule.items()})
+        score = score_cd(result.log, scn.to_dict())
     elif args.position == "GND":
         scn = gnd_scenarios.generate(args.seed, band=args.band, session_seconds=args.session_seconds)
         session = GroundSession(scn, regime=regime)

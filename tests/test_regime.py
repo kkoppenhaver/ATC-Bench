@@ -28,8 +28,7 @@ def test_regime_math():
 def _score_cd(adapter, seed, regime):
     scn = cd_scenarios.generate(seed, band="standard")
     res = CDSession(scn, regime=regime).run(adapter)
-    return score_cd(res.log, scn.expected_clearance,
-                    {a: e.to_dict() for a, e in scn.error_schedule.items()}), res
+    return score_cd(res.log, scn.to_dict()), res
 
 
 @pytest.mark.parametrize("seed", [1, 7, 42])

@@ -12,30 +12,46 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from ..charts import kmrl_gnd
 from ..sim.events import EventLog
 
 W_E, W_H, W_F, W_A = 0.35, 0.25, 0.20, 0.20
-SWEEP_SEC = 5
-RESPONSE_THRESHOLD_SEC = 30
-CROSSING_ALLOWANCE_SEC = 150  # slack granted to routes that must wait for a runway crossing
 NEGLECT_THRESHOLD_SEC = 180  # spawn -> first taxi clearance beyond this = NEGLECT (§13.1)
 STRANDED_THRESHOLD_SEC = 300  # taxi-cleared this long with no crossing and no arrival = NEGLECT
+
+_ORACLE_CACHE: dict[tuple, dict] = {}
 
 
 def _clamp(x: float, lo: float = 0.0, hi: float = 1.0) -> float:
     return max(lo, min(hi, x))
 
 
-def _ideal_seconds(spawn_node: str, goal_node: str, crosses: bool) -> float:
-    path = kmrl_gnd.GRAPH.shortest_path(spawn_node, goal_node)
-    sweeps = 0
-    for u, v in zip(path, path[1:]):
-        edge = kmrl_gnd.GRAPH.edge(u, v)
-        if edge:
-            sweeps += edge.transit_sweeps()
-    base = sweeps * SWEEP_SEC
-    return base + (CROSSING_ALLOWANCE_SEC if crosses else 0)
+def _oracle_metrics(scenario: dict) -> dict:
+    """Per-aircraft oracle taxi/latency for this seed — the §13.2 E/A normalizer.
+
+    Replaces the old shortest-path-plus-fixed-allowance ideal: the oracle actually
+    works the same traffic (same crossings, same hot windows), so its times are an
+    achievable anchor rather than a slack absolute threshold."""
+    key = (scenario["seed"], scenario["band"], scenario["session_seconds"])
+    if key not in _ORACLE_CACHE:
+        from ..harness.adapters import ScriptedGNDController
+        from ..harness.ground_session import GroundSession
+        from ..scenarios.gnd import generate
+
+        olog = GroundSession(generate(key[0], band=key[1], session_seconds=key[2])).run(
+            ScriptedGNDController()).log
+        ospawns = {e.payload["acid"]: e.tick for e in olog.of_type("aircraft_spawn")}
+        taxi: dict[str, int] = {}
+        for e in olog.of_type("aircraft_arrived"):
+            a = e.payload["acid"]
+            if a in ospawns:
+                taxi.setdefault(a, max(1, e.tick - ospawns[a]))
+        latency: dict[str, int] = {}
+        for e in olog.of_type("taxi_clearance"):
+            a = e.payload["acid"]
+            if a in ospawns:
+                latency.setdefault(a, max(1, e.tick - ospawns[a]))
+        _ORACLE_CACHE[key] = {"taxi": taxi, "latency": latency}
+    return _ORACLE_CACHE[key]
 
 
 def score_gnd(log: EventLog, scenario: dict) -> dict:
@@ -97,20 +113,20 @@ def score_gnd(log: EventLog, scenario: dict) -> dict:
                               "tick": session_end})
 
     # Every spawned aircraft counts in E and A; unserviced aircraft score 0 rather
-    # than being silently excluded from the denominators.
+    # than being silently excluded from the denominators. Ratios are oracle-normalized
+    # per aircraft (§13.2), neutral if the oracle somehow lacks the aircraft.
+    oracle = _oracle_metrics(scenario)
     delay_factors: list[float] = []
     response_ratios: list[float] = []
     for acid, sp_ev in spawns.items():
-        s = spec.get(acid, {})
-        crosses = s.get("role") == "departure"
         if acid in arrivals:
             actual = max(1, arrivals[acid].tick - sp_ev.tick)
-            ideal = _ideal_seconds(s.get("node", ""), s.get("goal", ""), crosses)
-            delay_factors.append(_clamp(ideal / actual))
+            delay_factors.append(_clamp(oracle["taxi"].get(acid, actual) / actual))
         else:
             delay_factors.append(0.0)
         if acid in first_taxi:
-            response_ratios.append(_clamp(RESPONSE_THRESHOLD_SEC / max(1, first_taxi[acid] - sp_ev.tick)))
+            lat = max(1, first_taxi[acid] - sp_ev.tick)
+            response_ratios.append(_clamp(oracle["latency"].get(acid, lat) / lat))
         else:
             response_ratios.append(0.0)
 

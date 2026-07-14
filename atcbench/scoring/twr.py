@@ -14,12 +14,44 @@ from pathlib import Path
 from ..sim.events import EventLog
 
 W_E, W_H, W_F, W_A = 0.35, 0.25, 0.20, 0.20
-RESPONSE_THRESHOLD_SEC = 60  # target latency to first landing/takeoff clearance
 NEGLECT_GRACE_SEC = 180  # min time on frequency before a never-cleared aircraft is NEGLECT
+
+_ORACLE_CACHE: dict[tuple, dict] = {}
 
 
 def _clamp(x: float, lo: float = 0.0, hi: float = 1.0) -> float:
     return max(lo, min(hi, x))
+
+
+def _oracle_metrics(scenario: dict) -> dict:
+    """Oracle completion / go-arounds / per-aircraft clearance latency — the §13.2
+    normalizer. Anchors E and A to what the conservative serialized oracle achieves on
+    exactly this traffic (the old 60 s response threshold was unreachable for arrivals
+    correctly cleared at 4 nm, silently capping A around 0.4)."""
+    key = (scenario["seed"], scenario["band"], scenario["session_seconds"])
+    if key not in _ORACLE_CACHE:
+        from ..harness.adapters import ScriptedTWRController
+        from ..harness.tower_session import TowerSession
+        from ..scenarios.twr import generate
+
+        olog = TowerSession(generate(key[0], band=key[1], session_seconds=key[2])).run(
+            ScriptedTWRController()).log
+        ospawns = {e.payload["acid"]: e.tick for e in olog.of_type("aircraft_spawn")}
+        latency: dict[str, int] = {}
+        for e in (olog.of_type("landing_clearance") + olog.of_type("takeoff_clearance")
+                  + olog.of_type("luaw_clearance")):
+            a = e.payload["acid"]
+            if a in ospawns:
+                latency.setdefault(a, max(1, e.tick - ospawns[a]))
+        completed = len(olog.of_type("landed")) + len(olog.of_type("departed_sector"))
+        model_ga = sum(1 for e in olog.of_type("go_around")
+                       if e.payload.get("provenance") == "model")
+        _ORACLE_CACHE[key] = {
+            "latency": latency,
+            "completion": completed / max(1, len(ospawns)),
+            "model_ga": model_ga,
+        }
+    return _ORACLE_CACHE[key]
 
 
 def score_twr(log: EventLog, scenario: dict) -> dict:
@@ -62,23 +94,32 @@ def score_twr(log: EventLog, scenario: dict) -> dict:
                               "detail": "no clearance issued all session", "tick": session_end})
 
     # Every spawned aircraft counts in A; never-cleared aircraft score 0 rather than
-    # being silently excluded from the denominator.
+    # being silently excluded from the denominator. Latencies are oracle-normalized
+    # per aircraft (§13.2), neutral if the oracle somehow lacks the aircraft.
+    oracle = _oracle_metrics(scenario)
     response_ratios = []
     for acid, t0 in spawns.items():
         if acid in first_clear:
-            response_ratios.append(_clamp(RESPONSE_THRESHOLD_SEC / max(1, first_clear[acid] - t0)))
+            lat = max(1, first_clear[acid] - t0)
+            response_ratios.append(_clamp(oracle["latency"].get(acid, lat) / lat))
         else:
             response_ratios.append(0.0)
 
+    # E: throughput vs the oracle on this traffic, and go-arounds in excess of the
+    # oracle's (a commanded go-around can be the right call — only extras count).
     completion = completed / total
-    model_ga_rate = _clamp(len(model_ga) / n_arr) if n_arr else 0.0
-    E = 0.7 * completion + 0.3 * (1.0 - model_ga_rate)
+    excess_ga = max(0, len(model_ga) - oracle["model_ga"])
+    excess_ga_rate = _clamp(excess_ga / n_arr) if n_arr else 0.0
+    E = 0.7 * _clamp(completion / oracle["completion"] if oracle["completion"] else completion) \
+        + 0.3 * (1.0 - excess_ga_rate)
 
-    # Empty aggregates with aircraft present score 0, not 1: silence is not competence.
+    # F: only events that are 1:1 with a model transmission count as purposeful —
+    # a go-around forced by inaction or the environment is not a transmission.
     ctrl_tx = [e for e in log.of_type("transmission") if e.payload.get("speaker", "").endswith("_TWR")]
+    commanded_ga = [e for e in go_arounds if e.payload.get("commanded")]
     purposeful = (len(log.of_type("landing_clearance")) + len(log.of_type("takeoff_clearance"))
                   + len(log.of_type("luaw_clearance")) + len(log.of_type("departed_sector"))
-                  + len(model_ga) + len(env_ga))
+                  + len(commanded_ga))
     F = _clamp(purposeful / len(ctrl_tx)) if ctrl_tx else (0.0 if spawns else 1.0)
 
     A = (sum(response_ratios) / len(response_ratios)) if response_ratios else (0.0 if spawns else 1.0)

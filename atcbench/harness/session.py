@@ -292,7 +292,11 @@ class CDSession:
             return  # unaddressed — logged above; nobody on frequency can respond
         fsm = self.active[acid]
         if parsed.intent in ("affirm", "say_again"):
-            return  # acknowledged silently; the pilot has nothing to re-read
+            # Affirming a pending readback closes the loop purposefully (§13.3);
+            # otherwise acknowledged silently — the pilot has nothing to re-read.
+            if parsed.intent == "affirm" and fsm.state == CDState.READBACK_PENDING:
+                self.log.emit(self.tick, E.READBACK_AFFIRMED, acid=acid)
+            return
         if parsed.intent == "clearance" and fsm.state == CDState.AWAITING_CLEARANCE:
             self.log.emit(self.tick, E.CLEARANCE_ISSUED, acid=acid,
                           altitude=parsed.altitude, frequency=parsed.frequency,
