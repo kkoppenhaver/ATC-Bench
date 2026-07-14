@@ -262,10 +262,15 @@ CI at every position and must **never** certify (extends the P2.9 falsification 
   every `model_io.json`; new `cross-version-determinism` CI job runs CD/GND/TWR on
   both interpreters and byte-compares artifacts._ _Deps: none. Folds into X.2.
   Design §17.2._
-- [ ] **P3.5.8 — No-skill baseline regression suite (exit test; seeds X.5).**
+- [x] **P3.5.8 — No-skill baseline regression suite (exit test; seeds X.5).**
   Do-nothing and blind-corrector policies as permanent CI busting probes at every
   position; must never certify. Grows with each new position, like the determinism
-  suite. _Deps: P3.5.1, P3.5.2. Design §15 exit-test pattern._
+  suite. _Done: `tests/test_no_skill_probes.py` is the X.5 suite — DoNothing busts on
+  NEGLECT at all three positions, TaxiOnlyGND busts on stranded-NEGLECT, BlindCD
+  scores H=0 and sits strictly below the oracle (its gate-level cert failure lands
+  with P3.6.3 bust-rate certification). Probes live in `harness/adapters.py`; every
+  new position must add its probes to the suite. **Phase 3.5 exit test: passing.**_
+  _Deps: P3.5.1, P3.5.2. Design §15 exit-test pattern._
 - [ ] **P3.5.9 — Doc/claims alignment (audit m4).** Correct README certification wording
   and channel-physics claims (README §features + tool descriptions say transmissions
   cost time at all positions — true only at CD until P4.0a); fix stale comments

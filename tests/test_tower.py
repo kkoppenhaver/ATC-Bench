@@ -5,12 +5,7 @@ from __future__ import annotations
 import pytest
 
 from atcbench.baselines.feasibility import twr_feasible
-from atcbench.harness.adapters import (
-    BadTWRController,
-    DoNothingController,
-    ReplayAdapter,
-    ScriptedTWRController,
-)
+from atcbench.harness.adapters import BadTWRController, ReplayAdapter, ScriptedTWRController
 from atcbench.harness.regime import TokenMetered, TurnBased
 from atcbench.harness.tower_session import TowerSession
 from atcbench.scenarios import twr as twr_scenarios
@@ -34,15 +29,6 @@ def test_oracle_certifies(seed, band):
 def test_bad_controller_busts_across_seeds():
     busts = [_score(BadTWRController, s)["gate"] for s in range(1, 12)]
     assert all(g == 0 for g in busts)
-
-
-@pytest.mark.parametrize("seed", [1, 7, 42])
-def test_do_nothing_never_certifies(seed):
-    # No-skill probe (X.5): pure inaction must bust on NEGLECT, never score.
-    s = _score(DoNothingController, seed)
-    assert s["gate"] == 0
-    assert s["S"] == 0.0
-    assert any(c["code"] == "NEGLECT" for c in s["cardinal_violations"])
 
 
 def test_bad_controller_hits_los_or_wake():

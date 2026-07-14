@@ -345,6 +345,18 @@ class DoNothingController(ModelAdapter):
         return self.wait()
 
 
+class TaxiOnlyGNDController(ScriptedGNDController):
+    """Low-skill probe: routes everyone like the oracle but never clears the 31R
+    crossing — stranding every departure at the hold bar scored S=0.80 with gate=1
+    before the 2026-07 audit; it must read as NEGLECT (X.5)."""
+
+    def step(self, observation: dict) -> dict:
+        for ac in observation["aircraft"]:
+            if not ac["route_assigned"]:
+                return super().step(observation)
+        return self.wait()
+
+
 class BlindCDCorrector(ModelAdapter):
     """Low-skill probe: transmits the full correct clearance as a "negative ..."
     correction to every pending readback without ever reading one. Before the 2026-07

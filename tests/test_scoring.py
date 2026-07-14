@@ -4,12 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from atcbench.harness.adapters import (
-    BadCDController,
-    BlindCDCorrector,
-    DoNothingController,
-    ScriptedCDController,
-)
+from atcbench.harness.adapters import BadCDController, ScriptedCDController
 from atcbench.harness.session import CDSession
 from atcbench.scenarios import cd as cd_scenarios
 from atcbench.scoring.cd import score_cd
@@ -45,26 +40,6 @@ def test_bad_controller_busts():
     assert s["gate"] == 0
     assert s["S"] == 0.0
     assert s["counts"]["cardinals"] >= 1
-
-
-@pytest.mark.parametrize("seed", [1, 7, 42])
-def test_do_nothing_never_certifies(seed):
-    # No-skill probe (X.5): pure inaction must bust on NEGLECT, never score.
-    s = _score(DoNothingController, seed)
-    assert s["gate"] == 0
-    assert s["S"] == 0.0
-    assert any(c["code"] == "NEGLECT" for c in s["cardinal_violations"])
-
-
-@pytest.mark.parametrize("seed", [1, 7, 42, 100])
-def test_blind_corrector_scores_zero_hearback(seed):
-    # Low-skill probe (X.5, audit C2): correcting every readback without listening
-    # used to match the oracle's S=1.0. It must score H=0 (all false alarms) and sit
-    # well below the oracle; the cert-level assertion arrives with P3.6.3.
-    s = _score(BlindCDCorrector, seed)
-    assert s["components"]["H"] == 0.0
-    assert s["counts"]["spurious_corrections"] >= 1
-    assert s["S"] <= 0.80
 
 
 def test_bad_controller_busts_across_seeds():
