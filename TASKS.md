@@ -61,11 +61,10 @@ Goal: a full CD session runs deterministically and is scorable from the log alon
   Design §4.6._
 
 ### Communication channel
-- [~] **P1.3 — Frequency channel model.** Half-duplex single channel; broadcast duration
+- [x] **P1.3 — Frequency channel model.** Half-duplex single channel; broadcast duration
   `ceil(word_count / 2.5)`; transmission queueing when channel busy; `[BLOCKED]` handling
-  stub. _Audit: time cost + queueing are wired at CD only — GND/TWR `_tx` is free and
-  instant, and `[BLOCKED]` is absent everywhere; shared channel component → P4.0a._
-  _Deps: P1.1. Design §7.1._
+  stub. _Audit gap closed by P4.0a: shared `FrequencyChannel` at all positions, with
+  `[BLOCKED]` implemented at the time-stepped positions._ _Deps: P1.1. Design §7.1._
 - [x] **P1.4 — Transcript formatter.** World→model frequency feed (ordered, timestamped
   JSON lines per §7.3). _Deps: P1.3. Design §7.3._
 
@@ -351,10 +350,16 @@ clustered CIs reported by `atcbench evaluate`.
 > **Blocked on Phases 3.5–3.6.** P4.0a–d close audit gaps in existing positions and
 > should land before or alongside the TRACON build.
 
-- [ ] **P4.0a — Shared frequency-channel physics (audit M4).** Lift CD's half-duplex
+- [x] **P4.0a — Shared frequency-channel physics (audit M4).** Lift CD's half-duplex
   time-cost/queueing channel into a shared component used by GND/TWR and all future
   positions; implement `[BLOCKED]`. Makes verbosity an operational cost everywhere
   (principle #3) and makes correction-spam self-punishing. Closes the P1.3 gap. (§7.1)
+  _Done: `harness/channel.py` FrequencyChannel — CD keeps queue-then-advance semantics
+  (byte-identical determinism preserved); at GND/TWR all speakers queue on the channel
+  and a model transmit over a busy channel is `[BLOCKED]` (event + tool result) and
+  forfeits the sweep's action window. `channel_busy` exposed in observations (audible
+  reality); oracles/bad controllers wait for a clear channel; prompts (gnd-v2/twr-v2),
+  tool descriptions, and README updated; `blocked_transmissions` in scorer counts._
 - [ ] **P4.0b — Pilots fly the transmitted route (audit M2, robustness remainder).**
   Builds on P3.5.10 (route production is already required and protocol-checked). GND
   pilots follow the route the model actually transmitted, with §7.2 tier-3

@@ -35,9 +35,10 @@ Implemented so far:
 - Tiered phraseology parser with number normalization — `pilots/parser.py`
 - Per-aircraft pilot FSM (CD subset) + seeded error schedule — `pilots/fsm.py`, `scenarios/cd.py`
 - Deterministic template verbalizer + response cache, pluggable LLM backend — `verbalizer/`
-- Half-duplex frequency channel (150 wpm broadcast physics) — **CD only** for now;
-  GND/TWR transmissions are free until the shared channel component lands (P4.0a) —
-  `harness/session.py`
+- Half-duplex frequency channel (150 wpm broadcast physics) at **all positions** —
+  shared `FrequencyChannel` component; at the time-stepped positions (GND/TWR),
+  keying up over a busy channel is `[BLOCKED]` and forfeits the sweep's action —
+  `harness/channel.py`
 - Taxi graph + Ground position: taxi kinematics, explicit crossings, runway-incursion
   and head-on deadlock oracle — `sim/taxi.py`, `charts/kmrl_gnd.py`, `harness/ground_session.py`
 - Model adapter + tool router: scripted oracle & bad controllers at all three

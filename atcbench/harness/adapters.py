@@ -188,6 +188,8 @@ class ScriptedGNDController(ModelAdapter):
                 self._tower_holds += 1
             elif "crossings at your discretion" in text:
                 self._tower_holds = max(0, self._tower_holds - 1)
+        if observation.get("channel_busy"):
+            return self.wait()  # half-duplex: don't key up over traffic
         for ac in observation["aircraft"]:
             cs = _callsign_words(ac["acid"])
             if not ac["route_assigned"]:
@@ -210,6 +212,8 @@ class BadGNDController(ModelAdapter):
     reliably produces a head-on deadlock and/or a runway incursion."""
 
     def step(self, observation: dict) -> dict:
+        if observation.get("channel_busy"):
+            return self.wait()  # bad decisions, but it can still hear the radio
         for ac in observation["aircraft"]:
             cs = _callsign_words(ac["acid"])
             if not ac["route_assigned"]:
@@ -255,6 +259,9 @@ class ScriptedTWRController(ModelAdapter):
 
         tick = observation["tick"]
         acs = observation["aircraft"]
+        # Update the picture first (below) even on busy sweeps; but never key up
+        # over traffic — half-duplex.
+        channel_busy = observation.get("channel_busy", False)
         # Update the picture: an arrival first observed on the runway marks a use.
         for a in acs:
             if (a["role"] == "arrival" and a["phase"] == "landing"
@@ -264,6 +271,8 @@ class ScriptedTWRController(ModelAdapter):
                 self._last_wake = a["wake"]
         since = (tick - self._last_use_start) if self._last_use_start is not None else None
         last_wake = self._last_wake
+        if channel_busy:
+            return self.wait()
         departures = [a for a in acs if a["role"] == "departure"]
 
         def eta(a):
@@ -330,6 +339,8 @@ class BadTWRController(ModelAdapter):
     def step(self, observation: dict) -> dict:
         from ..charts import kmrl_twr
 
+        if observation.get("channel_busy"):
+            return self.wait()  # bad decisions, but it can still hear the radio
         for a in observation["aircraft"]:
             cs = _callsign_words(a["acid"])
             if a["role"] == "arrival" and a["phase"] == "final":
@@ -360,6 +371,8 @@ class NoRouteGNDController(ModelAdapter):
         self._told: set[str] = set()
 
     def step(self, observation: dict) -> dict:
+        if observation.get("channel_busy"):
+            return self.wait()
         for ac in observation["aircraft"]:
             if ac["acid"] not in self._told:
                 self._told.add(ac["acid"])

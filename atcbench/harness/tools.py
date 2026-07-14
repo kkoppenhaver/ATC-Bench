@@ -13,8 +13,9 @@ def position_tools(position: str = "CD") -> list[dict]:
     if position == "CD":
         timing = "Consumes sim time at 150 wpm; the channel is half-duplex."
     else:
-        timing = ("The channel is shared with pilots and Tower coordination; "
-                  "transmissions at this position are not yet time-metered.")
+        timing = ("The channel is half-duplex at 150 wpm, shared with pilots and "
+                  "coordination calls: keying up while it is busy gets you [BLOCKED] "
+                  "and forfeits your action window for this sweep.")
     return [
         {
             "name": "transmit",

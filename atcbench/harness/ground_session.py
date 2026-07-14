@@ -24,6 +24,7 @@ from ..sim.events import EventLog
 from ..sim.taxi import GroundAircraft, occupied_edge
 from ..strips.store import StripStore
 from ..verbalizer import CachedVerbalizer, default_verbalizer
+from .channel import FrequencyChannel
 from .regime import TurnBased
 
 SWEEP_SEC = 5
@@ -95,6 +96,7 @@ class GroundSession:
         self.model_io: list[dict] = []
 
         self.tick = 0
+        self.channel = FrequencyChannel()
         self.last_shown = 0
         self.active: dict[str, GroundAircraft] = {}
         self.holds: set[str] = set()  # aircraft told to hold position
@@ -110,8 +112,11 @@ class GroundSession:
     # --- channel -------------------------------------------------------------
 
     def _tx(self, speaker: str, text: str) -> None:
-        self.transcript.append({"t": self.tick, "from": speaker, "text": text})
-        self.log.emit(self.tick, E.TRANSMISSION, speaker=speaker, text=text)
+        """Broadcast on the shared half-duplex channel; queues behind traffic (§7.1)."""
+        start, end = self.channel.transmit(self.tick, text)
+        self.transcript.append({"t": start, "from": speaker, "text": text})
+        self.log.emit(start, E.TRANSMISSION, speaker=speaker, text=text,
+                      start_tick=start, end_tick=end)
 
     # --- spawns --------------------------------------------------------------
 
@@ -181,7 +186,9 @@ class GroundSession:
                 "held": acid in self.holds,
             })
         return {"tick": self.tick, "sim_time": _sim_time(self.tick), "position": self.scn.position,
-                "frequency": new_msgs, "runways": self._runway_status(),
+                "frequency": new_msgs,
+                "channel_busy": self.channel.is_busy(self.tick),  # audible on frequency
+                "runways": self._runway_status(),
                 "aircraft": aircraft, "tower_sequence": list(self.scn.tower_sequence)}
 
     # --- model turns ---------------------------------------------------------
@@ -234,10 +241,17 @@ class GroundSession:
                 results.append("ok")
                 return True, results
             if name == "transmit":
+                # Half-duplex (§7.1): keying up over a busy channel gets stepped on —
+                # nothing is heard, and the action window for this sweep is forfeit.
+                if self.channel.is_busy(self.tick):
+                    self.log.emit(self.tick, E.BLOCKED_TRANSMISSION,
+                                  busy_until=self.channel.busy_until)
+                    results.append("[BLOCKED] frequency busy — you were stepped on; "
+                                   "wait for the channel to clear")
+                    return True, results
                 self._handle_transmit(inp.get("text", ""))
                 results.append("transmitted")
-            # Strip ops are free here (CD charges 1 s each) until the shared
-            # channel/cost model lands (P4.0a).
+            # Strip ops are free here (CD charges 1 s each).
             elif name == "strip_create":
                 results.append(self.strips.strip_create(inp["acid"], inp["bay"], inp.get("fields")))
             elif name == "strip_update":

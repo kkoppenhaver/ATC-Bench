@@ -145,6 +145,7 @@ def score_twr(log: EventLog, scenario: dict) -> dict:
             "los": sum(1 for c in cardinals if c["code"] == "LOS"),
             "wake": sum(1 for c in cardinals if c["code"] == "WAKE"),
             "neglects": sum(1 for c in cardinals if c["code"] == "NEGLECT"),
+            "blocked_transmissions": len(log.of_type("blocked_transmission")),
             "model_go_arounds": len(model_ga),
             "env_go_arounds": len(env_ga),
         },

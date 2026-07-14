@@ -12,13 +12,12 @@ self-contained and re-scoreable / re-runnable (given recorded model outputs).
 from __future__ import annotations
 
 import json
-import math
 import platform
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from .. import HARNESS_VERSION, WORDS_PER_SECOND
+from .. import HARNESS_VERSION
 from ..charts import kmrl_cd
 from ..pilots import parser as P
 from ..pilots.fsm import CDState, PilotFSM
@@ -27,6 +26,7 @@ from ..sim import events as E
 from ..sim.events import EventLog
 from ..strips.store import StripStore
 from ..verbalizer import CachedVerbalizer, default_verbalizer
+from .channel import FrequencyChannel
 from .regime import TurnBased
 
 NEGLECT_THRESHOLD_SEC = 180  # CD: unanswered/uncleared beyond this = NEGLECT (§13.1)
@@ -40,11 +40,6 @@ def _sim_time(tick: int) -> str:
     m = (total % 3600) // 60
     s = total % 60
     return f"{h:02d}:{m:02d}:{s:02d}Z"
-
-
-def _broadcast_seconds(text: str) -> int:
-    words = len(P.normalize(text).split())
-    return max(1, math.ceil(words / WORDS_PER_SECOND))
 
 
 @dataclass
@@ -115,7 +110,7 @@ class CDSession:
         self.model_io: list[dict] = []
 
         self.tick = 0
-        self.freq_busy_until = 0
+        self.channel = FrequencyChannel()
         self.last_shown = 0
         self.active: dict[str, PilotFSM] = {}
         self.neglect_deadline: dict[str, int] = {}
@@ -126,11 +121,8 @@ class CDSession:
     # --- channel -------------------------------------------------------------
 
     def _emit_transmission(self, speaker: str, text: str) -> None:
-        start = max(self.tick, self.freq_busy_until)
-        dur = _broadcast_seconds(text)
-        end = start + dur
-        self.tick = end
-        self.freq_busy_until = end
+        start, end = self.channel.transmit(self.tick, text)
+        self.tick = end  # event-driven clock rides the broadcast (§4.1)
         self.transcript.append({"t": start, "from": speaker, "text": text})
         self.log.emit(start, E.TRANSMISSION, speaker=speaker, text=text, start_tick=start, end_tick=end)
 

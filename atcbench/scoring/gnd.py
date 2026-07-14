@@ -185,6 +185,7 @@ def score_gnd(log: EventLog, scenario: dict) -> dict:
             "incursions_model": sum(1 for c in cardinals if c["code"] == "RI-CTRL"),
             "deadlocks": sum(1 for c in cardinals if c["code"] == "DEADLOCK"),
             "neglects": sum(1 for c in cardinals if c["code"] == "NEGLECT"),
+            "blocked_transmissions": len(log.of_type("blocked_transmission")),
         },
         "queue_conformity": round(queue_conf, 4),
         "time_to_first_cardinal": ttfc,

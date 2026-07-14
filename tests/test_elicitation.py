@@ -22,6 +22,8 @@ class _OneShot(ModelAdapter):
         self.done = False
 
     def step(self, observation: dict) -> dict:
+        if observation.get("channel_busy"):
+            return self.wait()  # half-duplex: wait for a clear channel
         if not self.done and observation["aircraft"]:
             self.done = True
             return self.act(observation)

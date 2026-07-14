@@ -13,7 +13,7 @@ import hashlib
 from ..charts import kmrl_cd, kmrl_gnd, kmrl_twr
 from ..sim.performance import _TABLE, WAKE_MIN_SEC
 
-PROMPT_TEMPLATE_VERSIONS = {"CD": "cd-v3", "GND": "gnd-v1", "TWR": "twr-v1"}
+PROMPT_TEMPLATE_VERSIONS = {"CD": "cd-v3", "GND": "gnd-v2", "TWR": "twr-v2"}
 
 _COMMON_TOOLS = (
     "TOOLS: use `transmit` to speak on frequency (one transmission per call, standard "
@@ -106,7 +106,11 @@ def build_gnd_system_prompt(session_seconds: int, regime: str = "turn") -> str:
         "7. " + _COMMON_TOOLS,
         "8. PHRASEOLOGY:\n" + _GND_PHRASEOLOGY,
         f"9. SESSION: length {session_seconds} sim-seconds; time regime = {regime}. "
-        "Ground radar sweeps every 5 sim-seconds; aircraft keep taxiing while you think.",
+        "Ground radar sweeps every 5 sim-seconds; aircraft keep taxiing while you "
+        "think. The frequency is half-duplex at 150 wpm: transmitting while the "
+        "channel is busy (a pilot readback, a coordination call, your own previous "
+        "transmission still going out) gets you [BLOCKED] and costs your action for "
+        "the sweep — keep transmissions short and don't double-key.",
     ]
     return "\n\n".join(sections)
 
@@ -128,7 +132,10 @@ def build_twr_system_prompt(session_seconds: int, regime: str = "turn") -> str:
         "7. " + _COMMON_TOOLS,
         "8. PHRASEOLOGY:\n" + _TWR_PHRASEOLOGY,
         f"9. SESSION: length {session_seconds} sim-seconds; time regime = {regime}. "
-        "Radar sweeps every 5 sim-seconds; finals keep closing while you think.",
+        "Radar sweeps every 5 sim-seconds; finals keep closing while you think. The "
+        "frequency is half-duplex at 150 wpm: transmitting while the channel is busy "
+        "gets you [BLOCKED] and costs your action for the sweep — keep transmissions "
+        "short and don't double-key.",
     ]
     return "\n\n".join(sections)
 
