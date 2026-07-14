@@ -29,3 +29,14 @@ def test_replay_byte_identical():
 
 def test_different_seeds_differ():
     assert _run(1).log.to_jsonl() != _run(2).log.to_jsonl()
+
+
+def test_cli_replay_verifies_all_artifacts(tmp_path):
+    # §17.2 via the CLI: replay must reproduce every artifact, not just events.jsonl.
+    from atcbench.cli import main
+
+    src, out = tmp_path / "src", tmp_path / "replay"
+    assert main(["run", "--position", "GND", "--seed", "7", "--out", str(src)]) == 0
+    assert main(["replay", str(src), "--out", str(out)]) == 0
+    for f in ("events.jsonl", "transcript.jsonl", "strips_history.jsonl", "score.json"):
+        assert (src / f).read_text() == (out / f).read_text(), f

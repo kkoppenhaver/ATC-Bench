@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import math
+import platform
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -77,6 +78,7 @@ class SessionResult:
             json.dumps(
                 {
                     "harness_version": self.harness_version,
+                    "python_version": platform.python_version(),
                     "prompt_hash": self.prompt_hash,
                     "regime": self.regime,
                     "turns": self.model_io,

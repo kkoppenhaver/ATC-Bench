@@ -22,3 +22,30 @@ jobs:
         run: ruff check atcbench tests
       - name: Test
         run: pytest -q
+
+  # Determinism across interpreter versions (X.2, audit m4): the same seed must
+  # produce byte-identical logs on every Python the matrix tests.
+  cross-version-determinism:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: |
+            3.11
+            3.12
+      - name: Install into both interpreters
+        run: |
+          python3.11 -m pip install -e .
+          python3.12 -m pip install -e .
+      - name: Compare run artifacts across 3.11/3.12
+        run: |
+          set -e
+          for pos in CD GND TWR; do
+            python3.11 -m atcbench.cli run --position "$pos" --seed 42 --out "/tmp/py311-$pos" > /dev/null
+            python3.12 -m atcbench.cli run --position "$pos" --seed 42 --out "/tmp/py312-$pos" > /dev/null
+            for f in events.jsonl transcript.jsonl strips_history.jsonl score.json; do
+              cmp "/tmp/py311-$pos/$f" "/tmp/py312-$pos/$f" || { echo "DIVERGED: $pos/$f"; exit 1; }
+            done
+          done
+          echo "byte-identical across 3.11/3.12"

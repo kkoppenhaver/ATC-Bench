@@ -254,10 +254,13 @@ CI at every position and must **never** certify (extends the P2.9 falsification 
   scorer would recurse through §13.2 normalization). CD scenarios are feasible by
   construction (no spatial conflicts; all errors catchable in-window). Special squawks
   excluded and pinned by test._ _Deps: none. Design §12.2._
-- [ ] **P3.5.7 — Replay compares all artifacts (audit m2, m4).** `replay` verifies
+- [x] **P3.5.7 — Replay compares all artifacts (audit m2, m4).** `replay` verifies
   transcript, strips history, and `score.json`, not just `events.jsonl`. Record the
   Python version in the run record; CI compares event logs across 3.11/3.12 (the matrix
-  already runs both, it just never diffs them). _Deps: none. Folds into X.2.
+  already runs both, it just never diffs them). _Done: `atcbench replay` re-scores the
+  replay and diffs all four artifacts (per-file verdicts printed); `python_version` in
+  every `model_io.json`; new `cross-version-determinism` CI job runs CD/GND/TWR on
+  both interpreters and byte-compares artifacts._ _Deps: none. Folds into X.2.
   Design §17.2._
 - [ ] **P3.5.8 — No-skill baseline regression suite (exit test; seeds X.5).**
   Do-nothing and blind-corrector policies as permanent CI busting probes at every

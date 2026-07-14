@@ -10,6 +10,7 @@ block head-on rather than passing through each other (which is what deadlocks th
 from __future__ import annotations
 
 import json
+import platform
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -69,7 +70,8 @@ class GroundSessionResult:
         (d / "strips_history.jsonl").write_text(
             "".join(json.dumps(s, sort_keys=True) + "\n" for s in self.strips_history), encoding="utf-8")
         (d / "model_io.json").write_text(
-            json.dumps({"harness_version": self.harness_version, "prompt_hash": self.prompt_hash,
+            json.dumps({"harness_version": self.harness_version,
+                    "python_version": platform.python_version(), "prompt_hash": self.prompt_hash,
                         "regime": self.regime, "turns": self.model_io},
                        sort_keys=True, indent=2), encoding="utf-8")
         if self.verbalizer_cache is not None:

@@ -110,8 +110,26 @@ def cmd_replay(args: argparse.Namespace) -> int:
         session = CDSession(scn, prompt_hash=ph, regime=regime)
     result = session.run(A.ReplayAdapter(turns))
     result.write(args.out)
-    identical = (src / "events.jsonl").read_text() == (Path(args.out) / "events.jsonl").read_text()
-    print(f"replay written to {args.out}; events byte-identical to source: {identical}")
+    out = Path(args.out)
+    scorer = {"MRL_GND": score_gnd_dir, "MRL_TWR": score_twr_dir}.get(pos, score_cd_dir)
+    replay_score = scorer(args.out)
+    replay_score["regime"] = io.get("regime", "turn")
+    (out / "score.json").write_text(json.dumps(replay_score, indent=2, sort_keys=True),
+                                    encoding="utf-8")
+
+    # Determinism contract (§17.2): every replayable artifact must match, not just
+    # the event log — transcript, strips history, and the recomputed score.
+    checks: dict[str, bool] = {}
+    for name in ("events.jsonl", "transcript.jsonl", "strips_history.jsonl"):
+        checks[name] = ((src / name).read_text(encoding="utf-8")
+                        == (out / name).read_text(encoding="utf-8"))
+    src_score = src / "score.json"
+    if src_score.exists():
+        checks["score.json"] = json.loads(src_score.read_text(encoding="utf-8")) == replay_score
+    identical = all(checks.values())
+    for name, ok in checks.items():
+        print(f"  {name}: {'identical' if ok else 'DIVERGED'}")
+    print(f"replay written to {args.out}; artifacts identical to source: {identical}")
     return 0 if identical else 1
 
 
