@@ -1,0 +1,3537 @@
+{
+  "harness_version": "0.1.0",
+  "prompt_hash": "cd-v4:6a78433eb20e",
+  "python_version": "3.11.15",
+  "regime": "turn",
+  "turns": [
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL1411",
+            "actype": "E175",
+            "assigned_squawk": "4124",
+            "filed": {
+              "altitude": 10000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "HOLTA2"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "DAL1411",
+            "t": 66,
+            "text": "Marlow Clearance, Delta one four one one, request IFR clearance to LaGuardia"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:01:10Z",
+        "tick": 70
+      },
+      "output": {
+        "input_tokens": 1970,
+        "output_tokens": 249,
+        "text": "I'll process Delta 1411's clearance request. Let me first create a flight strip to track this aircraft, then issue the clearance.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "DAL1411",
+              "bay": "pending",
+              "fields": {
+                "actype": "E175",
+                "assigned_squawk": "4124",
+                "destination": "KLGA",
+                "filed_altitude": 10000,
+                "filed_sid": "HOLTA2"
+              }
+            },
+            "name": "strip_create"
+          },
+          {
+            "input": {
+              "text": "Delta one four one one, cleared to LaGuardia, Holta Two departure, maintain seven thousand, departure one one eight point four five, squawk four two four one."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 70,
+      "tool_results": [
+        "strip created for DAL1411 in pending",
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL1411",
+            "actype": "E175",
+            "assigned_squawk": "4124",
+            "filed": {
+              "altitude": 10000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "HOLTA2"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 71,
+            "text": "Delta one four one one, cleared to LaGuardia, Holta Two departure, maintain seven thousand, departure one one eight point four five, squawk four two four one."
+          },
+          {
+            "from": "DAL1411",
+            "t": 77,
+            "text": "maintain niner thousand, departure one one eight point four five, squawk four two four one, Delta one four one one"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:01:21Z",
+        "tick": 81
+      },
+      "output": {
+        "input_tokens": 2501,
+        "output_tokens": 103,
+        "text": "I need to catch this readback error. Delta 1411 read back \"niner thousand\" but the clearance altitude is seven thousand. I'll correct this before they leave the frequency.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "Delta one four one one, negative, maintain seven thousand."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 81,
+      "tool_results": [
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL1411",
+            "actype": "E175",
+            "assigned_squawk": "4124",
+            "filed": {
+              "altitude": 10000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "HOLTA2"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 81,
+            "text": "Delta one four one one, negative, maintain seven thousand."
+          },
+          {
+            "from": "DAL1411",
+            "t": 83,
+            "text": "Correction, maintain seven thousand, departure one one eight point four five, squawk four two four one, Delta one four one one"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:01:27Z",
+        "tick": 87
+      },
+      "output": {
+        "input_tokens": 2814,
+        "output_tokens": 157,
+        "text": "Readback is now correct. I'll affirm and update the strip.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "Delta one four one one, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "DAL1411",
+              "patch": {
+                "assigned_altitude": 7000,
+                "departure_freq": "118.45",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 87,
+      "tool_results": [
+        "transmitted",
+        "strip DAL1411 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL1411",
+            "actype": "E175",
+            "assigned_squawk": "4124",
+            "filed": {
+              "altitude": 10000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "HOLTA2"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 87,
+            "text": "Delta one four one one, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:01:30Z",
+        "tick": 90
+      },
+      "output": {
+        "input_tokens": 3189,
+        "output_tokens": 45,
+        "text": "I'll wait for the next event or transmission.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 90,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL3723",
+            "actype": "B738",
+            "assigned_squawk": "2002",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "HOLTA2"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "DAL3723",
+            "t": 267,
+            "text": "Marlow Clearance, Delta three seven two three, IFR to Atlanta, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:04:31Z",
+        "tick": 271
+      },
+      "output": {
+        "input_tokens": 3405,
+        "output_tokens": 260,
+        "text": "I'll create a strip for Delta 3723 and issue the clearance. The filed altitude of 16000 conflicts with the HOLTA2 SID's LOA initial altitude of 7000, so I'll assign 7000 as required.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "DAL3723",
+              "bay": "pending",
+              "fields": {
+                "actype": "B738",
+                "assigned_squawk": "2002",
+                "destination": "KATL",
+                "filed_altitude": 16000,
+                "filed_sid": "HOLTA2"
+              }
+            },
+            "name": "strip_create"
+          },
+          {
+            "input": {
+              "text": "Delta three seven two three, cleared to Atlanta, Holta Two departure, maintain seven thousand, departure one one eight point four five, squawk two zero zero two."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 271,
+      "tool_results": [
+        "strip created for DAL3723 in pending",
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL3723",
+            "actype": "B738",
+            "assigned_squawk": "2002",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "HOLTA2"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 272,
+            "text": "Delta three seven two three, cleared to Atlanta, Holta Two departure, maintain seven thousand, departure one one eight point four five, squawk two zero zero two."
+          },
+          {
+            "from": "DAL3723",
+            "t": 278,
+            "text": "[BLOCKED \u2014 two stations transmitting at once]"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:04:41Z",
+        "tick": 281
+      },
+      "output": {
+        "input_tokens": 3942,
+        "output_tokens": 53,
+        "text": "I'll wait for the frequency to clear and the pilot to make a clean readback.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 281,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL4425",
+            "actype": "B739",
+            "assigned_squawk": "5040",
+            "filed": {
+              "altitude": 8000,
+              "destination": "KDCA",
+              "destination_name": "Washington National",
+              "sid": "NEDDEE7"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "DAL4425",
+            "t": 494,
+            "text": "Marlow Clearance, Delta four four two five, request IFR clearance to Washington National"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:08:18Z",
+        "tick": 498
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 261,
+        "text": "I'll create a strip for Delta 4425 and issue the clearance. The filed altitude of 8000 conflicts with the NEDDEE7 SID's LOA initial altitude of 6000, so I'll assign 6000.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "DAL4425",
+              "bay": "pending",
+              "fields": {
+                "actype": "B739",
+                "assigned_squawk": "5040",
+                "destination": "KDCA",
+                "filed_altitude": 8000,
+                "filed_sid": "NEDDEE7"
+              }
+            },
+            "name": "strip_create"
+          },
+          {
+            "input": {
+              "text": "Delta four four two five, cleared to Washington National, Neddee Seven departure, maintain six thousand, departure one one eight point four five, squawk five zero four zero."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 498,
+      "tool_results": [
+        "strip created for DAL4425 in pending",
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL4425",
+            "actype": "B739",
+            "assigned_squawk": "5040",
+            "filed": {
+              "altitude": 8000,
+              "destination": "KDCA",
+              "destination_name": "Washington National",
+              "sid": "NEDDEE7"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 499,
+            "text": "Delta four four two five, cleared to Washington National, Neddee Seven departure, maintain six thousand, departure one one eight point four five, squawk five zero four zero."
+          },
+          {
+            "from": "DAL4425",
+            "t": 505,
+            "text": "maintain six thousand, departure one one eight point five four, squawk five zero four zero, Delta four four two five"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:08:29Z",
+        "tick": 509
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 113,
+        "text": "I need to catch this readback error. Delta 4425 read back the departure frequency as \"one one eight point five four\" but the correct frequency is \"one one eight point four five\". I'll correct this.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "Delta four four two five, negative, departure one one eight point four five."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 509,
+      "tool_results": [
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL4425",
+            "actype": "B739",
+            "assigned_squawk": "5040",
+            "filed": {
+              "altitude": 8000,
+              "destination": "KDCA",
+              "destination_name": "Washington National",
+              "sid": "NEDDEE7"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 509,
+            "text": "Delta four four two five, negative, departure one one eight point four five."
+          },
+          {
+            "from": "DAL4425",
+            "t": 511,
+            "text": "Correction, maintain six thousand, departure one one eight point four five, squawk five zero four zero, Delta four four two five"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:08:35Z",
+        "tick": 515
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 157,
+        "text": "Readback is now correct. I'll affirm and update the strip.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "Delta four four two five, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "DAL4425",
+              "patch": {
+                "assigned_altitude": 6000,
+                "departure_freq": "118.45",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 515,
+      "tool_results": [
+        "transmitted",
+        "strip DAL4425 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL4425",
+            "actype": "B739",
+            "assigned_squawk": "5040",
+            "filed": {
+              "altitude": 8000,
+              "destination": "KDCA",
+              "destination_name": "Washington National",
+              "sid": "NEDDEE7"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 515,
+            "text": "Delta four four two five, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:08:38Z",
+        "tick": 518
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 518,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "N697PR",
+            "actype": "C172",
+            "assigned_squawk": "6142",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "HOLTA2"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "N697PR",
+            "t": 671,
+            "text": "Uh, Marlow Clearance, November six niner seven papa romeo, we're, uh, ready to copy IFR to Detroit"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:11:18Z",
+        "tick": 678
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 260,
+        "text": "I'll create a strip for November 697 Papa Romeo and issue the clearance. The filed altitude of 23000 conflicts with the HOLTA2 SID's LOA initial altitude of 7000, so I'll assign 7000.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "N697PR",
+              "bay": "pending",
+              "fields": {
+                "actype": "C172",
+                "assigned_squawk": "6142",
+                "destination": "KDTW",
+                "filed_altitude": 23000,
+                "filed_sid": "HOLTA2"
+              }
+            },
+            "name": "strip_create"
+          },
+          {
+            "input": {
+              "text": "November six niner seven papa romeo, cleared to Detroit, Holta Two departure, maintain seven thousand, departure one one eight point four five, squawk six one four two."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 678,
+      "tool_results": [
+        "strip created for N697PR in pending",
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "N697PR",
+            "actype": "C172",
+            "assigned_squawk": "6142",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "HOLTA2"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 679,
+            "text": "November six niner seven papa romeo, cleared to Detroit, Holta Two departure, maintain seven thousand, departure one one eight point four five, squawk six one four two."
+          },
+          {
+            "from": "N697PR",
+            "t": 686,
+            "text": "Okay, uh, maintain one seven thousand, departure one one eight point four five, squawk six one four two, November six niner seven papa romeo"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:11:31Z",
+        "tick": 691
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 114,
+        "text": "I need to catch this readback error. November 697 Papa Romeo read back \"one seven thousand\" (17,000 feet) but the clearance altitude is seven thousand (7,000 feet). I'll correct this.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "November six niner seven papa romeo, negative, maintain seven thousand."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 691,
+      "tool_results": [
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "N697PR",
+            "actype": "C172",
+            "assigned_squawk": "6142",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "HOLTA2"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 691,
+            "text": "November six niner seven papa romeo, negative, maintain seven thousand."
+          },
+          {
+            "from": "N697PR",
+            "t": 694,
+            "text": "Correction, maintain seven thousand, departure one one eight point four five, squawk six one four two, November six niner seven papa romeo"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:11:39Z",
+        "tick": 699
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 158,
+        "text": "Readback is now correct. I'll affirm and update the strip.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "November six niner seven papa romeo, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "N697PR",
+              "patch": {
+                "assigned_altitude": 7000,
+                "departure_freq": "118.45",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 699,
+      "tool_results": [
+        "transmitted",
+        "strip N697PR updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "N697PR",
+            "actype": "C172",
+            "assigned_squawk": "6142",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "HOLTA2"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 699,
+            "text": "November six niner seven papa romeo, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:11:43Z",
+        "tick": 703
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 703,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "N372KA",
+            "actype": "C172",
+            "assigned_squawk": "5557",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "WINVO6"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "N372KA",
+            "t": 709,
+            "text": "Uh, Marlow Clearance, November three seven two kilo alpha, we're, uh, ready to copy IFR to Detroit"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:11:56Z",
+        "tick": 716
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 263,
+        "text": "I'll create a strip for November 372 Kilo Alpha and issue the clearance. The filed altitude of 23000 conflicts with the WINVO6 SID's LOA initial altitude of 5000, so I'll assign 5000.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "N372KA",
+              "bay": "pending",
+              "fields": {
+                "actype": "C172",
+                "assigned_squawk": "5557",
+                "destination": "KDTW",
+                "filed_altitude": 23000,
+                "filed_sid": "WINVO6"
+              }
+            },
+            "name": "strip_create"
+          },
+          {
+            "input": {
+              "text": "November three seven two kilo alpha, cleared to Detroit, Winvo Six departure, maintain five thousand, departure one one eight point four five, squawk five five five seven."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 716,
+      "tool_results": [
+        "strip created for N372KA in pending",
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "N372KA",
+            "actype": "C172",
+            "assigned_squawk": "5557",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 717,
+            "text": "November three seven two kilo alpha, cleared to Detroit, Winvo Six departure, maintain five thousand, departure one one eight point four five, squawk five five five seven."
+          },
+          {
+            "from": "N372KA",
+            "t": 724,
+            "text": "Okay, uh, maintain five thousand, departure one one eight point four five, squawk five five five seven, November three seven two kilo alpha"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:12:09Z",
+        "tick": 729
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 158,
+        "text": "Readback is correct. I'll affirm and update the strip.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "November three seven two kilo alpha, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "N372KA",
+              "patch": {
+                "assigned_altitude": 5000,
+                "departure_freq": "118.45",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 729,
+      "tool_results": [
+        "transmitted",
+        "strip N372KA updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "N372KA",
+            "actype": "C172",
+            "assigned_squawk": "5557",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 729,
+            "text": "November three seven two kilo alpha, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:12:13Z",
+        "tick": 733
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 733,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL4529",
+            "actype": "E175",
+            "assigned_squawk": "1154",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "HOLTA2"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "AAL4529",
+            "t": 1316,
+            "text": "Marlow Clearance, American four five two niner, IFR to LaGuardia, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:22:00Z",
+        "tick": 1320
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 261,
+        "text": "I'll create a strip for American 4529 and issue the clearance. The filed altitude of 17000 conflicts with the HOLTA2 SID's LOA initial altitude of 7000, so I'll assign 7000.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "AAL4529",
+              "bay": "pending",
+              "fields": {
+                "actype": "E175",
+                "assigned_squawk": "1154",
+                "destination": "KLGA",
+                "filed_altitude": 17000,
+                "filed_sid": "HOLTA2"
+              }
+            },
+            "name": "strip_create"
+          },
+          {
+            "input": {
+              "text": "American four five two niner, cleared to LaGuardia, Holta Two departure, maintain seven thousand, departure one one eight point four five, squawk one one five four."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 1320,
+      "tool_results": [
+        "strip created for AAL4529 in pending",
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL4529",
+            "actype": "E175",
+            "assigned_squawk": "1154",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "HOLTA2"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1321,
+            "text": "American four five two niner, cleared to LaGuardia, Holta Two departure, maintain seven thousand, departure one one eight point four five, squawk one one five four."
+          },
+          {
+            "from": "AAL4529",
+            "t": 1327,
+            "text": "maintain seven thousand, departure one one eight point five four, squawk one one five four, American four five two niner"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:22:11Z",
+        "tick": 1331
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 114,
+        "text": "I need to catch this readback error. American 4529 read back the departure frequency as \"one one eight point five four\" but the correct frequency is \"one one eight point four five\". I'll correct this.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American four five two niner, negative, departure one one eight point four five."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 1331,
+      "tool_results": [
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL4529",
+            "actype": "E175",
+            "assigned_squawk": "1154",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "HOLTA2"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1331,
+            "text": "American four five two niner, negative, departure one one eight point four five."
+          },
+          {
+            "from": "AAL4529",
+            "t": 1333,
+            "text": "Correction, maintain seven thousand, departure one one eight point four five, squawk one one five four, American four five two niner"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:22:17Z",
+        "tick": 1337
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 158,
+        "text": "Readback is now correct. I'll affirm and update the strip.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American four five two niner, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "AAL4529",
+              "patch": {
+                "assigned_altitude": 7000,
+                "departure_freq": "118.45",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 1337,
+      "tool_results": [
+        "transmitted",
+        "strip AAL4529 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL4529",
+            "actype": "E175",
+            "assigned_squawk": "1154",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "HOLTA2"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1337,
+            "text": "American four five two niner, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:22:20Z",
+        "tick": 1340
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 1340,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL2454",
+            "actype": "A320",
+            "assigned_squawk": "4636",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KDCA",
+              "destination_name": "Washington National",
+              "sid": "LARBA4"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "UAL2454",
+            "t": 1526,
+            "text": "Marlow Clearance, United two four five four, IFR to Washington National, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:25:31Z",
+        "tick": 1531
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 291,
+        "text": "I'll create a strip for United 2454. The filed SID \"LARBA4\" is not in the published departures list, so I'll assign the default HOLTA2 departure. The filed altitude of 23000 conflicts with HOLTA2's LOA initial altitude of 7000, so I'll assign 7000.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "UAL2454",
+              "bay": "pending",
+              "fields": {
+                "actype": "A320",
+                "assigned_sid": "HOLTA2",
+                "assigned_squawk": "4636",
+                "destination": "KDCA",
+                "filed_altitude": 23000,
+                "filed_sid": "LARBA4"
+              }
+            },
+            "name": "strip_create"
+          },
+          {
+            "input": {
+              "text": "United two four five four, cleared to Washington National, Holta Two departure, maintain seven thousand, departure one one eight point four five, squawk four six three six."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 1531,
+      "tool_results": [
+        "strip created for UAL2454 in pending",
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL2454",
+            "actype": "A320",
+            "assigned_squawk": "4636",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KDCA",
+              "destination_name": "Washington National",
+              "sid": "LARBA4"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1532,
+            "text": "United two four five four, cleared to Washington National, Holta Two departure, maintain seven thousand, departure one one eight point four five, squawk four six three six."
+          },
+          {
+            "from": "UAL2454",
+            "t": 1538,
+            "text": "maintain seven thousand, departure one one eight point four five, squawk four six three six, United two four five four"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:25:42Z",
+        "tick": 1542
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 156,
+        "text": "Readback is correct. I'll affirm and update the strip.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "United two four five four, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "UAL2454",
+              "patch": {
+                "assigned_altitude": 7000,
+                "departure_freq": "118.45",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 1542,
+      "tool_results": [
+        "transmitted",
+        "strip UAL2454 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL2454",
+            "actype": "A320",
+            "assigned_squawk": "4636",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KDCA",
+              "destination_name": "Washington National",
+              "sid": "LARBA4"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1542,
+            "text": "United two four five four, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:25:45Z",
+        "tick": 1545
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 1545,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL4017",
+            "actype": "A320",
+            "assigned_squawk": "2033",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "SOLGO5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "AAL4017",
+            "t": 1643,
+            "text": "Marlow Clearance, American four zero one seven, IFR to Detroit, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:27:27Z",
+        "tick": 1647
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 291,
+        "text": "I'll create a strip for American 4017. The filed SID \"SOLGO5\" is not in the published departures list, so I'll assign the default HOLTA2 departure. The filed altitude of 35000 conflicts with HOLTA2's LOA initial altitude of 7000, so I'll assign 7000.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "AAL4017",
+              "bay": "pending",
+              "fields": {
+                "actype": "A320",
+                "assigned_sid": "HOLTA2",
+                "assigned_squawk": "2033",
+                "destination": "KDTW",
+                "filed_altitude": 35000,
+                "filed_sid": "SOLGO5"
+              }
+            },
+            "name": "strip_create"
+          },
+          {
+            "input": {
+              "text": "American four zero one seven, cleared to Detroit, Holta Two departure, maintain seven thousand, departure one one eight point four five, squawk two zero three three."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 1647,
+      "tool_results": [
+        "strip created for AAL4017 in pending",
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL4017",
+            "actype": "A320",
+            "assigned_squawk": "2033",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "SOLGO5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1648,
+            "text": "American four zero one seven, cleared to Detroit, Holta Two departure, maintain seven thousand, departure one one eight point four five, squawk two zero three three."
+          },
+          {
+            "from": "AAL4017",
+            "t": 1654,
+            "text": "maintain seven thousand, departure one one eight point five four, squawk two zero three three, American four zero one seven"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:27:38Z",
+        "tick": 1658
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 113,
+        "text": "I need to catch this readback error. American 4017 read back the departure frequency as \"one one eight point five four\" but the correct frequency is \"one one eight point four five\". I'll correct this.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American four zero one seven, negative, departure one one eight point four five."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 1658,
+      "tool_results": [
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL4017",
+            "actype": "A320",
+            "assigned_squawk": "2033",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "SOLGO5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1658,
+            "text": "American four zero one seven, negative, departure one one eight point four five."
+          },
+          {
+            "from": "AAL4017",
+            "t": 1660,
+            "text": "Correction, maintain seven thousand, departure one one eight point four five, squawk two zero three three, American four zero one seven"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:27:44Z",
+        "tick": 1664
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 157,
+        "text": "Readback is now correct. I'll affirm and update the strip.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American four zero one seven, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "AAL4017",
+              "patch": {
+                "assigned_altitude": 7000,
+                "departure_freq": "118.45",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 1664,
+      "tool_results": [
+        "transmitted",
+        "strip AAL4017 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL4017",
+            "actype": "A320",
+            "assigned_squawk": "2033",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "SOLGO5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1664,
+            "text": "American four zero one seven, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:27:47Z",
+        "tick": 1667
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 1667,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL4017",
+            "actype": "A320",
+            "assigned_squawk": "2033",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "SOLGO5"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "AAL4007",
+            "actype": "B738",
+            "assigned_squawk": "5371",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "WINVO6"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "AAL4007",
+            "t": 1678,
+            "text": "Marlow Clearance, American four zero zero seven, IFR to Orlando, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:28:02Z",
+        "tick": 1682
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 257,
+        "text": "I'll create a strip for American 4007 and issue the clearance. The filed altitude of 16000 conflicts with the WINVO6 SID's LOA initial altitude of 5000, so I'll assign 5000.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "AAL4007",
+              "bay": "pending",
+              "fields": {
+                "actype": "B738",
+                "assigned_squawk": "5371",
+                "destination": "KMCO",
+                "filed_altitude": 16000,
+                "filed_sid": "WINVO6"
+              }
+            },
+            "name": "strip_create"
+          },
+          {
+            "input": {
+              "text": "American four zero zero seven, cleared to Orlando, Winvo Six departure, maintain five thousand, departure one one eight point four five, squawk five three seven one."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 1682,
+      "tool_results": [
+        "strip created for AAL4007 in pending",
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL4017",
+            "actype": "A320",
+            "assigned_squawk": "2033",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "SOLGO5"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "AAL4007",
+            "actype": "B738",
+            "assigned_squawk": "5371",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1683,
+            "text": "American four zero zero seven, cleared to Orlando, Winvo Six departure, maintain five thousand, departure one one eight point four five, squawk five three seven one."
+          },
+          {
+            "from": "AAL4007",
+            "t": 1689,
+            "text": "maintain five thousand, departure one one eight point four five, squawk five three seven one, American four zero zero seven"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:28:13Z",
+        "tick": 1693
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 156,
+        "text": "Readback is correct. I'll affirm and update the strip.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American four zero zero seven, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "AAL4007",
+              "patch": {
+                "assigned_altitude": 5000,
+                "departure_freq": "118.45",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 1693,
+      "tool_results": [
+        "transmitted",
+        "strip AAL4007 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL4017",
+            "actype": "A320",
+            "assigned_squawk": "2033",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "SOLGO5"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "AAL4007",
+            "actype": "B738",
+            "assigned_squawk": "5371",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1693,
+            "text": "American four zero zero seven, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:28:16Z",
+        "tick": 1696
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 1696,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL4007",
+            "actype": "B738",
+            "assigned_squawk": "5371",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:28:16Z",
+        "tick": 1696
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 1696,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL4270",
+            "actype": "B738",
+            "assigned_squawk": "2027",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "WINVO6"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "UAL4270",
+            "t": 1740,
+            "text": "Marlow Clearance, United four two seven zero, IFR to Boston, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:29:04Z",
+        "tick": 1744
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 258,
+        "text": "I'll create a strip for United 4270 and issue the clearance. The filed altitude of 35000 conflicts with the WINVO6 SID's LOA initial altitude of 5000, so I'll assign 5000.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "UAL4270",
+              "bay": "pending",
+              "fields": {
+                "actype": "B738",
+                "assigned_squawk": "2027",
+                "destination": "KBOS",
+                "filed_altitude": 35000,
+                "filed_sid": "WINVO6"
+              }
+            },
+            "name": "strip_create"
+          },
+          {
+            "input": {
+              "text": "United four two seven zero, cleared to Boston, Winvo Six departure, maintain five thousand, departure one one eight point four five, squawk two zero two seven."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 1744,
+      "tool_results": [
+        "strip created for UAL4270 in pending",
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL4270",
+            "actype": "B738",
+            "assigned_squawk": "2027",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1745,
+            "text": "United four two seven zero, cleared to Boston, Winvo Six departure, maintain five thousand, departure one one eight point four five, squawk two zero two seven."
+          },
+          {
+            "from": "UAL4270",
+            "t": 1751,
+            "text": "[BLOCKED \u2014 two stations transmitting at once]"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:29:14Z",
+        "tick": 1754
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 53,
+        "text": "I'll wait for the frequency to clear and the pilot to make a clean readback.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 1754,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "N762DB",
+            "actype": "C172",
+            "assigned_squawk": "3102",
+            "filed": {
+              "altitude": 9000,
+              "destination": "KDCA",
+              "destination_name": "Washington National",
+              "sid": "WINVO6"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "N762DB",
+            "t": 2514,
+            "text": "Marlow Clearance, November seven six two delta bravo, IFR to Washington National, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:42:00Z",
+        "tick": 2520
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 262,
+        "text": "I'll create a strip for November 762 Delta Bravo and issue the clearance. The filed altitude of 9000 conflicts with the WINVO6 SID's LOA initial altitude of 5000, so I'll assign 5000.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "N762DB",
+              "bay": "pending",
+              "fields": {
+                "actype": "C172",
+                "assigned_squawk": "3102",
+                "destination": "KDCA",
+                "filed_altitude": 9000,
+                "filed_sid": "WINVO6"
+              }
+            },
+            "name": "strip_create"
+          },
+          {
+            "input": {
+              "text": "November seven six two delta bravo, cleared to Washington National, Winvo Six departure, maintain five thousand, departure one one eight point four five, squawk three one zero two."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 2520,
+      "tool_results": [
+        "strip created for N762DB in pending",
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "N762DB",
+            "actype": "C172",
+            "assigned_squawk": "3102",
+            "filed": {
+              "altitude": 9000,
+              "destination": "KDCA",
+              "destination_name": "Washington National",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 2521,
+            "text": "November seven six two delta bravo, cleared to Washington National, Winvo Six departure, maintain five thousand, departure one one eight point four five, squawk three one zero two."
+          },
+          {
+            "from": "N762DB",
+            "t": 2528,
+            "text": "maintain five thousand, departure one one eight point four five, squawk three one zero two, November seven six two delta bravo"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:42:12Z",
+        "tick": 2532
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 157,
+        "text": "Readback is correct. I'll affirm and update the strip.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "November seven six two delta bravo, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "N762DB",
+              "patch": {
+                "assigned_altitude": 5000,
+                "departure_freq": "118.45",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 2532,
+      "tool_results": [
+        "transmitted",
+        "strip N762DB updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "N762DB",
+            "actype": "C172",
+            "assigned_squawk": "3102",
+            "filed": {
+              "altitude": 9000,
+              "destination": "KDCA",
+              "destination_name": "Washington National",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 2532,
+            "text": "November seven six two delta bravo, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:42:16Z",
+        "tick": 2536
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 2536,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL4138",
+            "actype": "B738",
+            "assigned_squawk": "6404",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "KELPO9"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "UAL4138",
+            "t": 2566,
+            "text": "Marlow Clearance, United four one three eight, IFR to Atlanta, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:42:50Z",
+        "tick": 2570
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 290,
+        "text": "I'll create a strip for United 4138. The filed SID \"KELPO9\" is not in the published departures list, so I'll assign the default HOLTA2 departure. The filed altitude of 23000 conflicts with HOLTA2's LOA initial altitude of 7000, so I'll assign 7000.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "UAL4138",
+              "bay": "pending",
+              "fields": {
+                "actype": "B738",
+                "assigned_sid": "HOLTA2",
+                "assigned_squawk": "6404",
+                "destination": "KATL",
+                "filed_altitude": 23000,
+                "filed_sid": "KELPO9"
+              }
+            },
+            "name": "strip_create"
+          },
+          {
+            "input": {
+              "text": "United four one three eight, cleared to Atlanta, Holta Two departure, maintain seven thousand, departure one one eight point four five, squawk six four zero four."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 2570,
+      "tool_results": [
+        "strip created for UAL4138 in pending",
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL4138",
+            "actype": "B738",
+            "assigned_squawk": "6404",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "KELPO9"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 2571,
+            "text": "United four one three eight, cleared to Atlanta, Holta Two departure, maintain seven thousand, departure one one eight point four five, squawk six four zero four."
+          },
+          {
+            "from": "UAL4138",
+            "t": 2577,
+            "text": "maintain seven thousand, departure one one eight point four five, squawk six four zero four, United four one three eight"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:43:01Z",
+        "tick": 2581
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 156,
+        "text": "Readback is correct. I'll affirm and update the strip.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "United four one three eight, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "UAL4138",
+              "patch": {
+                "assigned_altitude": 7000,
+                "departure_freq": "118.45",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 2581,
+      "tool_results": [
+        "transmitted",
+        "strip UAL4138 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL4138",
+            "actype": "B738",
+            "assigned_squawk": "6404",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "KELPO9"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 2581,
+            "text": "United four one three eight, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:43:04Z",
+        "tick": 2584
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 2584,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL3615",
+            "actype": "B738",
+            "assigned_squawk": "4671",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDCA",
+              "destination_name": "Washington National",
+              "sid": "NEDDEE7"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "UAL3615",
+            "t": 3063,
+            "text": "Marlow Clearance, United three six one five, IFR to Washington National, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:51:08Z",
+        "tick": 3068
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 261,
+        "text": "I'll create a strip for United 3615 and issue the clearance. The filed altitude of 35000 conflicts with the NEDDEE7 SID's LOA initial altitude of 6000, so I'll assign 6000.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "UAL3615",
+              "bay": "pending",
+              "fields": {
+                "actype": "B738",
+                "assigned_squawk": "4671",
+                "destination": "KDCA",
+                "filed_altitude": 35000,
+                "filed_sid": "NEDDEE7"
+              }
+            },
+            "name": "strip_create"
+          },
+          {
+            "input": {
+              "text": "United three six one five, cleared to Washington National, Neddee Seven departure, maintain six thousand, departure one one eight point four five, squawk four six seven one."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 3068,
+      "tool_results": [
+        "strip created for UAL3615 in pending",
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL3615",
+            "actype": "B738",
+            "assigned_squawk": "4671",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDCA",
+              "destination_name": "Washington National",
+              "sid": "NEDDEE7"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 3069,
+            "text": "United three six one five, cleared to Washington National, Neddee Seven departure, maintain six thousand, departure one one eight point four five, squawk four six seven one."
+          },
+          {
+            "from": "UAL3615",
+            "t": 3075,
+            "text": "maintain six thousand, departure one one eight point four five, squawk four six seven one, United three six one five"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:51:19Z",
+        "tick": 3079
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 156,
+        "text": "Readback is correct. I'll affirm and update the strip.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "United three six one five, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "UAL3615",
+              "patch": {
+                "assigned_altitude": 6000,
+                "departure_freq": "118.45",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 3079,
+      "tool_results": [
+        "transmitted",
+        "strip UAL3615 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL3615",
+            "actype": "B738",
+            "assigned_squawk": "4671",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDCA",
+              "destination_name": "Washington National",
+              "sid": "NEDDEE7"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 3079,
+            "text": "United three six one five, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:51:22Z",
+        "tick": 3082
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 3082,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL3615",
+            "actype": "B738",
+            "assigned_squawk": "4671",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDCA",
+              "destination_name": "Washington National",
+              "sid": "NEDDEE7"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "N839PQ",
+            "actype": "C172",
+            "assigned_squawk": "2013",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "WINVO6"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "N839PQ",
+            "t": 3084,
+            "text": "Uh, Marlow Clearance, November eight three niner papa quebec, we're, uh, ready to copy IFR to Atlanta"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:51:31Z",
+        "tick": 3091
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 260,
+        "text": "I'll create a strip for November 839 Papa Quebec and issue the clearance. The filed altitude of 17000 conflicts with the WINVO6 SID's LOA initial altitude of 5000, so I'll assign 5000.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "N839PQ",
+              "bay": "pending",
+              "fields": {
+                "actype": "C172",
+                "assigned_squawk": "2013",
+                "destination": "KATL",
+                "filed_altitude": 17000,
+                "filed_sid": "WINVO6"
+              }
+            },
+            "name": "strip_create"
+          },
+          {
+            "input": {
+              "text": "November eight three niner papa quebec, cleared to Atlanta, Winvo Six departure, maintain five thousand, departure one one eight point four five, squawk two zero one three."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 3091,
+      "tool_results": [
+        "strip created for N839PQ in pending",
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL3615",
+            "actype": "B738",
+            "assigned_squawk": "4671",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDCA",
+              "destination_name": "Washington National",
+              "sid": "NEDDEE7"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "N839PQ",
+            "actype": "C172",
+            "assigned_squawk": "2013",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 3092,
+            "text": "November eight three niner papa quebec, cleared to Atlanta, Winvo Six departure, maintain five thousand, departure one one eight point four five, squawk two zero one three."
+          },
+          {
+            "from": "N839PQ",
+            "t": 3099,
+            "text": "Okay, uh, maintain three thousand, departure one one eight point four five, squawk two zero one three, November eight three niner papa quebec"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:51:44Z",
+        "tick": 3104
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 101,
+        "text": "I need to catch this readback error. November 839 Papa Quebec read back \"maintain three thousand\" but the clearance altitude is five thousand. I'll correct this.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "November eight three niner papa quebec, negative, maintain five thousand."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 3104,
+      "tool_results": [
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL3615",
+            "actype": "B738",
+            "assigned_squawk": "4671",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDCA",
+              "destination_name": "Washington National",
+              "sid": "NEDDEE7"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "N839PQ",
+            "actype": "C172",
+            "assigned_squawk": "2013",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 3104,
+            "text": "November eight three niner papa quebec, negative, maintain five thousand."
+          },
+          {
+            "from": "N839PQ",
+            "t": 3107,
+            "text": "Correction, maintain five thousand, departure one one eight point four five, squawk two zero one three, November eight three niner papa quebec"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:51:52Z",
+        "tick": 3112
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 159,
+        "text": "Readback is now correct. I'll affirm and update the strip.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "November eight three niner papa quebec, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "N839PQ",
+              "patch": {
+                "assigned_altitude": 5000,
+                "departure_freq": "118.45",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 3112,
+      "tool_results": [
+        "transmitted",
+        "strip N839PQ updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL3615",
+            "actype": "B738",
+            "assigned_squawk": "4671",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDCA",
+              "destination_name": "Washington National",
+              "sid": "NEDDEE7"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "N839PQ",
+            "actype": "C172",
+            "assigned_squawk": "2013",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 3112,
+            "text": "November eight three niner papa quebec, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:51:56Z",
+        "tick": 3116
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 3116,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "N839PQ",
+            "actype": "C172",
+            "assigned_squawk": "2013",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:51:56Z",
+        "tick": 3116
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 3116,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL4201",
+            "actype": "B738",
+            "assigned_squawk": "4740",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "WINVO6"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "DAL4201",
+            "t": 3141,
+            "text": "Marlow Clearance, Delta four two zero one, IFR to Atlanta, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:52:25Z",
+        "tick": 3145
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 257,
+        "text": "I'll create a strip for Delta 4201 and issue the clearance. The filed altitude of 17000 conflicts with the WINVO6 SID's LOA initial altitude of 5000, so I'll assign 5000.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "DAL4201",
+              "bay": "pending",
+              "fields": {
+                "actype": "B738",
+                "assigned_squawk": "4740",
+                "destination": "KATL",
+                "filed_altitude": 17000,
+                "filed_sid": "WINVO6"
+              }
+            },
+            "name": "strip_create"
+          },
+          {
+            "input": {
+              "text": "Delta four two zero one, cleared to Atlanta, Winvo Six departure, maintain five thousand, departure one one eight point four five, squawk four seven four zero."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 3145,
+      "tool_results": [
+        "strip created for DAL4201 in pending",
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL4201",
+            "actype": "B738",
+            "assigned_squawk": "4740",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 3146,
+            "text": "Delta four two zero one, cleared to Atlanta, Winvo Six departure, maintain five thousand, departure one one eight point four five, squawk four seven four zero."
+          },
+          {
+            "from": "DAL4201",
+            "t": 3152,
+            "text": "maintain five thousand, departure one one eight point five four, squawk four seven four zero, Delta four two zero one"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:52:36Z",
+        "tick": 3156
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 113,
+        "text": "I need to catch this readback error. Delta 4201 read back the departure frequency as \"one one eight point five four\" but the correct frequency is \"one one eight point four five\". I'll correct this.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "Delta four two zero one, negative, departure one one eight point four five."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 3156,
+      "tool_results": [
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL4201",
+            "actype": "B738",
+            "assigned_squawk": "4740",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 3156,
+            "text": "Delta four two zero one, negative, departure one one eight point four five."
+          },
+          {
+            "from": "DAL4201",
+            "t": 3158,
+            "text": "Correction, maintain five thousand, departure one one eight point four five, squawk four seven four zero, Delta four two zero one"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:52:42Z",
+        "tick": 3162
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 157,
+        "text": "Readback is now correct. I'll affirm and update the strip.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "Delta four two zero one, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "DAL4201",
+              "patch": {
+                "assigned_altitude": 5000,
+                "departure_freq": "118.45",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 3162,
+      "tool_results": [
+        "transmitted",
+        "strip DAL4201 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL4201",
+            "actype": "B738",
+            "assigned_squawk": "4740",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 3162,
+            "text": "Delta four two zero one, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:52:45Z",
+        "tick": 3165
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 3165,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "SWA1012",
+            "actype": "A320",
+            "assigned_squawk": "1373",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "WINVO6"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "SWA1012",
+            "t": 3356,
+            "text": "Marlow Clearance, Southwest one zero one two, IFR to Boston, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:56:00Z",
+        "tick": 3360
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 259,
+        "text": "I'll create a strip for Southwest 1012 and issue the clearance. The filed altitude of 23000 conflicts with the WINVO6 SID's LOA initial altitude of 5000, so I'll assign 5000.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "SWA1012",
+              "bay": "pending",
+              "fields": {
+                "actype": "A320",
+                "assigned_squawk": "1373",
+                "destination": "KBOS",
+                "filed_altitude": 23000,
+                "filed_sid": "WINVO6"
+              }
+            },
+            "name": "strip_create"
+          },
+          {
+            "input": {
+              "text": "Southwest one zero one two, cleared to Boston, Winvo Six departure, maintain five thousand, departure one one eight point four five, squawk one three seven three."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 3360,
+      "tool_results": [
+        "strip created for SWA1012 in pending",
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "SWA1012",
+            "actype": "A320",
+            "assigned_squawk": "1373",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 3361,
+            "text": "Southwest one zero one two, cleared to Boston, Winvo Six departure, maintain five thousand, departure one one eight point four five, squawk one three seven three."
+          },
+          {
+            "from": "SWA1012",
+            "t": 3367,
+            "text": "maintain four thousand, departure one one eight point four five, squawk one three seven three, Southwest one zero one two"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:56:11Z",
+        "tick": 3371
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 98,
+        "text": "I need to catch this readback error. Southwest 1012 read back \"maintain four thousand\" but the clearance altitude is five thousand. I'll correct this.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "Southwest one zero one two, negative, maintain five thousand."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 3371,
+      "tool_results": [
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "SWA1012",
+            "actype": "A320",
+            "assigned_squawk": "1373",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 3371,
+            "text": "Southwest one zero one two, negative, maintain five thousand."
+          },
+          {
+            "from": "SWA1012",
+            "t": 3373,
+            "text": "Correction, maintain five thousand, departure one one eight point four five, squawk one three seven three, Southwest one zero one two"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:56:17Z",
+        "tick": 3377
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 158,
+        "text": "Readback is now correct. I'll affirm and update the strip.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "Southwest one zero one two, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "SWA1012",
+              "patch": {
+                "assigned_altitude": 5000,
+                "departure_freq": "118.45",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 3377,
+      "tool_results": [
+        "transmitted",
+        "strip SWA1012 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "SWA1012",
+            "actype": "A320",
+            "assigned_squawk": "1373",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 3377,
+            "text": "Southwest one zero one two, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:56:20Z",
+        "tick": 3380
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 3380,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "SWA1012",
+            "actype": "A320",
+            "assigned_squawk": "1373",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "N710SL",
+            "actype": "C172",
+            "assigned_squawk": "4333",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "CALRA5"
+            },
+            "status": "awaiting_clearance"
+          },
+          {
+            "acid": "SWA1022",
+            "actype": "B738",
+            "assigned_squawk": "3077",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "NEDDEE7"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "N710SL",
+            "t": 3380,
+            "text": "Marlow Clearance, November seven one zero sierra lima, IFR to Detroit, ready to copy"
+          },
+          {
+            "from": "SWA1022",
+            "t": 3385,
+            "text": "Marlow Clearance, Southwest one zero two two, IFR to LaGuardia, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:56:29Z",
+        "tick": 3389
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 474,
+        "text": "I'll handle these requests in order. First, I'll create a strip for November 710 Sierra Lima. The filed SID \"CALRA5\" is not in the published departures list, so I'll assign the default HOLTA2 departure. The filed altitude of 17000 conflicts with HOLTA2's LOA initial altitude of 7000, so I'll assign 7000.\n\nThen I'll create a strip for Southwest 1022. The filed altitude of 16000 conflicts with the NEDDEE7 SID's LOA initial altitude of 6000, so I'll assign 6000.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "N710SL",
+              "bay": "pending",
+              "fields": {
+                "actype": "C172",
+                "assigned_sid": "HOLTA2",
+                "assigned_squawk": "4333",
+                "destination": "KDTW",
+                "filed_altitude": 17000,
+                "filed_sid": "CALRA5"
+              }
+            },
+            "name": "strip_create"
+          },
+          {
+            "input": {
+              "acid": "SWA1022",
+              "bay": "pending",
+              "fields": {
+                "actype": "B738",
+                "assigned_squawk": "3077",
+                "destination": "KLGA",
+                "filed_altitude": 16000,
+                "filed_sid": "NEDDEE7"
+              }
+            },
+            "name": "strip_create"
+          },
+          {
+            "input": {
+              "text": "November seven one zero sierra lima, cleared to Detroit, Holta Two departure, maintain seven thousand, departure one one eight point four five, squawk four three three three."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 3389,
+      "tool_results": [
+        "strip created for N710SL in pending",
+        "strip created for SWA1022 in pending",
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "SWA1012",
+            "actype": "A320",
+            "assigned_squawk": "1373",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "N710SL",
+            "actype": "C172",
+            "assigned_squawk": "4333",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "CALRA5"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "SWA1022",
+            "actype": "B738",
+            "assigned_squawk": "3077",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "NEDDEE7"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 3391,
+            "text": "November seven one zero sierra lima, cleared to Detroit, Holta Two departure, maintain seven thousand, departure one one eight point four five, squawk four three three three."
+          },
+          {
+            "from": "N710SL",
+            "t": 3398,
+            "text": "maintain seven thousand, departure one one eight point four five, squawk four three three three, November seven one zero sierra lima"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:56:42Z",
+        "tick": 3402
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 243,
+        "text": "Readback for November 710 Sierra Lima is correct. I'll affirm and then issue the clearance to Southwest 1022.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "November seven one zero sierra lima, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "N710SL",
+              "patch": {
+                "assigned_altitude": 7000,
+                "departure_freq": "118.45",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          },
+          {
+            "input": {
+              "text": "Southwest one zero two two, cleared to LaGuardia, Neddee Seven departure, maintain six thousand, departure one one eight point four five, squawk three zero seven seven."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 3402,
+      "tool_results": [
+        "transmitted",
+        "strip N710SL updated",
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "SWA1012",
+            "actype": "A320",
+            "assigned_squawk": "1373",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "N710SL",
+            "actype": "C172",
+            "assigned_squawk": "4333",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "CALRA5"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "SWA1022",
+            "actype": "B738",
+            "assigned_squawk": "3077",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "NEDDEE7"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 3402,
+            "text": "November seven one zero sierra lima, readback correct."
+          },
+          {
+            "from": "MRL_CD",
+            "t": 3406,
+            "text": "Southwest one zero two two, cleared to LaGuardia, Neddee Seven departure, maintain six thousand, departure one one eight point four five, squawk three zero seven seven."
+          },
+          {
+            "from": "SWA1022",
+            "t": 3412,
+            "text": "maintain six thousand, departure one one eight point four five, squawk three zero seven seven, Southwest one zero two two"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:56:56Z",
+        "tick": 3416
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 163,
+        "text": "Readback for Southwest 1022 is correct. I'll affirm and update the strip.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "Southwest one zero two two, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "SWA1022",
+              "patch": {
+                "assigned_altitude": 6000,
+                "departure_freq": "118.45",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 3416,
+      "tool_results": [
+        "transmitted",
+        "strip SWA1022 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "SWA1012",
+            "actype": "A320",
+            "assigned_squawk": "1373",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "WINVO6"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "N710SL",
+            "actype": "C172",
+            "assigned_squawk": "4333",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "CALRA5"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "SWA1022",
+            "actype": "B738",
+            "assigned_squawk": "3077",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "NEDDEE7"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 3416,
+            "text": "Southwest one zero two two, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:56:59Z",
+        "tick": 3419
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 3419,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "N710SL",
+            "actype": "C172",
+            "assigned_squawk": "4333",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "CALRA5"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "SWA1022",
+            "actype": "B738",
+            "assigned_squawk": "3077",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "NEDDEE7"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:56:59Z",
+        "tick": 3419
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 3419,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "SWA1022",
+            "actype": "B738",
+            "assigned_squawk": "3077",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "NEDDEE7"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:57:08Z",
+        "tick": 3428
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 3428,
+      "tool_results": [
+        "ok"
+      ]
+    }
+  ]
+}

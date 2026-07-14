@@ -1,0 +1,49 @@
+{
+  "S": 0.0,
+  "S_raw": 0.8827,
+  "cardinal_violations": [
+    {
+      "acid": "UAL4843",
+      "code": "NEGLECT",
+      "detail": "wrong route/destination"
+    },
+    {
+      "acid": "UAL4853",
+      "code": "NEGLECT",
+      "detail": "uncleared at timeout"
+    }
+  ],
+  "components": {
+    "A": 0.8572,
+    "E": 0.9412,
+    "F": 1.0,
+    "H": 0.7273
+  },
+  "counts": {
+    "aircraft": 18,
+    "cardinals": 2,
+    "catchable_errors": 11,
+    "caught_errors": 8,
+    "severes": 1,
+    "spurious_corrections": 0
+  },
+  "gate": 0,
+  "model": {
+    "budget_exhausted": false,
+    "id": "claude-haiku-4-5",
+    "input_tokens": 21926,
+    "output_tokens": 7365,
+    "spent_usd": 0.16633045000000002
+  },
+  "position": "MRL_CD",
+  "regime": "turn",
+  "seed": 1,
+  "severe_events": [
+    {
+      "acid": "UAL4843",
+      "code": "wrong_squawk"
+    }
+  ],
+  "time_to_first_cardinal": 3065,
+  "trial": 0
+}
