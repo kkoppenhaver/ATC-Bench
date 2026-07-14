@@ -11,3 +11,5 @@ venv/
 # Generated run output (published runs live under runs/ intentionally; ignore local scratch)
 /runs/*
 !/runs/.gitkeep
+uv.lock
+.venv/
