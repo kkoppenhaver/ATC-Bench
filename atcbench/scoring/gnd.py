@@ -19,6 +19,8 @@ W_E, W_H, W_F, W_A = 0.35, 0.25, 0.20, 0.20
 SWEEP_SEC = 5
 RESPONSE_THRESHOLD_SEC = 30
 CROSSING_ALLOWANCE_SEC = 150  # slack granted to routes that must wait for a runway crossing
+NEGLECT_THRESHOLD_SEC = 180  # spawn -> first taxi clearance beyond this = NEGLECT (§13.1)
+STRANDED_THRESHOLD_SEC = 300  # taxi-cleared this long with no crossing and no arrival = NEGLECT
 
 
 def _clamp(x: float, lo: float = 0.0, hi: float = 1.0) -> float:
@@ -59,11 +61,43 @@ def score_gnd(log: EventLog, scenario: dict) -> dict:
     for e in deadlocks:
         cardinals.append({"code": "DEADLOCK", "acids": e.payload.get("acids"), "tick": e.tick})
 
+    session_end = max((e.tick for e in log.of_type("session_end")), default=0)
+
+    # NEGLECT: a spawned aircraft whose first taxi clearance never came, or came past
+    # the threshold — inaction is a cardinal, mirroring the CD neglect deadline (§13.1).
+    for acid, sp_ev in spawns.items():
+        first = first_taxi.get(acid)
+        if first is None:
+            if session_end - sp_ev.tick >= NEGLECT_THRESHOLD_SEC:
+                cardinals.append({"code": "NEGLECT", "acid": acid,
+                                  "detail": "no taxi clearance by session end",
+                                  "tick": session_end})
+        elif first - sp_ev.tick > NEGLECT_THRESHOLD_SEC:
+            cardinals.append({"code": "NEGLECT", "acid": acid,
+                              "detail": f"first taxi clearance after {first - sp_ev.tick} s",
+                              "tick": first})
+
     # role/spawn/goal lookup from scenario
     spec = {}
     for s in scenario.get("departures", []) + scenario.get("arrivals", []):
         spec[s["acid"]] = s
 
+    # Stranded: a departure taxi-cleared long ago that never got its runway crossing
+    # and never reached the runway — abandonment at the hold bar is NEGLECT, distinct
+    # from slow-but-ongoing service (which only costs E).
+    crossing_cleared = {e.payload["acid"] for e in log.of_type("crossing_clearance")}
+    for acid in spawns:
+        if spec.get(acid, {}).get("role") != "departure":
+            continue
+        first = first_taxi.get(acid)
+        if (first is not None and acid not in arrivals and acid not in crossing_cleared
+                and session_end - first >= STRANDED_THRESHOLD_SEC):
+            cardinals.append({"code": "NEGLECT", "acid": acid,
+                              "detail": "stranded at hold short (no crossing clearance)",
+                              "tick": session_end})
+
+    # Every spawned aircraft counts in E and A; unserviced aircraft score 0 rather
+    # than being silently excluded from the denominators.
     delay_factors: list[float] = []
     response_ratios: list[float] = []
     for acid, sp_ev in spawns.items():
@@ -73,8 +107,12 @@ def score_gnd(log: EventLog, scenario: dict) -> dict:
             actual = max(1, arrivals[acid].tick - sp_ev.tick)
             ideal = _ideal_seconds(s.get("node", ""), s.get("goal", ""), crosses)
             delay_factors.append(_clamp(ideal / actual))
+        else:
+            delay_factors.append(0.0)
         if acid in first_taxi:
             response_ratios.append(_clamp(RESPONSE_THRESHOLD_SEC / max(1, first_taxi[acid] - sp_ev.tick)))
+        else:
+            response_ratios.append(0.0)
 
     # Tower-sequence conformity: order departures reached the departure hold short.
     dep_order = [e.payload["acid"] for e in log.of_type("aircraft_arrived")
@@ -82,20 +120,22 @@ def score_gnd(log: EventLog, scenario: dict) -> dict:
     requested = [a for a in scenario.get("tower_sequence", []) if a in dep_order]
     queue_conf = _sequence_conformity(dep_order, requested)
 
-    taxi_eff = (sum(delay_factors) / len(delay_factors)) if delay_factors else 1.0
+    # Empty aggregates with aircraft present score 0, not 1: silence is not competence.
+    taxi_eff = (sum(delay_factors) / len(delay_factors)) if delay_factors else (0.0 if spawns else 1.0)
     E = 0.7 * taxi_eff + 0.3 * queue_conf
 
     # F: purposeful controller transmissions (taxi/crossing) over all controller tx.
     ctrl_tx = [e for e in log.of_type("transmission") if e.payload.get("speaker", "").endswith("_GND")]
     purposeful = len(log.of_type("taxi_clearance")) + len(log.of_type("crossing_clearance"))
-    F = _clamp(purposeful / len(ctrl_tx)) if ctrl_tx else 1.0
+    F = _clamp(purposeful / len(ctrl_tx)) if ctrl_tx else (0.0 if spawns else 1.0)
 
-    H = 1.0  # hearback not exercised at the GND slice (no readback error classes yet)
-    A = (sum(response_ratios) / len(response_ratios)) if response_ratios else 1.0
+    A = (sum(response_ratios) / len(response_ratios)) if response_ratios else (0.0 if spawns else 1.0)
 
     severe_count = 0
     gate = 0 if cardinals else (0 if severe_count > 2 else 1)
-    s_raw = W_E * E + W_H * H + W_F * F + W_A * A
+    # Hearback isn't exercised at the GND slice yet (no readback error classes), so H
+    # is excluded and the remaining weights renormalized — no free credit (§13.2).
+    s_raw = (W_E * E + W_F * F + W_A * A) / (W_E + W_F + W_A)
     S = gate * s_raw
     ttfc = min([c["tick"] for c in cardinals], default=None)
 
@@ -104,7 +144,7 @@ def score_gnd(log: EventLog, scenario: dict) -> dict:
         "gate": gate,
         "S": round(S, 4),
         "S_raw": round(s_raw, 4),
-        "components": {"E": round(E, 4), "H": round(H, 4), "F": round(F, 4), "A": round(A, 4)},
+        "components": {"E": round(E, 4), "H": None, "F": round(F, 4), "A": round(A, 4)},
         "cardinal_violations": cardinals,
         "reported_events": reported,
         "counts": {
@@ -113,6 +153,7 @@ def score_gnd(log: EventLog, scenario: dict) -> dict:
             "cardinals": len(cardinals),
             "incursions_model": sum(1 for c in cardinals if c["code"] == "RI-CTRL"),
             "deadlocks": sum(1 for c in cardinals if c["code"] == "DEADLOCK"),
+            "neglects": sum(1 for c in cardinals if c["code"] == "NEGLECT"),
         },
         "queue_conformity": round(queue_conf, 4),
         "time_to_first_cardinal": ttfc,

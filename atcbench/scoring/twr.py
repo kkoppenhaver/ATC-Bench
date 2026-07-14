@@ -15,6 +15,7 @@ from ..sim.events import EventLog
 
 W_E, W_H, W_F, W_A = 0.35, 0.25, 0.20, 0.20
 RESPONSE_THRESHOLD_SEC = 60  # target latency to first landing/takeoff clearance
+NEGLECT_GRACE_SEC = 180  # min time on frequency before a never-cleared aircraft is NEGLECT
 
 
 def _clamp(x: float, lo: float = 0.0, hi: float = 1.0) -> float:
@@ -44,30 +45,48 @@ def score_twr(log: EventLog, scenario: dict) -> dict:
     model_ga = [e for e in go_arounds if e.payload.get("provenance") == "model"]
     env_ga = [e for e in go_arounds if e.payload.get("provenance") == "environment"]
 
-    # First clearance latency per aircraft (attention proxy).
+    session_end = max((e.tick for e in log.of_type("session_end")), default=0)
+
+    # First clearance latency per aircraft (attention proxy). LUAW counts as service.
     first_clear = {}
-    for e in log.of_type("landing_clearance") + log.of_type("takeoff_clearance"):
+    for e in (log.of_type("landing_clearance") + log.of_type("takeoff_clearance")
+              + log.of_type("luaw_clearance")):
         first_clear.setdefault(e.payload["acid"], e.tick)
+
+    # NEGLECT: an aircraft on frequency past the grace period that never received any
+    # clearance — inaction is a cardinal (§13.1). A latency threshold would false-flag
+    # legitimate gap management, so the test is "never cleared at all".
+    for acid, t0 in spawns.items():
+        if acid not in first_clear and session_end - t0 >= NEGLECT_GRACE_SEC:
+            cardinals.append({"code": "NEGLECT", "acid": acid,
+                              "detail": "no clearance issued all session", "tick": session_end})
+
+    # Every spawned aircraft counts in A; never-cleared aircraft score 0 rather than
+    # being silently excluded from the denominator.
     response_ratios = []
     for acid, t0 in spawns.items():
         if acid in first_clear:
             response_ratios.append(_clamp(RESPONSE_THRESHOLD_SEC / max(1, first_clear[acid] - t0)))
+        else:
+            response_ratios.append(0.0)
 
     completion = completed / total
     model_ga_rate = _clamp(len(model_ga) / n_arr) if n_arr else 0.0
     E = 0.7 * completion + 0.3 * (1.0 - model_ga_rate)
 
+    # Empty aggregates with aircraft present score 0, not 1: silence is not competence.
     ctrl_tx = [e for e in log.of_type("transmission") if e.payload.get("speaker", "").endswith("_TWR")]
     purposeful = (len(log.of_type("landing_clearance")) + len(log.of_type("takeoff_clearance"))
                   + len(log.of_type("luaw_clearance")) + len(log.of_type("departed_sector"))
                   + len(model_ga) + len(env_ga))
-    F = _clamp(purposeful / len(ctrl_tx)) if ctrl_tx else 1.0
+    F = _clamp(purposeful / len(ctrl_tx)) if ctrl_tx else (0.0 if spawns else 1.0)
 
-    H = 1.0  # hearback not exercised at the TWR slice
-    A = (sum(response_ratios) / len(response_ratios)) if response_ratios else 1.0
+    A = (sum(response_ratios) / len(response_ratios)) if response_ratios else (0.0 if spawns else 1.0)
 
     gate = 0 if cardinals else 1
-    s_raw = W_E * E + W_H * H + W_F * F + W_A * A
+    # Hearback isn't exercised at the TWR slice yet (no readback error classes), so H
+    # is excluded and the remaining weights renormalized — no free credit (§13.2).
+    s_raw = (W_E * E + W_F * F + W_A * A) / (W_E + W_F + W_A)
     S = gate * s_raw
     ttfc = min([c["tick"] for c in cardinals], default=None)
 
@@ -76,7 +95,7 @@ def score_twr(log: EventLog, scenario: dict) -> dict:
         "gate": gate,
         "S": round(S, 4),
         "S_raw": round(s_raw, 4),
-        "components": {"E": round(E, 4), "H": round(H, 4), "F": round(F, 4), "A": round(A, 4)},
+        "components": {"E": round(E, 4), "H": None, "F": round(F, 4), "A": round(A, 4)},
         "cardinal_violations": cardinals,
         "counts": {
             "aircraft": total,
@@ -84,6 +103,7 @@ def score_twr(log: EventLog, scenario: dict) -> dict:
             "cardinals": len(cardinals),
             "los": sum(1 for c in cardinals if c["code"] == "LOS"),
             "wake": sum(1 for c in cardinals if c["code"] == "WAKE"),
+            "neglects": sum(1 for c in cardinals if c["code"] == "NEGLECT"),
             "model_go_arounds": len(model_ga),
             "env_go_arounds": len(env_ga),
         },

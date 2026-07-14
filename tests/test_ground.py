@@ -9,7 +9,12 @@ from __future__ import annotations
 import pytest
 
 from atcbench.baselines.feasibility import gnd_feasible
-from atcbench.harness.adapters import BadGNDController, ReplayAdapter, ScriptedGNDController
+from atcbench.harness.adapters import (
+    BadGNDController,
+    DoNothingController,
+    ReplayAdapter,
+    ScriptedGNDController,
+)
 from atcbench.harness.ground_session import GroundSession
 from atcbench.pilots import parser as P
 from atcbench.scenarios import gnd as gnd_scenarios
@@ -33,6 +38,34 @@ def test_oracle_certifies(seed, band):
 def test_bad_controller_busts_across_seeds():
     busts = [_score(BadGNDController, s)["gate"] for s in range(1, 12)]
     assert all(g == 0 for g in busts)
+
+
+@pytest.mark.parametrize("seed", [1, 7, 42])
+def test_do_nothing_never_certifies(seed):
+    # No-skill probe (X.5): pure inaction must bust on NEGLECT, never score.
+    s = _score(DoNothingController, seed)
+    assert s["gate"] == 0
+    assert s["S"] == 0.0
+    assert any(c["code"] == "NEGLECT" for c in s["cardinal_violations"])
+
+
+class _TaxiOnlyController(ScriptedGNDController):
+    """Low-skill probe (X.5): routes everyone, never clears the 31R crossing —
+    stranding every departure at the hold bar must read as NEGLECT, not S≈0.8."""
+
+    def step(self, observation):
+        for ac in observation["aircraft"]:
+            if not ac["route_assigned"]:
+                return super().step(observation)
+        return self.wait()
+
+
+@pytest.mark.parametrize("seed", [1, 7, 42])
+def test_strand_departures_never_certifies(seed):
+    s = _score(_TaxiOnlyController, seed)
+    assert s["gate"] == 0
+    assert s["S"] == 0.0
+    assert any("stranded" in c.get("detail", "") for c in s["cardinal_violations"])
 
 
 def test_bad_controller_produces_cardinal_kinds():

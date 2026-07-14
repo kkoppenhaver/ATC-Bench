@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from atcbench.harness.adapters import BadCDController, ScriptedCDController
+from atcbench.harness.adapters import BadCDController, DoNothingController, ScriptedCDController
 from atcbench.harness.session import CDSession
 from atcbench.scenarios import cd as cd_scenarios
 from atcbench.scoring.cd import score_cd
@@ -31,6 +31,15 @@ def test_bad_controller_busts():
     assert s["gate"] == 0
     assert s["S"] == 0.0
     assert s["counts"]["cardinals"] >= 1
+
+
+@pytest.mark.parametrize("seed", [1, 7, 42])
+def test_do_nothing_never_certifies(seed):
+    # No-skill probe (X.5): pure inaction must bust on NEGLECT, never score.
+    s = _score(DoNothingController, seed)
+    assert s["gate"] == 0
+    assert s["S"] == 0.0
+    assert any(c["code"] == "NEGLECT" for c in s["cardinal_violations"])
 
 
 def test_bad_controller_busts_across_seeds():

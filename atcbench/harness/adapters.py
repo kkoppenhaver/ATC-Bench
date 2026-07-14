@@ -277,6 +277,15 @@ class BadTWRController(ModelAdapter):
         return self.wait()
 
 
+class DoNothingController(ModelAdapter):
+    """No-skill probe: waits every turn, at every position. Scoring integrity demands
+    this controller never certifies anywhere — pure inaction must read as NEGLECT, not
+    competence (X.5; 2026-07 audit finding C1)."""
+
+    def step(self, observation: dict) -> dict:
+        return self.wait()
+
+
 class ReasoningController(ModelAdapter):
     """Wraps any controller and inflates its reported output tokens by a fixed amount,
     standing in for a model that reasons at length before each action. Under the

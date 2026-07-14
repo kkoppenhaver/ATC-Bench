@@ -165,10 +165,10 @@ Goal: a full CD session runs deterministically and is scorable from the log alon
   generation never rejects-and-regenerates, and the oracle is not used as the E
   normalizer → P3.5.5, P3.5.6._ _Deps: P2.6. Design §12.2, §13.2._
 - [~] **P2.8 — GND scorer.** Taxi delay vs. shortest-path, queue-order conformity,
-  explicit-crossings log check, cardinal (RI-CTRL, DEADLOCK). _Audit: a do-nothing
-  controller scores a perfect S=1.0 with gate=1 — empty aggregates default to 1.0,
-  unserviced aircraft are excluded from denominators, H=1.0 is hardcoded, and there is
-  no NEGLECT cardinal → P3.5.1._ _Deps: P2.4, P2.7. Design §6.2, §13._
+  explicit-crossings log check, cardinal (RI-CTRL, DEADLOCK). _Audit: do-nothing scored
+  S=1.0 gate=1 — fixed by P3.5.1 (NEGLECT cardinals, all-spawned denominators, H
+  renormalized). Remaining: oracle-normalized E → P3.5.5._ _Deps: P2.4, P2.7.
+  Design §6.2, §13._
 - [x] **P2.9 — "Bad controller" busting policy + cert test.** Scripted bad policy that
   reliably busts; oracle certifies 3/3. Wire into CI. _Deps: P2.7, P2.8. Design §15 P2 exit._
 
@@ -183,9 +183,9 @@ Goal: a full CD session runs deterministically and is scorable from the log alon
   reports `tempo_gap`; metered runs replay byte-identically) (§4.2).
 - [~] **P3.4 — TWR oracle + scorer** (conservative serialized oracle + feasibility gate; throughput
   vs. traffic, model-caused go-arounds via provenance; `atcbench run --position TWR`) (§6.3, §13.2).
-  _Audit: a do-nothing controller certifies (S=0.65, gate=1) — no NEGLECT cardinal,
-  H=1.0 hardcoded, empty aggregates default to 1.0, and F counts `departed_sector` /
-  go-around events as "purposeful transmissions" → P3.5.1, P3.5.5._
+  _Audit: do-nothing certified (S=0.65, gate=1) — fixed by P3.5.1 (NEGLECT cardinal,
+  honest denominators, H renormalized). Remaining: oracle-normalized E + purposeful-set
+  fix → P3.5.5._
 
 ---
 
@@ -196,13 +196,16 @@ TRACON/Center would inherit every defect below. **Exit test (P3.5.8):** the audi
 no-skill probes — a do-nothing controller and a blind re-clearance controller — run in
 CI at every position and must **never** certify (extends the P2.9 falsification pattern).
 
-- [ ] **P3.5.1 — Neglect cardinals + honest denominators (audit C1).** Per-position
+- [x] **P3.5.1 — Neglect cardinals + honest denominators (audit C1).** Per-position
   NEGLECT-class cardinals at GND/TWR (unserviced aircraft past a threshold, arrivals
   never given a route, aircraft still active at `session_end`). E/A computed over **all
   spawned aircraft**, with unserviced aircraft scored 0. Empty aggregates with aircraft
   present default to 0, not 1.0 (`scoring/gnd.py`, `scoring/twr.py`). Unhardcode H at
   GND/TWR or renormalize weights over the components that exist at each position.
-  _Deps: none. Design §13.1, §13.2._
+  _Done: GND NEGLECT (no taxi clearance in 180 s; stranded-at-hold-bar 300 s), TWR
+  NEGLECT (never cleared, 180 s grace); all-spawned denominators; empty aggregates → 0
+  with traffic present; H excluded + weights renormalized; do-nothing and
+  strand-departures probes in CI at all positions._ _Deps: none. Design §13.1, §13.2._
 - [ ] **P3.5.2 — Hearback integrity (audit C2).** An error counts as *caught* only when
   (a) a scheduled error actually existed and (b) the correction addresses the erroneous
   element specifically. `receive_correction` (`pilots/fsm.py`) no longer sets
