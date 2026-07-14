@@ -201,6 +201,9 @@ class TowerSession:
     def _apply_calls(self, resp: dict) -> bool:
         calls = resp.get("tool_calls") or []
         if not calls:
+            # A formatting failure is not a decision to wait — log it (§7.2).
+            if resp.get("text"):
+                self.log.emit(self.tick, E.UNPARSED_MODEL_OUTPUT, text=resp["text"])
             return True
         for call in calls:
             name, inp = call.get("name"), call.get("input", {})
@@ -221,8 +224,10 @@ class TowerSession:
     def _handle_transmit(self, text: str) -> None:
         self._tx(self.scn.position, text)
         pt = P.parse_tower_transmission(text, list(self.active.keys()))
+        self.log.emit(self.tick, E.CONTROLLER_PARSE, tier=int(pt.tier),
+                      tier_name=pt.tier.name, intent=pt.intent, acid=pt.acid)
         if pt.acid is None or pt.acid not in self.active:
-            return
+            return  # unaddressed — logged above; nobody on frequency can respond
         ac = self.active[pt.acid]
         if pt.intent == "land" and ac.role == "arrival" and ac.phase == "final":
             ac.phase = "cleared_land"
@@ -252,6 +257,13 @@ class TowerSession:
             self.log.emit(self.tick, E.DEPARTED_SECTOR, acid=ac.acid)
             self.strips.strip_delete(ac.acid)
             del self.active[ac.acid]
+        else:
+            # Addressed but unusable for this aircraft's role/phase (§7.2 tier 3/4):
+            # the pilot asks for a repeat instead of the harness dropping it silently.
+            self.log.emit(self.tick, E.SAY_AGAIN, acid=ac.acid, tier=int(pt.tier),
+                          intent=pt.intent)
+            self._tx(ac.acid, self.vb.render({"kind": "say_again", "acid": ac.acid,
+                                              "persona": "airline_crisp"}))
 
     # --- kinematics + safety oracle ------------------------------------------
 

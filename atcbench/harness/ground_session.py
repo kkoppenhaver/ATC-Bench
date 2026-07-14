@@ -215,6 +215,9 @@ class GroundSession:
     def _apply_calls(self, resp: dict) -> bool:
         calls = resp.get("tool_calls") or []
         if not calls:
+            # A formatting failure is not a decision to wait — log it (§7.2).
+            if resp.get("text"):
+                self.log.emit(self.tick, E.UNPARSED_MODEL_OUTPUT, text=resp["text"])
             return True
         for call in calls:
             name, inp = call.get("name"), call.get("input", {})
@@ -235,16 +238,21 @@ class GroundSession:
     def _handle_transmit(self, text: str) -> None:
         self._tx(self.scn.position, text)
         pt = P.parse_ground_transmission(text, list(self.active.keys()))
+        self.log.emit(self.tick, E.CONTROLLER_PARSE, tier=int(pt.tier),
+                      tier_name=pt.tier.name, intent=pt.intent, acid=pt.acid)
         if pt.acid is None or pt.acid not in self.active:
-            return
+            return  # unaddressed — logged above; nobody on frequency can respond
         ac = self.active[pt.acid]
+        handled = False
         if pt.intent == "taxi":
+            handled = True
             self._assign_route(ac, pt)
             self.log.emit(self.tick, E.TAXI_CLEARANCE, acid=ac.acid, to_runway=pt.to_runway,
                           to_gate=pt.to_gate, via=pt.via, hold_short=pt.hold_short)
             self._tx(ac.acid, self.vb.render({"kind": "taxi_readback", "acid": ac.acid,
                                               "persona": "airline_crisp", "text": self._summarize(pt)}))
         if pt.cross:
+            handled = True
             for rwy in pt.cross:
                 ac.crossings_cleared.add(rwy)
             self.holds.discard(ac.acid)
@@ -253,7 +261,14 @@ class GroundSession:
                                               "persona": "airline_crisp",
                                               "text": "cross runway " + ", ".join(pt.cross)}))
         if pt.hold_position:
+            handled = True
             self.holds.add(ac.acid)
+        if not handled:
+            # Addressed but unusable (§7.2 tier 3/4): pilot asks for a repeat.
+            self.log.emit(self.tick, E.SAY_AGAIN, acid=ac.acid, tier=int(pt.tier),
+                          intent=pt.intent)
+            self._tx(ac.acid, self.vb.render({"kind": "say_again", "acid": ac.acid,
+                                              "persona": "airline_crisp"}))
 
     def _summarize(self, pt) -> str:
         bits = []

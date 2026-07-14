@@ -250,6 +250,10 @@ class CDSession:
     def _apply_tool_calls(self, resp: dict) -> bool:
         calls = resp.get("tool_calls") or []
         if not calls:
+            # A formatting failure is not a decision to wait — log it so parsing
+            # trouble is auditable instead of scored as silent inaction (§7.2).
+            if resp.get("text"):
+                self.log.emit(self.tick, E.UNPARSED_MODEL_OUTPUT, text=resp["text"])
             return True
         for call in calls:
             name = call.get("name")
@@ -281,10 +285,14 @@ class CDSession:
     def _handle_transmit(self, text: str) -> None:
         self._emit_transmission(self.scn.position, text)
         parsed = P.parse_controller_transmission(text, list(self.active.keys()), kmrl_cd.PACK)
+        self.log.emit(self.tick, E.CONTROLLER_PARSE, tier=int(parsed.tier),
+                      tier_name=parsed.tier.name, intent=parsed.intent, acid=parsed.acid)
         acid = parsed.acid
         if acid is None or acid not in self.active:
-            return
+            return  # unaddressed — logged above; nobody on frequency can respond
         fsm = self.active[acid]
+        if parsed.intent in ("affirm", "say_again"):
+            return  # acknowledged silently; the pilot has nothing to re-read
         if parsed.intent == "clearance" and fsm.state == CDState.AWAITING_CLEARANCE:
             self.log.emit(self.tick, E.CLEARANCE_ISSUED, acid=acid,
                           altitude=parsed.altitude, frequency=parsed.frequency,
@@ -308,6 +316,16 @@ class CDSession:
                 self._emit_transmission(acid, self.vb.render(ack))
                 self.log.emit(self.tick, E.READBACK, acid=acid, readback=fsm.readback,
                               readback_acid=fsm.readback_acid, corrected=True)
+        else:
+            # Addressed but unusable for this aircraft's state (§7.2 tier 3/4):
+            # the pilot asks for a repeat instead of the harness dropping it silently.
+            self._say_again(acid, fsm.persona.value, parsed)
+
+    def _say_again(self, acid: str, persona: str, parsed) -> None:
+        self.log.emit(self.tick, E.SAY_AGAIN, acid=acid, tier=int(parsed.tier),
+                      intent=parsed.intent)
+        self._emit_transmission(acid, self.vb.render(
+            {"kind": "say_again", "acid": acid, "persona": persona}))
 
     # --- driver --------------------------------------------------------------
 

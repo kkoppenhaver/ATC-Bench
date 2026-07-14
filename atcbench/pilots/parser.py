@@ -233,11 +233,21 @@ def _canon_runways(norm: str) -> str:
     return re.sub(r"(\d{1,2})\s+(left|right|center|centre)\b", repl, norm)
 
 
+def _coarse_tier(acid: Optional[str], intent: str) -> ParseTier:
+    """Tier for the position parsers that key on intent keywords (§7.2)."""
+    if acid is None:
+        return ParseTier.UNPARSEABLE if intent == "other" else ParseTier.AMBIGUOUS
+    if intent == "other":
+        return ParseTier.NONSTANDARD
+    return ParseTier.STANDARD
+
+
 @dataclass
 class ParsedTowerTransmission:
     raw: str
     acid: Optional[str]
     intent: str  # "land" | "takeoff" | "luaw" | "go_around" | "handoff" | "hold" | "other"
+    tier: ParseTier = ParseTier.STANDARD
 
 
 def parse_tower_transmission(text: str, active_acids) -> ParsedTowerTransmission:
@@ -257,7 +267,8 @@ def parse_tower_transmission(text: str, active_acids) -> ParsedTowerTransmission
         intent = "hold"
     else:
         intent = "other"
-    return ParsedTowerTransmission(raw=text, acid=acid, intent=intent)
+    return ParsedTowerTransmission(raw=text, acid=acid, intent=intent,
+                                   tier=_coarse_tier(acid, intent))
 
 
 @dataclass
@@ -271,6 +282,7 @@ class ParsedGroundTransmission:
     cross: list[str] = field(default_factory=list)
     hold_short: list[str] = field(default_factory=list)
     hold_position: bool = False
+    tier: ParseTier = ParseTier.STANDARD
 
 
 def parse_ground_transmission(text: str, active_acids) -> ParsedGroundTransmission:
@@ -311,6 +323,7 @@ def parse_ground_transmission(text: str, active_acids) -> ParsedGroundTransmissi
         to_gate=to_gate, via=via,
         cross=[c.upper() for c in cross], hold_short=[h.upper() for h in hold_short],
         hold_position=hold_position,
+        tier=_coarse_tier(acid, intent),
     )
 
 

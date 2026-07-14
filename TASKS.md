@@ -228,16 +228,17 @@ CI at every position and must **never** certify (extends the P2.9 falsification 
   `TowerSession(representation="raw"|"enriched")` stubs the P4.6 split, with the TWR
   oracle keeping its own runway-use picture. Observation contract pinned in
   `tests/test_observation.py`._ _Deps: none. Design §4.5, §11.2._
-- [~] **P3.5.4 — Parser integrity (audit M5).** Numeric extraction in corrections scoped
+- [x] **P3.5.4 — Parser integrity (audit M5).** Numeric extraction in corrections scoped
   to element keywords — no cross-assignment ("negative, squawk four five zero zero" must
   never become altitude 4500 and corrupt pilot state). Tier-4 (unparseable) transmissions
   trigger a pilot `say_again` instead of a silent drop; `ParseTier` logged per
   transmission; model text arriving with no tool call logs `unparsed_model_output`
-  instead of silently becoming `wait`. _Cross-assignment fixed with P3.5.2 (the altitude
-  fallback was corrupting pilot state from the oracle's own squawk corrections;
-  keyword-claimed spans now scrubbed first). Remaining: say_again, tier logging,
-  unparsed_model_output; known edge — flight numbers divisible by 100 can still hit the
-  altitude fallback._ _Deps: none. Design §7.2._
+  instead of silently becoming `wait`. _Done: cross-assignment fixed with P3.5.2;
+  `controller_parse` (tier + intent) logged for every controller transmission at all
+  three positions; addressed-but-unusable transmissions draw a pilot "say again" on
+  frequency; formatting failures logged verbatim. Known edge for X.3: flight numbers
+  divisible by 100 can still hit the altitude fallback; GND/TWR tiers are coarse until
+  the variant corpus lands._ _Deps: none. Design §7.2._
 - [ ] **P3.5.5 — Oracle-normalized efficiency (audit M7).** Run the oracle per seed at
   score time and compute `E = clamp(model_metric / oracle_metric)` per §13.2, replacing
   the fixed absolute thresholds (which the oracle saturates on 97% of seeds). Fix the
