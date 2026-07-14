@@ -1,0 +1,68 @@
+{
+  "arrivals": [
+    {
+      "acid": "DAL1411",
+      "actype": "B739",
+      "call_tick": 30,
+      "role": "arrival",
+      "start_dist_nm": 8.0,
+      "wake": "L"
+    },
+    {
+      "acid": "DAL3723",
+      "actype": "B738",
+      "call_tick": 191,
+      "role": "arrival",
+      "start_dist_nm": 8.0,
+      "wake": "L"
+    },
+    {
+      "acid": "DAL4425",
+      "actype": "B77W",
+      "call_tick": 364,
+      "role": "arrival",
+      "start_dist_nm": 8.0,
+      "wake": "H"
+    },
+    {
+      "acid": "DAL3950",
+      "actype": "B739",
+      "call_tick": 539,
+      "role": "arrival",
+      "start_dist_nm": 8.0,
+      "wake": "L"
+    }
+  ],
+  "band": "calm",
+  "departures": [
+    {
+      "acid": "SWA2476",
+      "actype": "A320",
+      "call_tick": 60,
+      "role": "departure",
+      "start_dist_nm": 0.0,
+      "wake": "L"
+    },
+    {
+      "acid": "AAL114",
+      "actype": "B77W",
+      "call_tick": 238,
+      "role": "departure",
+      "start_dist_nm": 0.0,
+      "wake": "H"
+    },
+    {
+      "acid": "N653FV",
+      "actype": "C172",
+      "call_tick": 437,
+      "role": "departure",
+      "start_dist_nm": 0.0,
+      "wake": "S"
+    }
+  ],
+  "error_schedule": {},
+  "forced_go_arounds": [],
+  "position": "MRL_TWR",
+  "seed": 2,
+  "session_seconds": 3600
+}

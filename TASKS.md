@@ -6,21 +6,22 @@ by phase and ordered by dependency. **v1 public release = Phases 1–2.**
 Legend: `[ ]` todo · `[~]` in progress · `[x]` done. Each task lists the design
 section(s) it implements and its hard dependencies.
 
-> **Status (2026-07): Phases 1 and 2 are functional** (v1 = CD + GND). Deterministic
-> Clearance Delivery and Ground sessions run, score, certify, and replay byte-identically
-> (`python -m atcbench.cli run --position CD|GND ...`). The oracle certifies across
-> seeds/bands; scripted bad controllers bust (CD: uncaught readback; GND: runway
-> incursion + head-on deadlock). `[~]` = partial: P0.2 (SessionStart hook/type checker
-> pending); P1.10/P2.2 (a **fictional stand-in** facility, Marlow Regional/KMRL — real
-> FAA chart packs are future work); P2.5 (one ground error class so far). 81 tests, ruff clean. Token-metered regime (§4.2) on CD+GND+TWR; **Phase 3 Tower** position live (CD→GND→TWR).
+> **Status (2026-07-14):** Positions CD → GND → TWR are live with both time regimes,
+> shared half-duplex channel physics, seeded per-scenario chart packs, the full v1
+> error taxonomy subset (incl. CS-CONF/SAY-AGAIN/BLOCKED + GND/TWR injections), and
+> realistic fleet/callsign pairing. 149 tests, ruff clean, byte-identical replay
+> (verified on live-model runs), cross-Python-version determinism in CI.
 >
-> **2026-07 benchmark audit:** an expert audit with empirical probes found the scorers
-> exploitable by no-skill baselines (a do-nothing controller certifies at GND with S=1.0;
-> a blind re-clearance controller matches the oracle at CD without reading readbacks) and
-> the live-model path unbuilt (no `--model`, GND/TWR prompts, or `evaluate`; `bay_read`
-> is a no-op). **Phases 3.5–3.6 below are the fix gate: no Phase 4 work and no public
-> claims/numbers until both exit tests pass.** Checkboxes below marked `[~]` with an
-> _Audit:_ note were corrected from `[x]` to match verified reality.
+> **2026-07 benchmark audit** (issues #14/#15): all findings fixed. **Phase 3.5**
+> (scorer/harness integrity) is complete and closed — no-skill probes are permanent CI
+> (X.5). **Phase 3.6**: prompts, live adapter (`run --model`), and statistical
+> `evaluate` (Wilson-bound certification, pass^k, clustered CIs) are done; **P3.6.4 is
+> half-done** — the small pilot (26 live sessions, `runs/pilot/`) proved every axis
+> discriminates; the **full campaign (≥20 seeds × ≥3 trials, ~$150–250) is the last
+> step before public numbers**. The **P4.0 pre-campaign construct batch (a–e) is
+> complete**, so campaign baselines land on a stable construct. Calibration probes in
+> `runs/probes/` (TWR calm band shows a gradient: the standard-band wall opens up).
+> Next after the campaign: pre-register weights, close #15, then TRACON (P4.1+).
 
 ---
 

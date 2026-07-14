@@ -1,0 +1,48 @@
+{"from": "DAL1411", "t": 30, "text": "Marlow Tower, Delta one four one one, eight mile final, runway three one center"}
+{"from": "MRL_TWR", "t": 35, "text": "DAL1411, runway three one center, cleared to land."}
+{"from": "DAL1411", "t": 39, "text": "cleared to land runway three one center, Delta one four one one"}
+{"from": "SWA2476", "t": 60, "text": "Marlow Tower, Southwest two four seven six, holding short runway three one center, ready"}
+{"from": "MRL_TWR", "t": 65, "text": "SWA2476, runway three one center, line up and wait."}
+{"from": "SWA2476", "t": 69, "text": "line up and wait runway three one center, Southwest two four seven six"}
+{"from": "DAL3723", "t": 195, "text": "Marlow Tower, Delta three seven two three, eight mile final, runway three one center"}
+{"from": "MRL_TWR", "t": 200, "text": "SWA2476, runway three one center, cleared for takeoff."}
+{"from": "SWA2476", "t": 204, "text": "cleared for takeoff runway three one center, Southwest two four seven six"}
+{"from": "DAL1411", "t": 235, "text": "Going around, Delta one four one one"}
+{"from": "AAL114", "t": 240, "text": "Marlow Tower, American one one four, holding short runway three one center, ready"}
+{"from": "MRL_TWR", "t": 245, "text": "SWA2476, contact departure one one niner point three five."}
+{"from": "MRL_TWR", "t": 250, "text": "DAL3723, runway three one center, cleared to land."}
+{"from": "DAL3723", "t": 254, "text": "cleared to land runway three one center, Delta three seven two three"}
+{"from": "DAL4425", "t": 365, "text": "Marlow Tower, Delta four four two five, eight mile final, runway three one center"}
+{"from": "N653FV", "t": 440, "text": "Marlow Tower, November six five three foxtrot victor, holding short runway three one center, ready"}
+{"from": "MRL_TWR", "t": 455, "text": "DAL4425, runway three one center, cleared to land."}
+{"from": "DAL4425", "t": 459, "text": "cleared to land runway three one center, Delta four four two five"}
+{"from": "DAL3950", "t": 540, "text": "Marlow Tower, Delta three niner five zero, eight mile final, runway three one center"}
+{"from": "MRL_TWR", "t": 610, "text": "DAL1411, runway three one center, cleared to land."}
+{"from": "DAL1411", "t": 614, "text": "cleared to land runway three one center, Delta one four one one"}
+{"from": "DAL3950", "t": 715, "text": "Going around, Delta three niner five zero"}
+{"from": "MRL_TWR", "t": 735, "text": "AAL114, runway three one center, line up and wait."}
+{"from": "AAL114", "t": 739, "text": "line up and wait runway three one center, American one one four"}
+{"from": "MRL_TWR", "t": 745, "text": "AAL114, runway three one center, cleared for takeoff."}
+{"from": "AAL114", "t": 749, "text": "cleared for takeoff runway three one center, American one one four"}
+{"from": "MRL_TWR", "t": 785, "text": "AAL114, contact departure one one niner point three five."}
+{"from": "MRL_TWR", "t": 790, "text": "DAL3950, runway three one center, cleared to land."}
+{"from": "DAL3950", "t": 794, "text": "Say again for Delta three niner five zero?"}
+{"from": "MRL_TWR", "t": 800, "text": "DAL3950, runway three one center, cleared to land."}
+{"from": "DAL3950", "t": 804, "text": "Say again for Delta three niner five zero?"}
+{"from": "MRL_TWR", "t": 810, "text": "Delta three niner five zero, runway three one center, cleared to land."}
+{"from": "DAL3950", "t": 814, "text": "Say again for Delta three niner five zero?"}
+{"from": "MRL_TWR", "t": 820, "text": "Three niner five zero, cleared to land runway three one center."}
+{"from": "DAL3950", "t": 824, "text": "Say again for Delta three niner five zero?"}
+{"from": "MRL_TWR", "t": 830, "text": "DAL3950, cleared to land."}
+{"from": "DAL3950", "t": 833, "text": "Say again for Delta three niner five zero?"}
+{"from": "MRL_TWR", "t": 835, "text": "Delta three niner five zero, runway three one center, cleared to land."}
+{"from": "DAL3950", "t": 839, "text": "Say again for Delta three niner five zero?"}
+{"from": "MRL_TWR", "t": 845, "text": "DAL3950, landing clearance, runway three one center."}
+{"from": "DAL3950", "t": 849, "text": "Say again for Delta three niner five zero?"}
+{"from": "MRL_TWR", "t": 960, "text": "DAL3950, runway three one center, cleared to land."}
+{"from": "DAL3950", "t": 964, "text": "cleared to land runway three one center, Delta three niner five zero"}
+{"from": "MRL_TWR", "t": 1215, "text": "N653FV, runway three one center, line up and wait."}
+{"from": "N653FV", "t": 1220, "text": "line up and wait runway three one center, November six five three foxtrot victor"}
+{"from": "MRL_TWR", "t": 1225, "text": "N653FV, runway three one center, cleared for takeoff."}
+{"from": "N653FV", "t": 1229, "text": "cleared for takeoff runway three one center, November six five three foxtrot victor"}
+{"from": "MRL_TWR", "t": 1265, "text": "N653FV, contact departure one one niner point three five."}

@@ -1,0 +1,113 @@
+{
+  "arrivals": [
+    {
+      "acid": "SWA4278",
+      "actype": "E175",
+      "call_tick": 30,
+      "role": "arrival",
+      "start_dist_nm": 8.0,
+      "wake": "L"
+    },
+    {
+      "acid": "UAL4074",
+      "actype": "A320",
+      "call_tick": 173,
+      "role": "arrival",
+      "start_dist_nm": 8.0,
+      "wake": "L"
+    },
+    {
+      "acid": "UAL4733",
+      "actype": "B738",
+      "call_tick": 316,
+      "role": "arrival",
+      "start_dist_nm": 8.0,
+      "wake": "L"
+    },
+    {
+      "acid": "AAL108",
+      "actype": "B77W",
+      "call_tick": 444,
+      "role": "arrival",
+      "start_dist_nm": 8.0,
+      "wake": "H"
+    },
+    {
+      "acid": "SWA4080",
+      "actype": "A320",
+      "call_tick": 569,
+      "role": "arrival",
+      "start_dist_nm": 8.0,
+      "wake": "L"
+    },
+    {
+      "acid": "N200RL",
+      "actype": "C172",
+      "call_tick": 709,
+      "role": "arrival",
+      "start_dist_nm": 8.0,
+      "wake": "S"
+    }
+  ],
+  "band": "standard",
+  "departures": [
+    {
+      "acid": "UAL972",
+      "actype": "B738",
+      "call_tick": 60,
+      "role": "departure",
+      "start_dist_nm": 0.0,
+      "wake": "L"
+    },
+    {
+      "acid": "DAL3125",
+      "actype": "E175",
+      "call_tick": 226,
+      "role": "departure",
+      "start_dist_nm": 0.0,
+      "wake": "L"
+    },
+    {
+      "acid": "SWA4431",
+      "actype": "A320",
+      "call_tick": 382,
+      "role": "departure",
+      "start_dist_nm": 0.0,
+      "wake": "L"
+    },
+    {
+      "acid": "SWA739",
+      "actype": "A320",
+      "call_tick": 540,
+      "role": "departure",
+      "start_dist_nm": 0.0,
+      "wake": "L"
+    },
+    {
+      "acid": "DAL3556",
+      "actype": "E175",
+      "call_tick": 717,
+      "role": "departure",
+      "start_dist_nm": 0.0,
+      "wake": "L"
+    }
+  ],
+  "error_schedule": {
+    "DAL3125": {
+      "code": "TWR-LUAW-MISS",
+      "detail": {}
+    },
+    "SWA4080": {
+      "code": "TWR-SLOW-EXIT",
+      "detail": {
+        "extra_sec": 15
+      }
+    }
+  },
+  "forced_go_arounds": [
+    "AAL108"
+  ],
+  "position": "MRL_TWR",
+  "seed": 1,
+  "session_seconds": 3600
+}

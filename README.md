@@ -13,13 +13,19 @@ for the work breakdown. Progress is tracked in the GitHub issues (one epic per p
 
 Phases 1–3 — deterministic **Clearance Delivery**, **Ground**, and **Tower** positions
 (the ladder is CD → GND → TWR), both time regimes, full scoring, certification gating,
-and a byte-identical replay determinism check. A 2026-07 benchmark audit drove a
-scorer/harness integrity pass (Phase 3.5, issue #14): no-skill baselines now bust on
-NEGLECT everywhere, hearback is signal detection (blind re-clearing scores H=0),
-observations carry no ground truth or pre-computed skill, and E/A are normalized
-against the oracle on the same seed. **The live-model path is not built yet** (issue
-#15): only scripted controllers run today, so no real-LLM numbers exist or should be
-quoted.
+and a byte-identical replay determinism check (verified on live-model runs). A 2026-07
+benchmark audit drove a scorer/harness integrity pass (issue #14, complete): no-skill
+baselines bust on NEGLECT everywhere, hearback is signal detection (blind re-clearing
+scores H=0), observations carry no ground truth or pre-computed skill, and E/A are
+normalized against the oracle on the same seed. The **live-model path is wired
+end-to-end** (`run --model`, prompt caching, budget caps, verbatim I/O): first real
+runs live under `runs/` — a smoke test, a 26-session pilot campaign (Haiku 4.5 +
+Sonnet 5), and calibration probes. The construct has since been deepened (P4.0a–e):
+shared half-duplex channel physics with `[BLOCKED]`, seed-drawn per-scenario chart
+packs (no memorizable answer key), pilots fly the transmitted route, the
+CS-CONF/SAY-AGAIN/BLOCKED error classes plus GND/TWR injections, and N-number GA
+registrations. **The full certification campaign (issue #15) has not run yet — pilot
+numbers are calibration data, not quotable baselines.**
 
 > **Facility honesty note.** v1 runs on a **fictional stand-in airport — Marlow
 > Regional (KMRL)** — whose runways, taxi graph, SIDs, frequencies, and LOA are
@@ -43,12 +49,16 @@ Implemented so far:
   and head-on deadlock oracle — `sim/taxi.py`, `charts/kmrl_gnd.py`, `harness/ground_session.py`
 - Model adapter + tool router: scripted oracle & bad controllers at all three
   positions, no-skill audit probes (do-nothing, blind-corrector, routeless-taxi,
-  strand-departures), and a replay adapter — `harness/adapters.py`. (An Anthropic
-  adapter exists but is **not yet wired to the CLI** — see issue #15.)
+  strand-departures), a replay adapter, and a live `AnthropicAdapter` (real tool
+  results incl. `bay_read`, retries, prompt caching, cache-aware `--max-usd` budget)
+  — `harness/adapters.py`
 - Flight strip store + tools — `strips/store.py`
 - CD + GND + TWR scorers (oracle-normalized E/A, NEGLECT cardinals, hearback signal
   detection), feasibility gate wired into generation — `scoring/`, `baselines/`
-- CLI: `run --position CD|GND|TWR` / `score` / `replay` (verifies **all** artifacts) —
+- Per-scenario seed-drawn CD chart packs (frequency, SIDs, per-SID LOA altitudes,
+  invalid-filing fallback rule) — `charts/kmrl_cd.py`
+- CLI: `run [--model ID]` / `score` / `replay` (verifies **all** artifacts) /
+  `evaluate` (seeds × trials → Wilson-bound certification, pass^k, clustered CIs) —
   `cli.py`
 
 ## Quickstart

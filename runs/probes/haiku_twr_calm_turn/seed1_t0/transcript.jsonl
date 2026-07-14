@@ -1,0 +1,32 @@
+{"from": "SWA4278", "t": 30, "text": "Marlow Tower, Southwest four two seven eight, eight mile final, runway three one center"}
+{"from": "MRL_TWR", "t": 35, "text": "SWA4278, runway three one center, cleared to land."}
+{"from": "SWA4278", "t": 39, "text": "cleared to land runway three one center, Southwest four two seven eight"}
+{"from": "SWA4080", "t": 60, "text": "Marlow Tower, Southwest four zero eight zero, holding short runway three one center, ready"}
+{"from": "MRL_TWR", "t": 65, "text": "SWA4080, stand by for takeoff clearance."}
+{"from": "SWA4080", "t": 69, "text": "Say again for Southwest four zero eight zero?"}
+{"from": "UAL4074", "t": 200, "text": "Marlow Tower, United four zero seven four, eight mile final, runway three one center"}
+{"from": "N200RL", "t": 250, "text": "Marlow Tower, November two zero zero romeo lima, holding short runway three one center, ready"}
+{"from": "MRL_TWR", "t": 255, "text": "UAL4074, runway three one center, cleared to land."}
+{"from": "UAL4074", "t": 259, "text": "cleared to land runway three one center, United four zero seven four"}
+{"from": "UAL4733", "t": 370, "text": "Marlow Tower, United four seven three three, eight mile final, runway three one center"}
+{"from": "MRL_TWR", "t": 415, "text": "UAL4733, runway three one center, cleared to land."}
+{"from": "UAL4733", "t": 419, "text": "cleared to land runway three one center, United four seven three three"}
+{"from": "UAL972", "t": 450, "text": "Marlow Tower, United niner seven two, holding short runway three one center, ready"}
+{"from": "AAL108", "t": 520, "text": "Marlow Tower, American one zero eight, eight mile final, runway three one center"}
+{"from": "MRL_TWR", "t": 585, "text": "AAL108, runway three one center, cleared to land."}
+{"from": "AAL108", "t": 589, "text": "cleared to land runway three one center, American one zero eight"}
+{"from": "MRL_TWR", "t": 765, "text": "SWA4080, runway three one center, line up and wait."}
+{"from": "SWA4080", "t": 769, "text": "line up and wait runway three one center, Southwest four zero eight zero"}
+{"from": "MRL_TWR", "t": 840, "text": "SWA4080, runway three one center, cleared for takeoff."}
+{"from": "SWA4080", "t": 844, "text": "cleared for takeoff runway three one center, Southwest four zero eight zero"}
+{"from": "MRL_TWR", "t": 880, "text": "SWA4080, contact departure one one niner point three five."}
+{"from": "MRL_TWR", "t": 885, "text": "UAL972, runway three one center, line up and wait."}
+{"from": "UAL972", "t": 889, "text": "line up and wait runway three one center, United niner seven two"}
+{"from": "MRL_TWR", "t": 900, "text": "UAL972, runway three one center, cleared for takeoff."}
+{"from": "UAL972", "t": 904, "text": "cleared for takeoff runway three one center, United niner seven two"}
+{"from": "MRL_TWR", "t": 940, "text": "UAL972, contact departure one one niner point three five."}
+{"from": "MRL_TWR", "t": 945, "text": "N200RL, runway three one center, line up and wait."}
+{"from": "N200RL", "t": 950, "text": "line up and wait runway three one center, November two zero zero romeo lima"}
+{"from": "MRL_TWR", "t": 1020, "text": "N200RL, runway three one center, cleared for takeoff."}
+{"from": "N200RL", "t": 1024, "text": "cleared for takeoff runway three one center, November two zero zero romeo lima"}
+{"from": "MRL_TWR", "t": 1060, "text": "N200RL, contact departure one one niner point three five."}

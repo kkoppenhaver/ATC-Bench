@@ -1,0 +1,54 @@
+{
+  "S": 0.0,
+  "S_raw": 0.7775,
+  "cardinal_violations": [
+    {
+      "acid": "SWA4278",
+      "code": "NEGLECT",
+      "detail": "no taxi clearance by session end",
+      "tick": 3605
+    },
+    {
+      "acid": "UAL4074",
+      "code": "NEGLECT",
+      "detail": "no taxi clearance by session end",
+      "tick": 3605
+    },
+    {
+      "acid": "AAL108",
+      "code": "NEGLECT",
+      "detail": "no taxi clearance by session end",
+      "tick": 3605
+    }
+  ],
+  "components": {
+    "A": 0.625,
+    "E": 0.7375,
+    "F": 1.0,
+    "H": null
+  },
+  "counts": {
+    "aircraft": 8,
+    "arrived": 5,
+    "blocked_transmissions": 0,
+    "cardinals": 3,
+    "deadlocks": 0,
+    "incursions_model": 0,
+    "neglects": 3
+  },
+  "gate": 0,
+  "model": {
+    "budget_exhausted": true,
+    "id": "claude-haiku-4-5",
+    "input_tokens": 19526,
+    "output_tokens": 17447,
+    "spent_usd": 1.50184005
+  },
+  "position": "MRL_GND",
+  "queue_conformity": 1.0,
+  "regime": "turn",
+  "reported_events": [],
+  "seed": 1,
+  "time_to_first_cardinal": 3605,
+  "trial": 0
+}
