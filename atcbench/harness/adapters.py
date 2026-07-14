@@ -481,14 +481,20 @@ class AnthropicAdapter(ModelAdapter):
         self._pending_results: list[str] | None = None
         self.total_input_tokens = 0
         self.total_output_tokens = 0
+        self.total_cache_read_tokens = 0
+        self.total_cache_write_tokens = 0
         self.budget_exhausted = False
 
     # --- budget ---------------------------------------------------------------
 
     def spent_usd(self) -> float | None:
+        """Cache-aware spend: reads bill at ~0.1x input price, writes at ~1.25x."""
         if self.usd_per_mtok_in is None or self.usd_per_mtok_out is None:
             return None
-        return (self.total_input_tokens * self.usd_per_mtok_in
+        weighted_in = (self.total_input_tokens
+                       + 1.25 * self.total_cache_write_tokens
+                       + 0.1 * self.total_cache_read_tokens)
+        return (weighted_in * self.usd_per_mtok_in
                 + self.total_output_tokens * self.usd_per_mtok_out) / 1_000_000
 
     # --- session hook ----------------------------------------------------------
@@ -532,6 +538,8 @@ class AnthropicAdapter(ModelAdapter):
 
         self.total_input_tokens += resp.usage.input_tokens
         self.total_output_tokens += resp.usage.output_tokens
+        self.total_cache_read_tokens += getattr(resp.usage, "cache_read_input_tokens", 0) or 0
+        self.total_cache_write_tokens += getattr(resp.usage, "cache_creation_input_tokens", 0) or 0
         spent = self.spent_usd()
         if self.max_usd is not None and spent is not None and spent >= self.max_usd:
             self.budget_exhausted = True
@@ -549,9 +557,13 @@ class AnthropicAdapter(ModelAdapter):
         delay = 1.0
         for attempt in range(self.max_retries + 1):
             try:
+                # The conversation is append-only, so the prefix is byte-stable:
+                # auto-caching the last cacheable block makes each turn re-read the
+                # history at ~0.1x instead of re-billing it in full.
                 return self._client.messages.create(
                     model=self.model_id,
                     max_tokens=self.max_tokens,
+                    cache_control={"type": "ephemeral"},
                     system=self.system_prompt,
                     tools=self.tools,
                     messages=self._messages,

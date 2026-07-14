@@ -414,6 +414,10 @@ clustered CIs reported by `atcbench evaluate`.
 - [ ] **X.5 — No-skill baseline regression suite.** Do-nothing and blind-corrector
   probes must never certify at any position; grows with each new position exactly like
   X.2 grows for determinism. (Seeded by P3.5.8; 2026-07 audit.)
+- [ ] **X.6 — Multi-provider adapters.** OpenAI/Gemini/Grok adapters behind the same
+  `ModelAdapter` interface (tool-result plumbing already provider-agnostic), so the
+  leaderboard can compare across labs. Not needed for the Anthropic pilot campaign
+  (P3.6.4); needed before any cross-lab claims. (§11.1)
 
 ---
 

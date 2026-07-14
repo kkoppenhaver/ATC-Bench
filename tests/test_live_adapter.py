@@ -30,9 +30,12 @@ class _Block:
 
 
 class _Usage:
-    def __init__(self, input_tokens=100, output_tokens=50):
+    def __init__(self, input_tokens=100, output_tokens=50,
+                 cache_read_input_tokens=0, cache_creation_input_tokens=0):
         self.input_tokens = input_tokens
         self.output_tokens = output_tokens
+        self.cache_read_input_tokens = cache_read_input_tokens
+        self.cache_creation_input_tokens = cache_creation_input_tokens
 
 
 class _Resp:
@@ -94,6 +97,20 @@ def test_budget_exhaustion_stops_api_calls_and_flags_turns():
     out = a.step({"tick": 5})
     assert out["budget_exhausted"] and out["tool_calls"][0]["name"] == "wait"
     assert len(a._client.calls) == 1  # no further API spend
+
+
+def test_budget_accounting_is_cache_aware():
+    # Cache reads bill at ~0.1x input price, writes at ~1.25x — the cap must track
+    # real spend, not raw token counts, and requests must request auto-caching.
+    tool_use = _Block(type="tool_use", id="t1", name="wait", input={})
+    a = _adapter([_Resp([tool_use], _Usage(100_000, 10_000,
+                                           cache_read_input_tokens=1_000_000,
+                                           cache_creation_input_tokens=100_000))],
+                 usd_per_mtok_in=1.0, usd_per_mtok_out=5.0)
+    a.step({"tick": 0})
+    # (0.1M + 1.25*0.1M + 0.1*1M) * $1/M + 0.01M * $5/M = 0.325 + 0.05
+    assert a.spent_usd() == pytest.approx(0.375)
+    assert a._client.calls[0]["cache_control"] == {"type": "ephemeral"}
 
 
 def test_transient_errors_are_retried(monkeypatch):
