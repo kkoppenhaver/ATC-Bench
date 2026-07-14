@@ -1,0 +1,55 @@
+{
+  "S": 0.0,
+  "S_raw": 0.926,
+  "cardinal_violations": [
+    {
+      "acid": "SWA4080",
+      "code": "RI-CTRL",
+      "runway": "31R",
+      "tick": 1045
+    },
+    {
+      "acid": "AAL108",
+      "code": "NEGLECT",
+      "detail": "stranded at hold short (no crossing clearance)",
+      "tick": 3605
+    }
+  ],
+  "components": {
+    "A": 0.9,
+    "E": 0.8985,
+    "F": 1.0,
+    "H": null
+  },
+  "counts": {
+    "aircraft": 8,
+    "arrived": 7,
+    "blocked_transmissions": 0,
+    "cardinals": 2,
+    "deadlocks": 0,
+    "incursions_model": 1,
+    "neglects": 1
+  },
+  "gate": 0,
+  "model": {
+    "budget_exhausted": true,
+    "context_trims": 1,
+    "id": "claude-haiku-4-5",
+    "input_tokens": 20205,
+    "output_tokens": 36944,
+    "spent_usd": 4.50313095
+  },
+  "position": "MRL_GND",
+  "queue_conformity": 1.0,
+  "regime": "turn",
+  "reported_events": [
+    {
+      "acid": "UAL4074",
+      "code": "pilot_incursion",
+      "tick": 2720
+    }
+  ],
+  "seed": 1,
+  "time_to_first_cardinal": 1045,
+  "trial": 0
+}

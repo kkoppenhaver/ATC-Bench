@@ -1,0 +1,61 @@
+{
+  "S": 0.0,
+  "S_raw": 0.752,
+  "cardinal_violations": [
+    {
+      "acid": "UAL4270",
+      "code": "NEGLECT",
+      "detail": "no taxi clearance by session end",
+      "tick": 3605
+    },
+    {
+      "acid": "AAL4017",
+      "code": "NEGLECT",
+      "detail": "no taxi clearance by session end",
+      "tick": 3605
+    },
+    {
+      "acid": "AAL114",
+      "code": "NEGLECT",
+      "detail": "stranded at hold short (no crossing clearance)",
+      "tick": 3605
+    },
+    {
+      "acid": "SWA2476",
+      "code": "NEGLECT",
+      "detail": "stranded at hold short (no crossing clearance)",
+      "tick": 3605
+    }
+  ],
+  "components": {
+    "A": 0.6875,
+    "E": 0.6471,
+    "F": 1.0,
+    "H": null
+  },
+  "counts": {
+    "aircraft": 8,
+    "arrived": 4,
+    "blocked_transmissions": 0,
+    "cardinals": 4,
+    "deadlocks": 0,
+    "incursions_model": 0,
+    "neglects": 4
+  },
+  "gate": 0,
+  "model": {
+    "budget_exhausted": true,
+    "context_trims": 1,
+    "id": "claude-haiku-4-5",
+    "input_tokens": 23152,
+    "output_tokens": 33605,
+    "spent_usd": 4.5136357
+  },
+  "position": "MRL_GND",
+  "queue_conformity": 1.0,
+  "regime": "turn",
+  "reported_events": [],
+  "seed": 2,
+  "time_to_first_cardinal": 3605,
+  "trial": 0
+}

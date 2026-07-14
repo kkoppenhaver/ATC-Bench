@@ -1,0 +1,191 @@
+{
+  "arrivals": [
+    {
+      "acid": "AAL4143",
+      "actype": "B738",
+      "call_tick": 498,
+      "gate": "G2",
+      "goal": "G2",
+      "node": "RWEX",
+      "role": "arrival",
+      "wake": "L"
+    },
+    {
+      "acid": "SWA4554",
+      "actype": "A320",
+      "call_tick": 617,
+      "gate": "G2",
+      "goal": "G2",
+      "node": "RWEX",
+      "role": "arrival",
+      "wake": "L"
+    },
+    {
+      "acid": "N777FD",
+      "actype": "C172",
+      "call_tick": 853,
+      "gate": "G2",
+      "goal": "G2",
+      "node": "RWEX",
+      "role": "arrival",
+      "wake": "S"
+    }
+  ],
+  "band": "standard",
+  "departures": [
+    {
+      "acid": "SWA4080",
+      "actype": "B738",
+      "call_tick": 857,
+      "gate": "G1",
+      "goal": "HS_31C",
+      "node": "G1",
+      "role": "departure",
+      "wake": "L"
+    },
+    {
+      "acid": "UAL4733",
+      "actype": "E175",
+      "call_tick": 1550,
+      "gate": "G1",
+      "goal": "HS_31C",
+      "node": "G1",
+      "role": "departure",
+      "wake": "L"
+    },
+    {
+      "acid": "SWA4278",
+      "actype": "A320",
+      "call_tick": 2352,
+      "gate": "G1",
+      "goal": "HS_31C",
+      "node": "G1",
+      "role": "departure",
+      "wake": "L"
+    },
+    {
+      "acid": "UAL4074",
+      "actype": "B738",
+      "call_tick": 2532,
+      "gate": "G1",
+      "goal": "HS_31C",
+      "node": "G1",
+      "role": "departure",
+      "wake": "L"
+    },
+    {
+      "acid": "AAL108",
+      "actype": "E175",
+      "call_tick": 2997,
+      "gate": "G2",
+      "goal": "HS_31C",
+      "node": "G2",
+      "role": "departure",
+      "wake": "L"
+    }
+  ],
+  "error_schedule": {
+    "UAL4074": {
+      "code": "GND-HS-DROP",
+      "detail": {}
+    }
+  },
+  "hot_windows": {
+    "31R": [
+      [
+        184,
+        209
+      ],
+      [
+        333,
+        358
+      ],
+      [
+        496,
+        521
+      ],
+      [
+        674,
+        699
+      ],
+      [
+        865,
+        890
+      ],
+      [
+        1032,
+        1057
+      ],
+      [
+        1183,
+        1208
+      ],
+      [
+        1353,
+        1378
+      ],
+      [
+        1530,
+        1555
+      ],
+      [
+        1700,
+        1725
+      ],
+      [
+        1877,
+        1902
+      ],
+      [
+        2028,
+        2053
+      ],
+      [
+        2218,
+        2243
+      ],
+      [
+        2380,
+        2405
+      ],
+      [
+        2558,
+        2583
+      ],
+      [
+        2715,
+        2740
+      ],
+      [
+        2876,
+        2901
+      ],
+      [
+        3065,
+        3090
+      ],
+      [
+        3234,
+        3259
+      ],
+      [
+        3398,
+        3423
+      ],
+      [
+        3585,
+        3610
+      ]
+    ]
+  },
+  "position": "MRL_GND",
+  "seed": 1,
+  "session_seconds": 3600,
+  "tower_sequence": [
+    "SWA4080",
+    "UAL4733",
+    "SWA4278",
+    "UAL4074",
+    "AAL108"
+  ]
+}
