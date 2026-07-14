@@ -24,6 +24,17 @@ section(s) it implements and its hard dependencies.
 > `runs/probes/` (TWR calm band shows a gradient: the standard-band wall opens up;
 > note the probes predate P4.0f pilot re-calls, so their absolute S values are not
 > comparable to campaign runs).
+>
+> **Budget-truncation confound (found 2026-07-14, after P4.0f landed):** every
+> Haiku GND-standard and TWR-standard bust in `runs/pilot/` and `runs/probes/` except
+> one ran out of its `--max-usd` cap mid-session (`budget_exhausted: true` in
+> score.json) — the adapter waits out the rest of the session by design, so the
+> post-exhaustion NEGLECTs measure the cap, not the model. The only budget-clean Haiku
+> GND-standard session **certified** (pilot seed 2, S=0.89). CD runs and the TWR-calm
+> probes are clean; TWR-standard WAKE busts are real (action-caused, pre-exhaustion).
+> **Campaign rule:** size `--max-usd` so sessions finish (~$4.5 GND/TWR Haiku, more
+> for Sonnet), and treat `budget_exhausted` sessions with traffic still active as
+> invalid-for-certification, not as busts — pre-register this.
 > Next after the campaign: pre-register weights, close #15, then TRACON (P4.1+).
 
 ---
@@ -404,11 +415,17 @@ clustered CIs reported by `atcbench evaluate`.
   (ga_relaxed/student_pilot); similar-callsign twins are airline-only; full NATO
   telephony for registrations ("November seven one four kilo charlie");
   extract_callsign hardened so single-letter prefixes can't soak up unrelated text._
-- [x] **P4.0f — Pilot re-calls (ignored pilots re-key).** GND calibration probes
-  showed both busts came from mid-session checkout: pilots called ready-to-taxi once
-  into silence and a single missed call converted deterministically into NEGLECT. Real
-  pilots nag; decided (2026-07-14) to adopt the softer construct before pre-registering
-  weights. (§8.2) _Done: `pilot_recall` event + re-call after 90 s of own-radio silence
+- [x] **P4.0f — Pilot re-calls (ignored pilots re-key).** Motivated by the GND
+  calibration probes, where pilots called ready-to-taxi once into silence and a single
+  missed call converted deterministically into NEGLECT. Real pilots nag; decided
+  (2026-07-14) to adopt the softer construct before pre-registering weights.
+  _Correction (same day, post-landing): the probe audit's "mid-session checkout" story
+  was largely a budget-truncation confound — the ignored calls arrived after the $1.50
+  `--max-usd` cap was exhausted and the adapter (not the model) was emitting the bare
+  waits (see the status-note confound entry). The construct change stands on its own
+  merits (one missed call should be recoverable; pre-truncation rote degeneration was
+  real model behavior), but the probes say little about Haiku's true GND skill._
+  (§8.2) _Done: `pilot_recall` event + re-call after 90 s of own-radio silence
   (half the 180 s NEGLECT thresholds — every neglect gets ≥1 audible second chance) at
   all three positions: CD awaiting-clearance (also the CS-CONF recovery path — the twin
   target re-calls), GND no-route + stranded-at-hold-bar (patience clock restarts while
