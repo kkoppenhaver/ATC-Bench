@@ -17,7 +17,8 @@ from .harness import adapters as A
 from .harness.ground_session import GroundSession
 from .harness.regime import make_regime
 from .harness.session import CDSession
-from .harness.system_prompt import build_cd_system_prompt, prompt_hash
+from .harness.system_prompt import build_system_prompt
+from .harness.tools import position_tools
 from .harness.tower_session import TowerSession
 from .scenarios import cd as cd_scenarios
 from .scenarios import gnd as gnd_scenarios
@@ -34,25 +35,46 @@ _GND_CONTROLLERS = {"scripted": A.ScriptedGNDController, "bad": A.BadGNDControll
 _TWR_CONTROLLERS = {"scripted": A.ScriptedTWRController, "bad": A.BadTWRController}
 
 
+def _make_adapter(args: argparse.Namespace, prompt_text: str) -> A.ModelAdapter:
+    """A live model when --model is given, else the named scripted controller."""
+    if getattr(args, "model", None):
+        if args.max_usd is not None and (args.usd_per_mtok_in is None
+                                         or args.usd_per_mtok_out is None):
+            raise SystemExit("--max-usd requires --usd-per-mtok-in and --usd-per-mtok-out")
+        return A.AnthropicAdapter(
+            args.model, prompt_text, position_tools(args.position),
+            max_tokens=args.max_tokens, max_usd=args.max_usd,
+            usd_per_mtok_in=args.usd_per_mtok_in, usd_per_mtok_out=args.usd_per_mtok_out)
+    scripted = {"CD": _CD_CONTROLLERS, "GND": _GND_CONTROLLERS, "TWR": _TWR_CONTROLLERS}
+    return scripted[args.position][args.controller]()
+
+
 def _run_one(args: argparse.Namespace, regime_name: str):
     regime = make_regime(regime_name)
+    prompt_text, ph = build_system_prompt(args.position, args.session_seconds, regime_name)
+    adapter = _make_adapter(args, prompt_text)
     if args.position == "CD":
         scn = cd_scenarios.generate(args.seed, band=args.band, session_seconds=args.session_seconds)
-        ph = prompt_hash(build_cd_system_prompt(args.session_seconds, regime_name))
         session = CDSession(scn, prompt_hash=ph, regime=regime)
-        result = session.run(_CD_CONTROLLERS[args.controller]())
+        result = session.run(adapter)
         score = score_cd(result.log, scn.to_dict())
     elif args.position == "GND":
         scn = gnd_scenarios.generate(args.seed, band=args.band, session_seconds=args.session_seconds)
-        session = GroundSession(scn, regime=regime)
-        result = session.run(_GND_CONTROLLERS[args.controller]())
+        session = GroundSession(scn, prompt_hash=ph, regime=regime)
+        result = session.run(adapter)
         score = score_gnd(result.log, scn.to_dict())
     else:  # TWR
         scn = twr_scenarios.generate(args.seed, band=args.band, session_seconds=args.session_seconds)
-        session = TowerSession(scn, regime=regime)
-        result = session.run(_TWR_CONTROLLERS[args.controller]())
+        session = TowerSession(scn, prompt_hash=ph, regime=regime)
+        result = session.run(adapter)
         score = score_twr(result.log, scn.to_dict())
     score["regime"] = regime_name
+    if isinstance(adapter, A.AnthropicAdapter):
+        score["model"] = {"id": adapter.model_id,
+                          "input_tokens": adapter.total_input_tokens,
+                          "output_tokens": adapter.total_output_tokens,
+                          "spent_usd": adapter.spent_usd(),
+                          "budget_exhausted": adapter.budget_exhausted}
     return result, score
 
 
@@ -143,6 +165,13 @@ def main(argv: list[str] | None = None) -> int:
     pr.add_argument("--band", default="standard", choices=["calm", "standard", "heavy"])
     pr.add_argument("--regime", default="turn", choices=["turn", "metered", "both"])
     pr.add_argument("--controller", default="scripted", choices=["scripted", "bad"])
+    pr.add_argument("--model", default=None,
+                    help="Anthropic model id to run live (overrides --controller)")
+    pr.add_argument("--max-tokens", type=int, default=1024, help="per-turn output cap")
+    pr.add_argument("--max-usd", type=float, default=None,
+                    help="hard session budget; needs --usd-per-mtok-in/out")
+    pr.add_argument("--usd-per-mtok-in", type=float, default=None)
+    pr.add_argument("--usd-per-mtok-out", type=float, default=None)
     pr.add_argument("--session-seconds", type=int, default=3600)
     pr.add_argument("--out", default=None)
     pr.set_defaults(func=cmd_run)

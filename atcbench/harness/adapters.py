@@ -45,6 +45,11 @@ class ModelAdapter:
     def step(self, observation: dict) -> dict:  # pragma: no cover - interface
         raise NotImplementedError
 
+    def receive_tool_results(self, results: list[str]) -> None:
+        """Called by the session after applying a turn's tool calls, with one result
+        string per applied call (bay contents for bay_read, acks otherwise). Scripted
+        adapters don't need them; API adapters attach them to the next request."""
+
     def transmit(self, text: str) -> dict:
         return {
             "tool_calls": [{"name": "transmit", "input": {"text": text}}],
@@ -439,36 +444,79 @@ class ReplayAdapter(ModelAdapter):
         return out
 
 
-class AnthropicAdapter(ModelAdapter):  # pragma: no cover - requires network + key
-    """Real model under test via the Anthropic Messages API.
+class AnthropicAdapter(ModelAdapter):
+    """Real model under test via the Anthropic Messages API (audit C3).
 
     Maintains the growing conversation itself (history management is the model's
-    problem, §11.2). Requires the ``anthropic`` extra and an API key.
+    problem, §11.2). The session pushes real tool results (bay contents on
+    ``bay_read``, acks otherwise) via ``receive_tool_results``; they are attached to
+    the *next* request in the same user message as the new observation, preserving
+    strict role alternation. Includes retry/backoff for transient API errors and an
+    optional hard USD budget (§17.4): once exhausted, the adapter stops calling the
+    API and waits out the session, flagging every turn ``budget_exhausted`` so the
+    run record shows truncation rather than incompetence.
     """
 
-    def __init__(self, model_id: str, system_prompt: str, tools: list[dict], max_tokens: int = 1024):
-        import anthropic  # noqa: F401
+    RETRYABLE_STATUS = {408, 409, 429, 500, 502, 503, 504, 529}
 
-        from anthropic import Anthropic
+    def __init__(self, model_id: str, system_prompt: str, tools: list[dict],
+                 max_tokens: int = 1024, max_usd: float | None = None,
+                 usd_per_mtok_in: float | None = None, usd_per_mtok_out: float | None = None,
+                 max_retries: int = 5, client: Any = None):
+        if client is None:  # pragma: no cover - requires the anthropic extra + key
+            from anthropic import Anthropic
 
-        self._client = Anthropic()
+            client = Anthropic()
+        self._client = client
         self.model_id = model_id
         self.system_prompt = system_prompt
         self.tools = tools
         self.max_tokens = max_tokens
+        self.max_usd = max_usd
+        self.usd_per_mtok_in = usd_per_mtok_in
+        self.usd_per_mtok_out = usd_per_mtok_out
+        self.max_retries = max_retries
         self._messages: list[dict[str, Any]] = []
+        self._pending_tool_ids: list[str] = []
+        self._pending_results: list[str] | None = None
+        self.total_input_tokens = 0
+        self.total_output_tokens = 0
+        self.budget_exhausted = False
+
+    # --- budget ---------------------------------------------------------------
+
+    def spent_usd(self) -> float | None:
+        if self.usd_per_mtok_in is None or self.usd_per_mtok_out is None:
+            return None
+        return (self.total_input_tokens * self.usd_per_mtok_in
+                + self.total_output_tokens * self.usd_per_mtok_out) / 1_000_000
+
+    # --- session hook ----------------------------------------------------------
+
+    def receive_tool_results(self, results: list[str]) -> None:
+        self._pending_results = list(results)
+
+    # --- turn ------------------------------------------------------------------
 
     def step(self, observation: dict) -> dict:
         import json
 
-        self._messages.append({"role": "user", "content": json.dumps(observation)})
-        resp = self._client.messages.create(
-            model=self.model_id,
-            max_tokens=self.max_tokens,
-            system=self.system_prompt,
-            tools=self.tools,
-            messages=self._messages,
-        )
+        if self.budget_exhausted:
+            return {"tool_calls": [{"name": "wait", "input": {}}], "text": "",
+                    "output_tokens": 0, "budget_exhausted": True}
+
+        content: list[dict] = []
+        if self._pending_tool_ids:
+            results = self._pending_results or []
+            for i, tid in enumerate(self._pending_tool_ids):
+                content.append({"type": "tool_result", "tool_use_id": tid,
+                                "content": results[i] if i < len(results) else "ok"})
+        content.append({"type": "text", "text": json.dumps(observation, sort_keys=True)})
+        self._messages.append({"role": "user", "content": content})
+        self._pending_tool_ids = []
+        self._pending_results = None
+
+        resp = self._create_with_retry()
         tool_calls = []
         text_parts = []
         assistant_content = []
@@ -479,20 +527,42 @@ class AnthropicAdapter(ModelAdapter):  # pragma: no cover - requires network + k
             elif block.type == "text":
                 text_parts.append(block.text)
         self._messages.append({"role": "assistant", "content": assistant_content})
-        # Provide tool results so the conversation stays valid next turn.
-        if tool_calls:
-            self._messages.append(
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "tool_result", "tool_use_id": b["id"], "content": "ok"}
-                        for b in assistant_content
-                        if b.get("type") == "tool_use"
-                    ],
-                }
-            )
+        self._pending_tool_ids = [b["id"] for b in assistant_content
+                                  if b.get("type") == "tool_use"]
+
+        self.total_input_tokens += resp.usage.input_tokens
+        self.total_output_tokens += resp.usage.output_tokens
+        spent = self.spent_usd()
+        if self.max_usd is not None and spent is not None and spent >= self.max_usd:
+            self.budget_exhausted = True
+
         return {
             "tool_calls": tool_calls or [{"name": "wait", "input": {}}],
             "text": "".join(text_parts),
             "output_tokens": resp.usage.output_tokens,
+            "input_tokens": resp.usage.input_tokens,
         }
+
+    def _create_with_retry(self):
+        import time
+
+        delay = 1.0
+        for attempt in range(self.max_retries + 1):
+            try:
+                return self._client.messages.create(
+                    model=self.model_id,
+                    max_tokens=self.max_tokens,
+                    system=self.system_prompt,
+                    tools=self.tools,
+                    messages=self._messages,
+                )
+            except Exception as e:  # noqa: BLE001 - classified below
+                status = getattr(e, "status_code", None)
+                retryable = (status in self.RETRYABLE_STATUS
+                             or "connection" in type(e).__name__.lower()
+                             or "timeout" in type(e).__name__.lower())
+                if attempt >= self.max_retries or not retryable:
+                    raise
+                time.sleep(delay)
+                delay = min(delay * 2, 30.0)
+        raise RuntimeError("unreachable")  # pragma: no cover

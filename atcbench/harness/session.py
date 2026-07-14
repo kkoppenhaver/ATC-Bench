@@ -224,13 +224,17 @@ class CDSession:
             self.log.emit(self.tick, E.RADAR_SNAPSHOT_SENT, n_aircraft=len(obs["aircraft"]))
             self.log.emit(self.tick, E.MODEL_TURN_START)
             resp = adapter.step(obs)
-            self.model_io.append({"tick": self.tick, "output": resp})
+            # Verbatim I/O (§3.2): the observation sent and the output received.
+            io_entry = {"tick": self.tick, "observation": obs, "output": resp}
+            self.model_io.append(io_entry)
             tokens = int(resp.get("output_tokens", 0))
             self.log.emit(self.tick, E.MODEL_TURN_END, output_tokens=tokens)
             # Token-metered: the world advances while the model "thinks" (§4.2). A slow
             # model can watch a readback correction window close before it acts.
             self._advance_thinking(self.regime.thinking_seconds(tokens))
-            waited = self._apply_tool_calls(resp)
+            waited, results = self._apply_tool_calls(resp)
+            io_entry["tool_results"] = results
+            adapter.receive_tool_results(results)
             self.strips.snapshot(self.tick)
             if waited:
                 break
@@ -249,40 +253,47 @@ class CDSession:
         if target > self.tick:
             self.tick = target
 
-    def _apply_tool_calls(self, resp: dict) -> bool:
+    def _apply_tool_calls(self, resp: dict) -> tuple[bool, list[str]]:
+        """Apply a turn's tool calls; returns (waited, one result string per call)."""
         calls = resp.get("tool_calls") or []
+        results: list[str] = []
         if not calls:
             # A formatting failure is not a decision to wait — log it so parsing
             # trouble is auditable instead of scored as silent inaction (§7.2).
             if resp.get("text"):
                 self.log.emit(self.tick, E.UNPARSED_MODEL_OUTPUT, text=resp["text"])
-            return True
+            return True, results
         for call in calls:
             name = call.get("name")
             inp = call.get("input", {})
             if name == "wait":
-                return True
+                results.append("ok")
+                return True, results
             if name == "transmit":
                 self._handle_transmit(inp.get("text", ""))
+                results.append("transmitted")
             elif name == "strip_create":
-                self.strips.strip_create(inp["acid"], inp["bay"], inp.get("fields"))
+                results.append(self.strips.strip_create(inp["acid"], inp["bay"], inp.get("fields")))
                 self.tick += 1
                 self.log.emit(self.tick, E.STRIP_OP, op="create", acid=inp.get("acid"))
             elif name == "strip_update":
-                self.strips.strip_update(inp["acid"], inp.get("patch", {}))
+                results.append(self.strips.strip_update(inp["acid"], inp.get("patch", {})))
                 self.tick += 1
                 self.log.emit(self.tick, E.STRIP_OP, op="update", acid=inp.get("acid"))
             elif name == "strip_move":
-                self.strips.strip_move(inp["acid"], inp["bay"], inp.get("index", 0))
+                results.append(self.strips.strip_move(inp["acid"], inp["bay"], inp.get("index", 0)))
                 self.tick += 1
                 self.log.emit(self.tick, E.STRIP_OP, op="move", acid=inp.get("acid"))
             elif name == "strip_delete":
-                self.strips.strip_delete(inp["acid"])
+                results.append(self.strips.strip_delete(inp["acid"]))
                 self.tick += 1
                 self.log.emit(self.tick, E.STRIP_OP, op="delete", acid=inp.get("acid"))
             elif name == "bay_read":
-                pass  # 0 s, no state change
-        return False
+                # 0 s, no state change — but the model gets its memory back (§9.3).
+                results.append(json.dumps(self.strips.bay_read(), sort_keys=True))
+            else:
+                results.append(f"unknown tool: {name}")
+        return False, results
 
     def _handle_transmit(self, text: str) -> None:
         self._emit_transmission(self.scn.position, text)

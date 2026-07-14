@@ -182,11 +182,16 @@ class TowerSession:
             self.log.emit(self.tick, E.RADAR_SNAPSHOT_SENT, n_aircraft=len(obs["aircraft"]))
             self.log.emit(self.tick, E.MODEL_TURN_START)
             resp = adapter.step(obs)
-            self.model_io.append({"tick": self.tick, "output": resp})
+            # Verbatim I/O (§3.2): the observation sent and the output received.
+            io_entry = {"tick": self.tick, "observation": obs, "output": resp}
+            self.model_io.append(io_entry)
             tokens = int(resp.get("output_tokens", 0))
             self.log.emit(self.tick, E.MODEL_TURN_END, output_tokens=tokens)
             self._advance_thinking(self.regime.thinking_seconds(tokens))
-            if self._apply_calls(resp):
+            waited, results = self._apply_calls(resp)
+            io_entry["tool_results"] = results
+            adapter.receive_tool_results(results)
+            if waited:
                 break
         self.strips.snapshot(self.tick)
 
@@ -200,30 +205,38 @@ class TowerSession:
             self.tick += SWEEP_SEC
             self._process_spawns()
 
-    def _apply_calls(self, resp: dict) -> bool:
+    def _apply_calls(self, resp: dict) -> tuple[bool, list[str]]:
+        """Apply a turn's tool calls; returns (waited, one result string per call)."""
         calls = resp.get("tool_calls") or []
+        results: list[str] = []
         if not calls:
             # A formatting failure is not a decision to wait — log it (§7.2).
             if resp.get("text"):
                 self.log.emit(self.tick, E.UNPARSED_MODEL_OUTPUT, text=resp["text"])
-            return True
+            return True, results
         for call in calls:
             name, inp = call.get("name"), call.get("input", {})
             if name == "wait":
-                return True
+                results.append("ok")
+                return True, results
             if name == "transmit":
                 self._handle_transmit(inp.get("text", ""))
+                results.append("transmitted")
             # Strip ops are free here (CD charges 1 s each) until the shared
             # channel/cost model lands (P4.0a).
             elif name == "strip_create":
-                self.strips.strip_create(inp["acid"], inp["bay"], inp.get("fields"))
+                results.append(self.strips.strip_create(inp["acid"], inp["bay"], inp.get("fields")))
             elif name == "strip_update":
-                self.strips.strip_update(inp["acid"], inp.get("patch", {}))
+                results.append(self.strips.strip_update(inp["acid"], inp.get("patch", {})))
             elif name == "strip_move":
-                self.strips.strip_move(inp["acid"], inp["bay"], inp.get("index", 0))
+                results.append(self.strips.strip_move(inp["acid"], inp["bay"], inp.get("index", 0)))
             elif name == "strip_delete":
-                self.strips.strip_delete(inp["acid"])
-        return False
+                results.append(self.strips.strip_delete(inp["acid"]))
+            elif name == "bay_read":
+                results.append(json.dumps(self.strips.bay_read(), sort_keys=True))
+            else:
+                results.append(f"unknown tool: {name}")
+        return False, results
 
     def _handle_transmit(self, text: str) -> None:
         self._tx(self.scn.position, text)

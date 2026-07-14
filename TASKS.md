@@ -302,14 +302,24 @@ which a verified-unsafe policy passes ~2.6% of the time. **Exit test (P3.6.4):**
 published run dirs in `runs/` from ≥2 real models, with bust-rate certification and
 clustered CIs reported by `atcbench evaluate`.
 
-- [ ] **P3.6.1 — System prompts for GND/TWR.** Extend P1.12's assembly to all three
-  positions (only CD has one); `prompt_hash` per position. _Deps: P1.12. Design §11.3._
-- [ ] **P3.6.2 — Live adapter end-to-end (audit C3, m6).** `--model` flag on `run`;
+- [x] **P3.6.1 — System prompts for GND/TWR.** Extend P1.12's assembly to all three
+  positions (only CD has one); `prompt_hash` per position. _Done:
+  `build_system_prompt(position, ...)` returns (text, versioned hash) for CD/GND/TWR;
+  GND teaches the coordination protocol and route-required rule, TWR carries the wake
+  matrix + own-picture obligation; CD prompt bumped to cd-v2 (hearback/false-alarm
+  semantics). All sessions record the real hash._ _Deps: P1.12. Design §11.3._
+- [x] **P3.6.2 — Live adapter end-to-end (audit C3, m6).** `--model` flag on `run`;
   real tool-result routing — `bay_read` returns actual bay contents (currently a no-op,
   making strips write-only for a live model); verbatim request/response logging in
   `model_io.json` (currently outputs only, contradicting §3.2); retry/backoff policy;
-  `--max-usd` and per-session turn/token budgets (§17.4). _Deps: P3.6.1. Design §11.1,
-  §17.1, §17.4, §3.2._
+  `--max-usd` and per-session turn/token budgets (§17.4). _Done: sessions return one
+  result string per tool call and push them via `adapter.receive_tool_results`;
+  AnthropicAdapter attaches them to the next request in a single alternating user
+  message, retries transient API errors with backoff, and enforces `--max-usd`
+  (explicit `--usd-per-mtok-in/out`, no baked price table) by waiting out the session
+  with `budget_exhausted` flagged in every turn + score.json. `model_io.json` turns
+  carry observation, output, and tool_results. Fake-client tests pin conversation
+  shape, retry, and budget behavior._ _Deps: P3.6.1. Design §11.1, §17.1, §17.4, §3.2._
 - [ ] **P3.6.3 — `evaluate` aggregator + certification statistics (audit M3).**
   Multi-seed × multi-trial runner per §17.1. Certification = per-session bust rate with
   a Wilson 95% upper bound below a pre-registered threshold over ≥30 sessions (replaces
