@@ -345,6 +345,24 @@ class DoNothingController(ModelAdapter):
         return self.wait()
 
 
+class NoRouteGNDController(ModelAdapter):
+    """Low-skill probe: says "taxi" with no route to everyone. Before the 2026-07
+    audit the harness assigned the full canonical route anyway (verified exploit —
+    routing without routing); pilots must instead ask for the route and the aircraft
+    must end up NEGLECTed (X.5)."""
+
+    def __init__(self) -> None:
+        self._told: set[str] = set()
+
+    def step(self, observation: dict) -> dict:
+        for ac in observation["aircraft"]:
+            if ac["acid"] not in self._told:
+                self._told.add(ac["acid"])
+                cs = _callsign_words(ac["acid"])
+                return self.transmit(f"{cs}, runway {_runway_spoken('31C')}, taxi.")
+        return self.wait()
+
+
 class TaxiOnlyGNDController(ScriptedGNDController):
     """Low-skill probe: routes everyone like the oracle but never clears the 31R
     crossing — stranding every departure at the hold bar scored S=0.80 with gate=1

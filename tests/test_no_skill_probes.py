@@ -21,6 +21,7 @@ import pytest
 from atcbench.harness.adapters import (
     BlindCDCorrector,
     DoNothingController,
+    NoRouteGNDController,
     ScriptedCDController,
     TaxiOnlyGNDController,
 )
@@ -77,3 +78,13 @@ def test_strand_departures_never_certifies(seed):
     assert s["gate"] == 0
     assert s["S"] == 0.0
     assert any("stranded" in c.get("detail", "") for c in s["cardinal_violations"])
+
+
+@pytest.mark.parametrize("seed", SEEDS)
+def test_routeless_taxi_never_certifies(seed):
+    # "Runway three one center, taxi" with no route used to earn the full canonical
+    # route (audit M2). Pilots now ask for the route; nobody moves; NEGLECT.
+    s = _gnd(NoRouteGNDController, seed)
+    assert s["gate"] == 0
+    assert s["S"] == 0.0
+    assert any(c["code"] == "NEGLECT" for c in s["cardinal_violations"])

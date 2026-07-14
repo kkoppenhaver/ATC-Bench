@@ -115,6 +115,10 @@ class TemplateVerbalizer:
         acid = _callsign_words(intent["acid"])
         return f"{intent['text']}, {acid}"
 
+    def _render_route_request(self, intent: dict, persona: Persona) -> str:
+        acid = _callsign_words(intent["acid"])
+        return f"Say again the route for {acid}?"
+
     # --- TWR-position intents -------------------------------------------------
 
     def _render_tower_checkin(self, intent: dict, persona: Persona) -> str:

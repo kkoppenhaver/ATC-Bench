@@ -248,11 +248,18 @@ class GroundSession:
         handled = False
         if pt.intent == "taxi":
             handled = True
-            self._assign_route(ac, pt)
-            self.log.emit(self.tick, E.TAXI_CLEARANCE, acid=ac.acid, to_runway=pt.to_runway,
-                          to_gate=pt.to_gate, via=pt.via, hold_short=pt.hold_short)
-            self._tx(ac.acid, self.vb.render({"kind": "taxi_readback", "acid": ac.acid,
-                                              "persona": "airline_crisp", "text": self._summarize(pt)}))
+            if self._assign_route(ac, pt):
+                self.log.emit(self.tick, E.TAXI_CLEARANCE, acid=ac.acid, to_runway=pt.to_runway,
+                              to_gate=pt.to_gate, via=pt.via, hold_short=pt.hold_short)
+                self._tx(ac.acid, self.vb.render({"kind": "taxi_readback", "acid": ac.acid,
+                                                  "persona": "airline_crisp", "text": self._summarize(pt)}))
+            else:
+                # No chart-legal route in the transmission — bare "taxi" earns no free
+                # canonical route (audit M2): the pilot asks for the route instead.
+                self.log.emit(self.tick, E.SAY_AGAIN, acid=ac.acid, tier=int(pt.tier),
+                              intent="taxi", reason="no_route")
+                self._tx(ac.acid, self.vb.render({"kind": "route_request", "acid": ac.acid,
+                                                  "persona": "airline_crisp"}))
         if pt.cross:
             handled = True
             for rwy in pt.cross:
@@ -284,17 +291,27 @@ class GroundSession:
             bits.append("hold short runway " + ", ".join(pt.hold_short))
         return ", ".join(bits) or "roger"
 
-    def _assign_route(self, ac: GroundAircraft, pt) -> None:
+    def _assign_route(self, ac: GroundAircraft, pt) -> bool:
+        """Assign a route only when the model actually transmitted one that exists in
+        the chart (audit M2). Returns False when the transmission names no chart-legal
+        route — pilots don't invent routes the controller never said."""
         if ac.route:  # amendment: keep current progress, only (re)assign if not moving far
-            return
+            return True
+        via = [v.lower() for v in pt.via]
         gate = ac.goal_node if ac.role == "arrival" else ac.spawn_node
         if ac.role == "departure":
+            if pt.to_runway != kmrl_gnd.DEPARTURE_RUNWAY or "a" not in via:
+                return False
             ac.route = kmrl_gnd.departure_route(gate)
+        elif "a" in via:
+            ac.route = kmrl_gnd.arrival_route_via_a(gate)  # misroute: flown as transmitted
+        elif "b" in via:
+            ac.route = kmrl_gnd.arrival_route(gate)
         else:
-            via_a = "a" in [v.lower() for v in pt.via]
-            ac.route = kmrl_gnd.arrival_route_via_a(gate) if via_a else kmrl_gnd.arrival_route(gate)
+            return False
         ac.idx = 0
         ac.progress = 0
+        return True
 
     # --- kinematics + conflict oracle ----------------------------------------
 

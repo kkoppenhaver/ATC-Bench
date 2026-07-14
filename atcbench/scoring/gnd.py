@@ -140,9 +140,24 @@ def score_gnd(log: EventLog, scenario: dict) -> dict:
     taxi_eff = (sum(delay_factors) / len(delay_factors)) if delay_factors else (0.0 if spawns else 1.0)
     E = 0.7 * taxi_eff + 0.3 * queue_conf
 
+    # Protocol (chart rules, audit M2): a taxi clearance whose route uses the crossing
+    # taxiway must name the hold short explicitly. Violations are reported and don't
+    # count as purposeful. Pure log check on the *transmitted* clearance.
+    from ..charts import kmrl_gnd
+
+    protocol_violations = 0
+    for e in log.of_type("taxi_clearance"):
+        via = [v.lower() for v in e.payload.get("via") or []]
+        crosses = spec.get(e.payload["acid"], {}).get("role") == "departure" or "a" in via
+        if crosses and kmrl_gnd.CROSSING_RUNWAY not in (e.payload.get("hold_short") or []):
+            protocol_violations += 1
+            reported.append({"code": "missing_hold_short", "acid": e.payload["acid"],
+                             "tick": e.tick})
+
     # F: purposeful controller transmissions (taxi/crossing) over all controller tx.
     ctrl_tx = [e for e in log.of_type("transmission") if e.payload.get("speaker", "").endswith("_GND")]
-    purposeful = len(log.of_type("taxi_clearance")) + len(log.of_type("crossing_clearance"))
+    purposeful = (len(log.of_type("taxi_clearance")) - protocol_violations
+                  + len(log.of_type("crossing_clearance")))
     F = _clamp(purposeful / len(ctrl_tx)) if ctrl_tx else (0.0 if spawns else 1.0)
 
     A = (sum(response_ratios) / len(response_ratios)) if response_ratios else (0.0 if spawns else 1.0)
