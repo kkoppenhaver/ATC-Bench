@@ -13,7 +13,7 @@ import hashlib
 from ..charts import kmrl_cd, kmrl_gnd, kmrl_twr
 from ..sim.performance import _TABLE, WAKE_MIN_SEC
 
-PROMPT_TEMPLATE_VERSIONS = {"CD": "cd-v2", "GND": "gnd-v1", "TWR": "twr-v1"}
+PROMPT_TEMPLATE_VERSIONS = {"CD": "cd-v3", "GND": "gnd-v1", "TWR": "twr-v1"}
 
 _COMMON_TOOLS = (
     "TOOLS: use `transmit` to speak on frequency (one transmission per call, standard "
@@ -32,6 +32,10 @@ Canonical clearance (CRAFT order):
 Catching a bad readback:
   pilot: "... maintain six thousand ..."   controller: "American 2452, negative, maintain five thousand."
 Affirming a correct readback (optional): "American 2452, readback correct."
+LOCAL READBACK CONVENTION: pilots here read back altitude, departure frequency, and
+squawk only — the clearance limit and departure procedure are NOT read back, and
+that is a complete readback at this facility. Do not prompt pilots to read back the
+departure procedure; they will not respond to such requests.
 """
 
 _GND_PHRASEOLOGY = """\

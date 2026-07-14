@@ -49,6 +49,17 @@ def test_squawk_never_cross_assigns_as_altitude():
     assert P.extract_altitude("maintain five thousand, squawk four five zero zero") == 5000
 
 
+def test_affirmation_outranks_correction_keyword():
+    # "readback correct" contains "readback" (a correction keyword); the affirm
+    # check must win or every affirmation is misrouted (found in the first live run).
+    pt = P.parse_controller_transmission(
+        "American 2452, readback correct, contact departure.", ["AAL2452"], kmrl_cd.PACK)
+    assert pt.intent == "affirm"
+    corr = P.parse_controller_transmission(
+        "American 2452, negative, maintain five thousand.", ["AAL2452"], kmrl_cd.PACK)
+    assert corr.intent == "correction"
+
+
 def test_missing_callsign_is_ambiguous():
     pt = P.parse_controller_transmission(
         "cleared to Detroit, maintain five thousand, squawk 4321", ["AAL2452"], kmrl_cd.PACK

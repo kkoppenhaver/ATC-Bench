@@ -184,7 +184,11 @@ def cmd_replay(args: argparse.Namespace) -> int:
                         == (out / name).read_text(encoding="utf-8"))
     src_score = src / "score.json"
     if src_score.exists():
-        checks["score.json"] = json.loads(src_score.read_text(encoding="utf-8")) == replay_score
+        # "model" holds adapter runtime stats (tokens, spend) — metadata about the
+        # live run, not derivable from the log, so it's excluded from the contract.
+        src_data = {k: v for k, v in json.loads(src_score.read_text(encoding="utf-8")).items()
+                    if k != "model"}
+        checks["score.json"] = src_data == {k: v for k, v in replay_score.items() if k != "model"}
     identical = all(checks.values())
     for name, ok in checks.items():
         print(f"  {name}: {'identical' if ok else 'DIVERGED'}")

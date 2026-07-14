@@ -364,22 +364,24 @@ def parse_controller_transmission(
     destination = extract_destination(text, kmrl_cd.KNOWN_DESTINATIONS)
 
     is_clearance = ("cleared to" in lower) or (altitude and squawk)
-    is_correction = any(
+    # Affirmations outrank corrections: "readback correct" contains the correction
+    # keyword "readback", and getting this backwards silently ate every affirmation.
+    is_affirm = any(
+        w in lower for w in ("readback correct", "read back correct", "correct,", "affirmative")
+    ) and not (altitude or squawk)
+    is_correction = not is_affirm and any(
         w in lower for w in ("negative", "correction", "i say again", "readback", "verify", "disregard")
     )
     is_say_again = "say again" in lower and not is_correction
-    is_affirm = any(w in lower for w in ("readback correct", "correct,", "affirmative")) and not (
-        altitude or squawk
-    )
 
-    if is_correction:
+    if is_affirm:
+        intent = "affirm"
+    elif is_correction:
         intent = "correction"
     elif is_clearance:
         intent = "clearance"
     elif is_say_again:
         intent = "say_again"
-    elif is_affirm:
-        intent = "affirm"
     else:
         intent = "other"
 

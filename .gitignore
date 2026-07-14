@@ -8,9 +8,7 @@ dist/
 .venv/
 venv/
 
-# Generated run output (published runs live under runs/ intentionally; ignore local scratch)
-/runs/*
-!/runs/.gitkeep
+# Run directories are published artifacts (P3.6.4) — committed deliberately.
 uv.lock
 .venv/
 .env
