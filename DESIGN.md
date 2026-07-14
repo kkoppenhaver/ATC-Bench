@@ -326,6 +326,17 @@ Core loop on receiving a parsed instruction addressed to it:
 
 **Persona flags** (assigned by generator, drive both FSM parameters and verbalizer tone): `airline_crisp`, `ga_relaxed`, `student_pilot` (slow, verbose, needs repeats), `foreign_carrier` (formal ICAO, occasional say-again), `unfamiliar` (progressive taxi requests).
 
+**Re-calls (P4.0f).** A pilot left waiting on controller action re-keys after 90 s of
+own-radio silence (`pilot_recall` event) rather than waiting forever: CD aircraft still
+awaiting their clearance, GND aircraft with no taxi route or stopped at a hold bar with
+no crossing clearance (suppressed while Tower's announced hold-all-crossings explains
+the wait — the patience clock restarts instead), TWR departures sitting at the
+hold-short line. Arrivals on final need no recall (an uncleared final resolves as a
+go-around). The recall interval is half the 180 s NEGLECT thresholds, so every neglect
+is preceded by at least one audible second chance; scoring definitions are unchanged —
+one missed call is recoverable, sustained inattention still scores NEGLECT. This is
+also the CS-CONF recovery path: the aircraft whose clearance a twin took re-calls.
+
 ### 8.3 Error taxonomy (seeded schedule)
 
 Each scenario ships an explicit per-aircraft error schedule generated from the seed. Every evaluated model faces identical errors at identical sim-times.

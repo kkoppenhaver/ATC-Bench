@@ -20,11 +20,13 @@ scores H=0), observations carry no ground truth or pre-computed skill, and E/A a
 normalized against the oracle on the same seed. The **live-model path is wired
 end-to-end** (`run --model`, prompt caching, budget caps, verbatim I/O): first real
 runs live under `runs/` — a smoke test, a 26-session pilot campaign (Haiku 4.5 +
-Sonnet 5), and calibration probes. The construct has since been deepened (P4.0a–e):
+Sonnet 5), and calibration probes. The construct has since been deepened (P4.0a–f):
 shared half-duplex channel physics with `[BLOCKED]`, seed-drawn per-scenario chart
 packs (no memorizable answer key), pilots fly the transmitted route, the
-CS-CONF/SAY-AGAIN/BLOCKED error classes plus GND/TWR injections, and N-number GA
-registrations. **The full certification campaign (issue #15) has not run yet — pilot
+CS-CONF/SAY-AGAIN/BLOCKED error classes plus GND/TWR injections, N-number GA
+registrations, and pilot re-calls (an ignored pilot re-keys after 90 s instead of
+waiting forever — one missed call is recoverable; sustained inattention still
+scores NEGLECT). **The full certification campaign (issue #15) has not run yet — pilot
 numbers are calibration data, not quotable baselines.**
 
 > **Facility honesty note.** v1 runs on a **fictional stand-in airport — Marlow

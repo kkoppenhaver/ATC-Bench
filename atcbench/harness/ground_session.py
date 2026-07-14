@@ -28,6 +28,7 @@ from .channel import FrequencyChannel
 from .regime import TurnBased
 
 SWEEP_SEC = 5
+PILOT_RECALL_SEC = 90  # ignored pilots re-key after this much own-radio silence (P4.0f)
 DEADLOCK_SEC = 300  # head-on standoff beyond this = DEADLOCK cardinal (§13.1)
 CROSSING_SAFE_GAP_SEC = 40  # oracle margin before an upcoming hot window
 COORD_LEAD_SEC = 45  # Tower calls ahead this long before using the runway (§4.5)
@@ -108,12 +109,15 @@ class GroundSession:
         self._arrived: list[str] = []
         self._coord_hold_sent: set[tuple[str, int]] = set()
         self._coord_release_sent: set[tuple[str, int]] = set()
+        self._last_pilot_tx: dict[str, int] = {}
 
     # --- channel -------------------------------------------------------------
 
     def _tx(self, speaker: str, text: str) -> None:
         """Broadcast on the shared half-duplex channel; queues behind traffic (§7.1)."""
         start, end = self.channel.transmit(self.tick, text)
+        if speaker in self.active:
+            self._last_pilot_tx[speaker] = start
         self.transcript.append({"t": start, "from": speaker, "text": text})
         self.log.emit(start, E.TRANSMISSION, speaker=speaker, text=text,
                       start_tick=start, end_tick=end)
@@ -135,6 +139,41 @@ class GroundSession:
             self.log.emit(self.tick, E.AIRCRAFT_SPAWN, acid=sp.acid, role=sp.role, actype=sp.actype)
             self._tx(sp.acid, self.vb.render({"kind": "taxi_checkin", "acid": sp.acid,
                                               "persona": "airline_crisp", "role": sp.role, "gate": sp.gate}))
+
+    def _process_recalls(self) -> None:
+        """Ignored pilots re-key (P4.0f): a pilot still waiting on Ground re-calls
+        after PILOT_RECALL_SEC of own-radio silence instead of waiting forever —
+        one missed call is recoverable; sustained inattention still scores NEGLECT."""
+        for acid, ac in self.active.items():
+            if ac.arrived or acid in self.holds:
+                continue  # an explicit "hold position" is service, not neglect
+            if self.tick - self._last_pilot_tx.get(acid, self.tick) < PILOT_RECALL_SEC:
+                continue
+            if not ac.route:
+                self.log.emit(self.tick, E.PILOT_RECALL, acid=acid, reason="no_taxi_clearance")
+                self._tx(acid, self.vb.render({"kind": "taxi_recall", "acid": acid,
+                                               "persona": "airline_crisp", "role": ac.role,
+                                               "at": ac.at_node()}))
+            else:
+                rwy = self._holding_short_of(ac)
+                if rwy is None:
+                    continue
+                if self._coord_hold_active(rwy):
+                    # Tower's hold is audible on frequency — waiting at the bar has an
+                    # explanation, so the pilot's patience clock restarts, not runs.
+                    self._last_pilot_tx[acid] = self.tick
+                    continue
+                self.log.emit(self.tick, E.PILOT_RECALL, acid=acid,
+                              reason="no_crossing_clearance", runway=rwy)
+                self._tx(acid, self.vb.render({"kind": "crossing_recall", "acid": acid,
+                                               "persona": "airline_crisp",
+                                               "runway_spoken": _spoken_runway(rwy)}))
+
+    def _coord_hold_active(self, rwy: str) -> bool:
+        """True while Tower's hold-all-crossings is in effect for ``rwy`` (from the
+        coordination call COORD_LEAD_SEC ahead of the window until its release)."""
+        return any(ws - COORD_LEAD_SEC <= self.tick < we
+                   for ws, we in self.scn.hot_windows.get(rwy, []))
 
     # --- observation ---------------------------------------------------------
 
@@ -225,6 +264,7 @@ class GroundSession:
             self.tick += SWEEP_SEC
             self._process_spawns()
             self._process_coordination()
+            self._process_recalls()
 
     def _apply_calls(self, resp: dict) -> tuple[bool, list[str]]:
         """Apply a turn's tool calls; returns (waited, one result string per call)."""
@@ -461,6 +501,7 @@ class GroundSession:
         while self.tick <= self.scn.session_seconds:
             self._process_spawns()
             self._process_coordination()
+            self._process_recalls()
             if self.active:
                 self._give_model_turns(adapter)
             self._step_movement()

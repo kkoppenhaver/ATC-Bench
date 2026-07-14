@@ -9,8 +9,9 @@ section(s) it implements and its hard dependencies.
 > **Status (2026-07-14):** Positions CD → GND → TWR are live with both time regimes,
 > shared half-duplex channel physics, seeded per-scenario chart packs, the full v1
 > error taxonomy subset (incl. CS-CONF/SAY-AGAIN/BLOCKED + GND/TWR injections), and
-> realistic fleet/callsign pairing. 149 tests, ruff clean, byte-identical replay
-> (verified on live-model runs), cross-Python-version determinism in CI.
+> realistic fleet/callsign pairing, and pilot re-calls (ignored pilots re-key).
+> 155 tests, ruff clean, byte-identical replay (verified on live-model runs),
+> cross-Python-version determinism in CI.
 >
 > **2026-07 benchmark audit** (issues #14/#15): all findings fixed. **Phase 3.5**
 > (scorer/harness integrity) is complete and closed — no-skill probes are permanent CI
@@ -18,9 +19,11 @@ section(s) it implements and its hard dependencies.
 > `evaluate` (Wilson-bound certification, pass^k, clustered CIs) are done; **P3.6.4 is
 > half-done** — the small pilot (26 live sessions, `runs/pilot/`) proved every axis
 > discriminates; the **full campaign (≥20 seeds × ≥3 trials, ~$150–250) is the last
-> step before public numbers**. The **P4.0 pre-campaign construct batch (a–e) is
+> step before public numbers**. The **P4.0 pre-campaign construct batch (a–f) is
 > complete**, so campaign baselines land on a stable construct. Calibration probes in
-> `runs/probes/` (TWR calm band shows a gradient: the standard-band wall opens up).
+> `runs/probes/` (TWR calm band shows a gradient: the standard-band wall opens up;
+> note the probes predate P4.0f pilot re-calls, so their absolute S values are not
+> comparable to campaign runs).
 > Next after the campaign: pre-register weights, close #15, then TRACON (P4.1+).
 
 ---
@@ -401,6 +404,20 @@ clustered CIs reported by `atcbench evaluate`.
   (ga_relaxed/student_pilot); similar-callsign twins are airline-only; full NATO
   telephony for registrations ("November seven one four kilo charlie");
   extract_callsign hardened so single-letter prefixes can't soak up unrelated text._
+- [x] **P4.0f — Pilot re-calls (ignored pilots re-key).** GND calibration probes
+  showed both busts came from mid-session checkout: pilots called ready-to-taxi once
+  into silence and a single missed call converted deterministically into NEGLECT. Real
+  pilots nag; decided (2026-07-14) to adopt the softer construct before pre-registering
+  weights. (§8.2) _Done: `pilot_recall` event + re-call after 90 s of own-radio silence
+  (half the 180 s NEGLECT thresholds — every neglect gets ≥1 audible second chance) at
+  all three positions: CD awaiting-clearance (also the CS-CONF recovery path — the twin
+  target re-calls), GND no-route + stranded-at-hold-bar (patience clock restarts while
+  Tower's announced hold explains the wait), TWR hold-short departures (also surfaces
+  TWR-LUAW-MISS). Arrivals on final self-resolve (go-around) — no recall. Scoring
+  definitions unchanged; prompts bumped (cd-v5/gnd-v3/twr-v3) with the re-call rule
+  stated; oracle stays nag-free on taxi service (rare crossing nags are legitimate:
+  the pilot can't hear the sequencing plan). Score-perturbing → probe runs under
+  `runs/probes/` predate this and are not comparable to campaign numbers._
 - [x] **P4.0d — Seed-drawn chart-pack constants (audit M6).** LOA initial altitude,
   frequencies, SID names/sets, and filing-error content drawn from seeded streams per
   scenario — currently the correct answers are seed-independent constants (always 5000,

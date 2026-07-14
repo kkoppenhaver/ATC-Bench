@@ -13,7 +13,7 @@ import hashlib
 from ..charts import kmrl_cd, kmrl_gnd, kmrl_twr
 from ..sim.performance import _TABLE, WAKE_MIN_SEC
 
-PROMPT_TEMPLATE_VERSIONS = {"CD": "cd-v4", "GND": "gnd-v2", "TWR": "twr-v2"}
+PROMPT_TEMPLATE_VERSIONS = {"CD": "cd-v5", "GND": "gnd-v3", "TWR": "twr-v3"}
 
 _COMMON_TOOLS = (
     "TOOLS: use `transmit` to speak on frequency (one transmission per call, standard "
@@ -22,7 +22,9 @@ _COMMON_TOOLS = (
     "and `bay_read` to read your bays back — the frequency feed only shows *new* "
     "messages each turn, so your strips are how you keep the picture. Use `wait` to "
     "yield until the next event. Unusable or garbled transmissions get a pilot "
-    "\"say again\" and waste time."
+    "\"say again\" and waste time. Pilots you leave waiting will re-call periodically "
+    "— a re-call means you owe that aircraft service, and continuing to ignore it "
+    "still counts as neglect."
 )
 
 def _cd_phraseology(pack) -> str:

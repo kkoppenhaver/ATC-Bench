@@ -30,6 +30,7 @@ from .channel import FrequencyChannel
 from .regime import TurnBased
 
 SWEEP_SEC = 5
+PILOT_RECALL_SEC = 90  # ignored pilots re-key after this much own-radio silence (P4.0f)
 MAX_TURNS_PER_SWEEP = 40
 BASE_SIM_HOUR = 14
 
@@ -119,15 +120,32 @@ class TowerSession:
         self.rw_last_use_start: Optional[int] = None
         self.rw_last_wake: str = "L"
         self._los_fired: set[frozenset] = set()
+        self._last_pilot_tx: dict[str, int] = {}
 
     # --- channel + spawns ----------------------------------------------------
 
     def _tx(self, speaker: str, text: str) -> None:
         """Broadcast on the shared half-duplex channel; queues behind traffic (§7.1)."""
         start, end = self.channel.transmit(self.tick, text)
+        if speaker in self.active:
+            self._last_pilot_tx[speaker] = start
         self.transcript.append({"t": start, "from": speaker, "text": text})
         self.log.emit(start, E.TRANSMISSION, speaker=speaker, text=text,
                       start_tick=start, end_tick=end)
+
+    def _process_recalls(self) -> None:
+        """Ignored pilots re-key (P4.0f): a departure still sitting at the hold-short
+        line re-calls after PILOT_RECALL_SEC of own-radio silence. Arrivals need no
+        recall — an uncleared final resolves itself as a go-around. This also surfaces
+        TWR-LUAW-MISS: the pilot who never heard its LUAW eventually keys up again."""
+        for acid, ac in self.active.items():
+            if ac.role != "departure" or ac.phase != "hold_short":
+                continue
+            if self.tick - self._last_pilot_tx.get(acid, self.tick) < PILOT_RECALL_SEC:
+                continue
+            self.log.emit(self.tick, E.PILOT_RECALL, acid=acid, reason="holding_short")
+            self._tx(acid, self.vb.render({"kind": "tower_recall", "acid": acid,
+                                           "persona": "airline_crisp"}))
 
     def _process_spawns(self) -> None:
         for sp in self._spawns:
@@ -217,6 +235,7 @@ class TowerSession:
             self._step_kinematics()
             self.tick += SWEEP_SEC
             self._process_spawns()
+            self._process_recalls()
 
     def _apply_calls(self, resp: dict) -> tuple[bool, list[str]]:
         """Apply a turn's tool calls; returns (waited, one result string per call)."""
@@ -393,6 +412,7 @@ class TowerSession:
     def run(self, adapter) -> TowerSessionResult:
         while self.tick <= self.scn.session_seconds:
             self._process_spawns()
+            self._process_recalls()
             if self.active:
                 self._give_model_turns(adapter)
             self._step_kinematics()

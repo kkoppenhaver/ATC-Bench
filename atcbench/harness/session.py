@@ -30,6 +30,7 @@ from .channel import FrequencyChannel
 from .regime import TurnBased
 
 NEGLECT_THRESHOLD_SEC = 180  # CD: unanswered/uncleared beyond this = NEGLECT (§13.1)
+PILOT_RECALL_SEC = 90  # ignored pilots re-key after this much own-radio silence (P4.0f)
 MAX_TURNS_PER_WINDOW = 60
 BASE_SIM_HOUR = 14  # sessions start at 14:00:00Z (deterministic wall-clock label)
 
@@ -115,6 +116,7 @@ class CDSession:
         self.last_shown = 0
         self.active: dict[str, PilotFSM] = {}
         self.neglect_deadline: dict[str, int] = {}
+        self.recall_at: dict[str, int] = {}
         self._checkins = sorted(scenario.flight_plans, key=lambda p: p.call_tick)
         self._ci_idx = 0
         self._total_turns = 0
@@ -124,6 +126,8 @@ class CDSession:
     def _emit_transmission(self, speaker: str, text: str) -> None:
         start, end = self.channel.transmit(self.tick, text)
         self.tick = end  # event-driven clock rides the broadcast (§4.1)
+        if speaker in self.active:
+            self.recall_at[speaker] = end + PILOT_RECALL_SEC
         self.transcript.append({"t": start, "from": speaker, "text": text})
         self.log.emit(start, E.TRANSMISSION, speaker=speaker, text=text, start_tick=start, end_tick=end)
 
@@ -163,6 +167,23 @@ class CDSession:
                 self.log.emit(self.tick, E.STRIP_OP, op="auto_move", acid=acid, bay="cleared")
                 del self.active[acid]
 
+    def _process_recalls(self) -> None:
+        """Ignored pilots re-key (P4.0f): a pilot still awaiting its clearance re-calls
+        after PILOT_RECALL_SEC of own-radio silence — one nudge before the NEGLECT
+        deadline. Also the recovery path for CS-CONF: the aircraft whose clearance a
+        twin took never read anything back, so it comes back asking."""
+        for acid, fsm in list(self.active.items()):
+            if fsm.state != CDState.AWAITING_CLEARANCE:
+                continue
+            if self.tick < self.recall_at.get(acid, 1 << 30):
+                continue
+            self.log.emit(self.tick, E.PILOT_RECALL, acid=acid, reason="awaiting_clearance")
+            dest_name = kmrl_cd.KNOWN_DESTINATIONS.get(fsm.plan.destination,
+                                                       fsm.plan.destination)
+            self._emit_transmission(acid, self.vb.render(
+                {"kind": "clearance_recall", "acid": acid, "persona": fsm.persona.value,
+                 "destination_name": dest_name}))
+
     def _next_event_tick(self) -> Optional[int]:
         candidates: list[int] = []
         if self._ci_idx < len(self._checkins):
@@ -172,6 +193,7 @@ class CDSession:
                 candidates.append(fsm.readback_deadline)
             elif fsm.state == CDState.AWAITING_CLEARANCE:
                 candidates.append(self.neglect_deadline.get(acid, 1 << 30))
+                candidates.append(self.recall_at.get(acid, 1 << 30))
         return min(candidates) if candidates else None
 
     # --- model turns ---------------------------------------------------------
@@ -243,6 +265,7 @@ class CDSession:
             self.tick = nxt
             self._process_checkins()
             self._process_deadlines()
+            self._process_recalls()
         if target > self.tick:
             self.tick = target
 
@@ -380,6 +403,7 @@ class CDSession:
                 self.tick = nxt
             self._process_checkins()
             self._process_deadlines()
+            self._process_recalls()
             if not self.active and self._ci_idx >= len(self._checkins):
                 break
             if self.active:

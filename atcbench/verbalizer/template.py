@@ -110,6 +110,13 @@ class TemplateVerbalizer:
             return f"Okay, uh, {body}, {acid}"
         return f"{body}, {acid}"
 
+    def _render_clearance_recall(self, intent: dict, persona: Persona) -> str:
+        acid = _callsign_words(intent["acid"])
+        dest = intent.get("destination_name", "our destination")
+        if persona == Persona.STUDENT_PILOT:
+            return f"Uh, Marlow Clearance, {acid}, we're, uh, still waiting on our IFR to {dest}"
+        return f"Marlow Clearance, {acid}, still waiting on IFR clearance to {dest}"
+
     def _render_say_again(self, intent: dict, persona: Persona) -> str:
         acid = _callsign_words(intent["acid"])
         return f"Say again for {acid}?"
@@ -140,6 +147,19 @@ class TemplateVerbalizer:
         acid = _callsign_words(intent["acid"])
         return f"Say again the route for {acid}?"
 
+    def _render_taxi_recall(self, intent: dict, persona: Persona) -> str:
+        acid = _callsign_words(intent["acid"])
+        if intent.get("role") == "arrival":
+            return f"Marlow Ground, {acid}, still clear of the runway, awaiting taxi instructions"
+        at = intent.get("at", "the ramp")
+        if persona == Persona.STUDENT_PILOT:
+            return f"Uh, Marlow Ground, {acid}, we're, uh, still at {at}, ready to taxi"
+        return f"Marlow Ground, {acid}, still holding at {at}, ready to taxi"
+
+    def _render_crossing_recall(self, intent: dict, persona: Persona) -> str:
+        acid = _callsign_words(intent["acid"])
+        return f"Marlow Ground, {acid}, holding short runway {intent['runway_spoken']}"
+
     # --- TWR-position intents -------------------------------------------------
 
     def _render_tower_checkin(self, intent: dict, persona: Persona) -> str:
@@ -152,6 +172,10 @@ class TemplateVerbalizer:
     def _render_tower_readback(self, intent: dict, persona: Persona) -> str:
         acid = _callsign_words(intent["acid"])
         return f"{intent['text']}, {acid}"
+
+    def _render_tower_recall(self, intent: dict, persona: Persona) -> str:
+        acid = _callsign_words(intent["acid"])
+        return f"Marlow Tower, {acid}, still holding short runway three one center, ready"
 
     def _render_tower_goaround(self, intent: dict, persona: Persona) -> str:
         acid = _callsign_words(intent["acid"])
