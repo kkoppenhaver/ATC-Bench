@@ -101,13 +101,12 @@ Goal: a full CD session runs deterministically and is scorable from the log alon
   _Deps: P0.3. Design §5.1, §11.3._
 
 ### Model harness
-- [~] **P1.11 — Model adapter + tool router.** Provider-agnostic adapter (Anthropic
+- [x] **P1.11 — Model adapter + tool router.** Provider-agnostic adapter (Anthropic
   Messages tool schema native; OpenAI-style adapter). Tools for CD: `transmit`, strip
-  tools, `wait`. State serializer, verbatim I/O logging, token-count capture. _Audit:
-  scripted/bad/replay adapters work; `AnthropicAdapter` is unwired from the CLI, stubs
-  every tool result as `"ok"`, has no retry policy, and `model_io.json` logs outputs but
-  not the messages sent. Live path → P3.6.2._ _Deps: P1.2, P1.4. Design §11.1, §11.4,
-  §3.2._
+  tools, `wait`. State serializer, verbatim I/O logging, token-count capture. _Audit
+  gap closed by P3.6.2: live adapter wired end-to-end with real tool results,
+  retries, budgets, and verbatim I/O; multi-provider adapters tracked as X.6._
+  _Deps: P1.2, P1.4. Design §11.1, §11.4, §3.2._
 - [x] **P1.12 — System-prompt assembly.** Versioned template assembling the 9 §11.3
   sections from the chart pack; emit `prompt_hash` into the run record. _Deps: P1.10.
   Design §11.3._
