@@ -11,7 +11,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-from ..charts import kmrl_cd
 from ..scenarios.cd import CATCHABLE_CLASSES
 from ..sim.events import EventLog
 
@@ -80,7 +79,8 @@ def score_cd(log: EventLog, scenario: dict) -> dict:
             alt_ok = comply.get("altitude") == exp.get("altitude")
             dest_ok = comply.get("clearance_limit") == exp.get("clearance_limit")
             route = comply.get("route")
-            route_ok = route is not None and kmrl_cd.PACK.sid_valid(route)
+            pack_sids = scenario.get("chart_pack", {}).get("sids", {})
+            route_ok = route is not None and route in pack_sids
             squawk_ok = comply.get("squawk") == exp.get("squawk")
             freq_ok = comply.get("frequency") == exp.get("frequency")
 

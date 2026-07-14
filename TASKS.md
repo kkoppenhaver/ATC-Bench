@@ -377,13 +377,20 @@ clustered CIs reported by `atcbench evaluate`.
   N-number support), airline callsigns only to airliner types, and make the type mix
   per role/band plausible. Changes the seeded callsign streams → score-perturbing, so
   it lands with this batch, before the full campaign. (§5.1, §8.1)
-- [ ] **P4.0d — Seed-drawn chart-pack constants (audit M6).** LOA initial altitude,
+- [x] **P4.0d — Seed-drawn chart-pack constants (audit M6).** LOA initial altitude,
   frequencies, SID names/sets, and filing-error content drawn from seeded streams per
   scenario — currently the correct answers are seed-independent constants (always 5000,
   always 119.35, the only bad SID is literally "BOGUS9"), so a public repo means the
   answer key is memorizable regardless of seed rotation. Make some filing errors change
   the correct clearance. Contamination defense the Facility track needs even before the
-  Generalist generator (P4.4). (§5.1, §5.2, §12.1)
+  Generalist generator (P4.4). (§5.1, §5.2, §12.1) _Done: `CDChartPack` drawn from the
+  `airspace` stream per scenario — frequency, 3–5 fictional SIDs with per-SID LOA
+  altitudes (3000–7000), and a seeded invalid-filing fallback rule stated in the
+  chart. Filing errors now change the answer (invalid SID → fallback route AND its
+  LOA altitude); RB-ALT/RB-FREQ error content is pack-relative. Pack ships in
+  scenario.json + the system prompt (cd-v4; hash varies per seed by design); oracle
+  gets it via a `brief()` position-briefing hook; scorer/parser read the scenario
+  pack. Pinned by `tests/test_chart_pack.py`._
 - [ ] **P4.1 — Airborne vectoring kinematics** (point-mass, turn/climb/descent/speed
   rates, wind bands) (§4.3).
 - [ ] **P4.2 — Approach-geometry validation** (intercept ≤ 30°, altitude-at-fix) (§6.4).

@@ -54,21 +54,26 @@ def _make_adapter(args: argparse.Namespace, prompt_text: str) -> A.ModelAdapter:
 
 def _run_one(args: argparse.Namespace, regime_name: str):
     regime = make_regime(regime_name)
-    prompt_text, ph = build_system_prompt(args.position, args.session_seconds, regime_name)
-    adapter = _make_adapter(args, prompt_text)
     if args.position == "CD":
         scn = cd_scenarios.generate(args.seed, band=args.band, session_seconds=args.session_seconds)
+        prompt_text, ph = build_system_prompt("CD", args.session_seconds, regime_name,
+                                              pack=scn.chart_pack)
         session = CDSession(scn, prompt_hash=ph, regime=regime)
+        adapter = _make_adapter(args, prompt_text)
         result = session.run(adapter)
         score = score_cd(result.log, scn.to_dict())
     elif args.position == "GND":
         scn = gnd_scenarios.generate(args.seed, band=args.band, session_seconds=args.session_seconds)
+        prompt_text, ph = build_system_prompt("GND", args.session_seconds, regime_name)
         session = GroundSession(scn, prompt_hash=ph, regime=regime)
+        adapter = _make_adapter(args, prompt_text)
         result = session.run(adapter)
         score = score_gnd(result.log, scn.to_dict())
     else:  # TWR
         scn = twr_scenarios.generate(args.seed, band=args.band, session_seconds=args.session_seconds)
+        prompt_text, ph = build_system_prompt("TWR", args.session_seconds, regime_name)
         session = TowerSession(scn, prompt_hash=ph, regime=regime)
+        adapter = _make_adapter(args, prompt_text)
         result = session.run(adapter)
         score = score_twr(result.log, scn.to_dict())
     score["regime"] = regime_name

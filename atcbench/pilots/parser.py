@@ -360,7 +360,8 @@ def parse_controller_transmission(
     altitude = extract_altitude(text)
     frequency = extract_frequency(text)
     squawk = extract_squawk(text)
-    sid = extract_sid(text, kmrl_cd.SIDS)
+    # SIDs come from the per-scenario pack (audit M6); destinations are static.
+    sid = extract_sid(text, pack.sids)
     destination = extract_destination(text, kmrl_cd.KNOWN_DESTINATIONS)
 
     is_clearance = ("cleared to" in lower) or (altitude and squawk)

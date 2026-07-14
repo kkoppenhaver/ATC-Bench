@@ -20,7 +20,6 @@ import math
 import re
 from typing import Any
 
-from ..charts import kmrl_cd
 from ..verbalizer.template import _callsign_words, spoken_altitude, spoken_digits
 
 
@@ -28,15 +27,17 @@ def _est_tokens(text: str) -> int:
     return max(1, math.ceil(len(text) / 4))
 
 
-def _correct_clearance_for(ac: dict) -> dict:
+def _correct_clearance_for(ac: dict, pack: dict) -> dict:
+    """Derive the correct clearance from the briefed chart pack (audit M6): the
+    answers are chart lookups against per-scenario material, not constants."""
     filed = ac["filed"]
     sid = filed["sid"]
-    route = sid if kmrl_cd.PACK.sid_valid(sid) else "MRLW5"
+    route = sid if sid in pack["sids"] else pack["fallback_sid"]
     return {
         "destination": filed["destination"],
         "route": route,
-        "altitude": kmrl_cd.LOA_INITIAL_ALTITUDE,
-        "frequency": kmrl_cd.DEPARTURE_FREQUENCY,
+        "altitude": pack["sids"][route]["initial_altitude"],
+        "frequency": pack["departure_frequency"],
         "squawk": ac["assigned_squawk"],
     }
 
@@ -49,6 +50,12 @@ class ModelAdapter:
         """Called by the session after applying a turn's tool calls, with one result
         string per applied call (bay contents for bay_read, acks otherwise). Scripted
         adapters don't need them; API adapters attach them to the next request."""
+
+    def brief(self, chart_pack: dict) -> None:
+        """Position briefing before the session: the per-scenario chart pack (§11.3).
+        Scripted controllers store it to derive correct clearances; live adapters
+        ignore it — their briefing is the system prompt."""
+        self._pack = chart_pack
 
     def transmit(self, text: str) -> dict:
         return {
@@ -92,7 +99,7 @@ class ScriptedCDController(ModelAdapter):
                     # Cleared, and nothing came back on frequency: dropped readback.
                     if acid not in self._prompted:
                         self._prompted.add(acid)
-                        c = _correct_clearance_for(ac)
+                        c = _correct_clearance_for(ac, self._pack)
                         cs = _callsign_words(acid)
                         return self.transmit(
                             f"{cs}, I need a full readback, "
@@ -108,10 +115,10 @@ class ScriptedCDController(ModelAdapter):
         return self.wait()
 
     def _clearance_text(self, ac: dict) -> str:
-        c = _correct_clearance_for(ac)
+        c = _correct_clearance_for(ac, self._pack)
         cs = _callsign_words(ac["acid"])
         dest_name = ac["filed"]["destination_name"]
-        sid = kmrl_cd.SIDS.get(c["route"], {"name": c["route"]})["name"]
+        sid = self._pack["sids"][c["route"]]["name"]
         return (
             f"{cs}, cleared to {dest_name}, {sid} departure, "
             f"maintain {spoken_altitude(c['altitude'])}, "
@@ -123,7 +130,7 @@ class ScriptedCDController(ModelAdapter):
         """Judge a heard readback against the correct clearance — text in, words out."""
         from ..pilots import parser as P
 
-        c = _correct_clearance_for(ac)
+        c = _correct_clearance_for(ac, self._pack)
         cs = _callsign_words(ac["acid"])
         # Wrong callsign: the telephony tail of the readback names someone else.
         m = re.match(r"[A-Za-z]+(\d+)", ac["acid"])
@@ -151,9 +158,9 @@ class BadCDController(ModelAdapter):
             acid = ac["acid"]
             if ac["status"] == "awaiting_clearance" and acid not in self._issued:
                 self._issued.add(acid)
-                c = _correct_clearance_for(ac)
+                c = _correct_clearance_for(ac, self._pack)
                 cs = _callsign_words(acid)
-                sid = kmrl_cd.SIDS.get(c["route"], {"name": c["route"]})["name"]
+                sid = self._pack["sids"][c["route"]]["name"]
                 text = (
                     f"{cs}, cleared to {ac['filed']['destination_name']}, {sid} departure, "
                     f"maintain {spoken_altitude(c['altitude'])}, "
@@ -415,9 +422,9 @@ class BlindCDCorrector(ModelAdapter):
         return self.wait()
 
     def _full_text(self, ac: dict, prefix: str) -> str:
-        c = _correct_clearance_for(ac)
+        c = _correct_clearance_for(ac, self._pack)
         cs = _callsign_words(ac["acid"])
-        sid = kmrl_cd.SIDS.get(c["route"], {"name": c["route"]})["name"]
+        sid = self._pack["sids"][c["route"]]["name"]
         return (
             f"{cs}, {prefix}cleared to {ac['filed']['destination_name']}, {sid} departure, "
             f"maintain {spoken_altitude(c['altitude'])}, "
@@ -435,6 +442,12 @@ class ReasoningController(ModelAdapter):
     def __init__(self, base: ModelAdapter, thinking_tokens: int = 800):
         self.base = base
         self.thinking_tokens = thinking_tokens
+
+    def brief(self, chart_pack: dict) -> None:
+        self.base.brief(chart_pack)
+
+    def receive_tool_results(self, results: list[str]) -> None:
+        self.base.receive_tool_results(results)
 
     def step(self, observation: dict) -> dict:
         resp = dict(self.base.step(observation))

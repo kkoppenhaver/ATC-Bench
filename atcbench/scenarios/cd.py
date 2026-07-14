@@ -42,6 +42,8 @@ class Scenario:
     position: str
     session_seconds: int
     flight_plans: list[FlightPlan]
+    # Seed-drawn chart material (audit M6): the answers live here, not in the repo.
+    chart_pack: kmrl_cd.CDChartPack = field(default_factory=lambda: kmrl_cd.PACK)
     # Per-aircraft readback error schedule; acid -> ErrorEvent (or absent = clean).
     error_schedule: dict[str, ErrorEvent] = field(default_factory=dict)
     # acid -> the correct clearance the controller *should* issue after any fixes.
@@ -54,6 +56,7 @@ class Scenario:
             "band": self.band,
             "position": self.position,
             "session_seconds": self.session_seconds,
+            "chart_pack": self.chart_pack.to_dict(),
             "flight_plans": [fp.to_dict() for fp in self.flight_plans],
             "error_schedule": {k: v.to_dict() for k, v in self.error_schedule.items()},
             "expected_clearance": self.expected_clearance,
@@ -75,23 +78,30 @@ def _make_callsign(rng, used: set[str]) -> str:
     raise RuntimeError("callsign space exhausted")  # pragma: no cover
 
 
-def _correct_clearance(fp: FlightPlan, squawk: str) -> dict:
-    """The clearance the controller should issue for a plan, after fixing filings."""
+def _correct_clearance(fp: FlightPlan, squawk: str, pack: kmrl_cd.CDChartPack) -> dict:
+    """The clearance the controller should issue for a plan, after fixing filings.
+
+    A filing error changes the correct answer (audit M6): an invalid SID reroutes to
+    the pack's fallback SID, and the altitude follows the assigned SID's LOA entry —
+    so catching a bad filing requires the chart lookup, not a memorized constant."""
+    route = fp.filed_sid if pack.sid_valid(fp.filed_sid) else pack.fallback_sid
     return {
         "clearance_limit": fp.destination,
-        "route": fp.filed_sid if kmrl_cd.PACK.sid_valid(fp.filed_sid) else "MRLW5",
-        "altitude": kmrl_cd.LOA_INITIAL_ALTITUDE,
-        "frequency": kmrl_cd.DEPARTURE_FREQUENCY,
+        "route": route,
+        "altitude": pack.initial_altitude(route),
+        "frequency": pack.departure_frequency,
         "squawk": squawk,
     }
 
 
 def _transpose_freq(freq: str) -> str:
     digits = freq.replace(".", "")
-    if len(digits) >= 2:
+    d = list(digits)
+    d[-1], d[-2] = d[-2], d[-1]
+    if "".join(d) == digits:  # last two digits equal — transpose the MHz digits instead
         d = list(digits)
-        d[-1], d[-2] = d[-2], d[-1]
-        digits = "".join(d)
+        d[1], d[2] = d[2], d[1]
+    digits = "".join(d)
     return f"{digits[:3]}.{digits[3:]}"
 
 
@@ -103,6 +113,11 @@ def generate(seed: int, band: str = "standard", session_seconds: int = 3600) -> 
     traffic = sm.stream("traffic")
     errors = sm.stream("errors")
     callsigns = sm.stream("callsigns")
+    airspace = sm.stream("airspace")
+
+    # The chart pack — frequency, SID set, per-SID LOA altitudes, fallback rule —
+    # is drawn per scenario (audit M6): no seed-independent answer key.
+    pack = kmrl_cd.generate_pack(airspace)
 
     n = cfg["n_aircraft"]
     used: set[str] = set()
@@ -117,18 +132,20 @@ def generate(seed: int, band: str = "standard", session_seconds: int = 3600) -> 
         actype = traffic.choice(["B738", "A320", "B739", "E175", "C172"])
         persona = traffic.choice(_PERSONAS)
         dest = traffic.choice(_DESTINATIONS)
-        filed_sid = traffic.choice(list(kmrl_cd.SIDS))
+        filed_sid = traffic.choice(sorted(pack.sids))
         filed_alt = traffic.choice([16000, 17000, 23000, 35000])
 
         filing_error: Optional[str] = None
         if traffic.random() < cfg["filing_error_rate"]:
             kind = traffic.choice(["invalid_sid", "wrong_initial_altitude"])
             if kind == "invalid_sid":
-                filed_sid = "BOGUS9"  # not in the chart pack -> must be corrected
+                # A seeded plausible-but-unpublished SID: reroutes to the pack's
+                # fallback, which also changes the correct LOA altitude (audit M6).
+                filed_sid = kmrl_cd.generate_invalid_sid(traffic, pack)
                 filing_error = "invalid_sid"
             else:
-                # Filed an initial altitude that violates the M90 LOA (should be 5000).
-                filed_alt = 9000
+                # Filed an initial altitude that violates this pack's LOA table.
+                filed_alt = pack.initial_altitude(filed_sid) + traffic.choice([2000, 3000, 4000])
                 filing_error = "wrong_initial_altitude"
 
         plans.append(
@@ -163,7 +180,7 @@ def generate(seed: int, band: str = "standard", session_seconds: int = 3600) -> 
             acid=twin_acid,
             actype="B738",
             destination=callsigns.choice(_DESTINATIONS),
-            filed_sid=callsigns.choice(list(kmrl_cd.SIDS)),
+            filed_sid=callsigns.choice(sorted(pack.sids)),
             filed_altitude=16000,
             persona=Persona.AIRLINE_CRISP,
             call_tick=min(session_seconds - 60, base.call_tick + callsigns.randint(20, 90)),
@@ -181,15 +198,19 @@ def generate(seed: int, band: str = "standard", session_seconds: int = 3600) -> 
             squawk = f"{errors.randint(1, 7)}{errors.randint(0, 7)}{errors.randint(0, 7)}{errors.randint(0, 7)}"
             if squawk not in SPECIAL_SQUAWKS:
                 break
-        expected[fp.acid] = _correct_clearance(fp, squawk)
+        expected[fp.acid] = _correct_clearance(fp, squawk, pack)
 
         if errors.random() < cfg["error_rate"]:
             code = errors.choice(["RB-ALT", "RB-FREQ", "RB-PART", "RB-DROP"])
             detail: dict = {}
             if code == "RB-ALT":
-                detail["wrong_altitude"] = errors.choice([6000, 15000, 4000])
+                # A near-miss relative to this aircraft's correct altitude — the
+                # audible error content is seeded, not a repo constant (audit M6).
+                correct_alt = expected[fp.acid]["altitude"]
+                detail["wrong_altitude"] = correct_alt + errors.choice(
+                    [-2000, -1000, 1000, 2000, 10000])
             elif code == "RB-FREQ":
-                detail["wrong_frequency"] = _transpose_freq(kmrl_cd.DEPARTURE_FREQUENCY)
+                detail["wrong_frequency"] = _transpose_freq(pack.departure_frequency)
             elif code == "RB-PART":
                 detail["omit"] = errors.choice(["squawk", "frequency"])
             schedule[fp.acid] = ErrorEvent(code=code, detail=detail)
@@ -204,6 +225,7 @@ def generate(seed: int, band: str = "standard", session_seconds: int = 3600) -> 
         position="MRL_CD",
         session_seconds=session_seconds,
         flight_plans=plans,
+        chart_pack=pack,
         error_schedule=schedule,
         expected_clearance=expected,
         similar_pairs=similar_pairs,

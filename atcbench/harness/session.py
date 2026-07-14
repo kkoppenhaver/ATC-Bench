@@ -99,6 +99,7 @@ class CDSession:
         regime=None,
     ):
         self.scn = scenario
+        self.pack = scenario.chart_pack
         self.vb = verbalizer or default_verbalizer()
         self.correction_window_sec = correction_window_sec
         self.prompt_hash = prompt_hash
@@ -289,7 +290,7 @@ class CDSession:
 
     def _handle_transmit(self, text: str) -> None:
         self._emit_transmission(self.scn.position, text)
-        parsed = P.parse_controller_transmission(text, list(self.active.keys()), kmrl_cd.PACK)
+        parsed = P.parse_controller_transmission(text, list(self.active.keys()), self.pack)
         self.log.emit(self.tick, E.CONTROLLER_PARSE, tier=int(parsed.tier),
                       tier_name=parsed.tier.name, intent=parsed.intent, acid=parsed.acid)
         acid = parsed.acid
@@ -339,6 +340,7 @@ class CDSession:
     # --- driver --------------------------------------------------------------
 
     def run(self, adapter) -> SessionResult:
+        adapter.brief(self.pack.to_dict())  # position briefing: the chart pack (§11.3)
         while True:
             nxt = self._next_event_tick()
             if nxt is None and not self.active:

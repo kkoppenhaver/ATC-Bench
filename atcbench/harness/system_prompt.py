@@ -13,7 +13,7 @@ import hashlib
 from ..charts import kmrl_cd, kmrl_gnd, kmrl_twr
 from ..sim.performance import _TABLE, WAKE_MIN_SEC
 
-PROMPT_TEMPLATE_VERSIONS = {"CD": "cd-v3", "GND": "gnd-v2", "TWR": "twr-v2"}
+PROMPT_TEMPLATE_VERSIONS = {"CD": "cd-v4", "GND": "gnd-v2", "TWR": "twr-v2"}
 
 _COMMON_TOOLS = (
     "TOOLS: use `transmit` to speak on frequency (one transmission per call, standard "
@@ -25,12 +25,21 @@ _COMMON_TOOLS = (
     "\"say again\" and waste time."
 )
 
-_CD_PHRASEOLOGY = """\
-Canonical clearance (CRAFT order):
-  "American 2452, cleared to Detroit, Marlow Seven departure, maintain five thousand,
-   departure one one niner point three five, squawk four three two one."
+def _cd_phraseology(pack) -> str:
+    """Phraseology examples rendered from this scenario's own chart pack (§11.3) —
+    the examples teach the format, and the pack supplies the local numbers."""
+    from ..verbalizer.template import spoken_altitude, spoken_digits
+
+    code = pack.fallback_sid
+    sid = pack.sids[code]
+    alt = sid["initial_altitude"]
+    freq = pack.departure_frequency
+    return f"""\
+Canonical clearance (CRAFT order), using this facility's chart values:
+  "American 2452, cleared to Detroit, {sid['name']} departure, maintain {spoken_altitude(alt)},
+   departure {spoken_digits(freq)}, squawk four three two one."
 Catching a bad readback:
-  pilot: "... maintain six thousand ..."   controller: "American 2452, negative, maintain five thousand."
+  pilot: "... maintain {spoken_altitude(alt + 1000)} ..."   controller: "American 2452, negative, maintain {spoken_altitude(alt)}."
 Affirming a correct readback (optional): "American 2452, readback correct."
 LOCAL READBACK CONVENTION: pilots here read back altitude, departure frequency, and
 squawk only — the clearance limit and departure procedure are NOT read back, and
@@ -68,20 +77,23 @@ def _wake_table_text() -> str:
     return "\n".join(lines)
 
 
-def build_cd_system_prompt(session_seconds: int, regime: str = "turn") -> str:
+def build_cd_system_prompt(session_seconds: int, regime: str = "turn", pack=None) -> str:
+    pack = pack or kmrl_cd.PACK
     sections = [
         "1. ROLE: You are the Clearance Delivery controller at Marlow Regional (MRL_CD). "
         "Issue IFR clearances in CRAFT order, verify filed plans against the chart pack "
-        "(fix invalid SIDs and wrong initial altitudes), and catch readback errors. "
+        "(fix invalid SIDs and LOA-violating filed altitudes — the correct initial "
+        "altitude is always the assigned SID's LOA entry), and catch readback errors. "
         "Listen: pilots misspeak altitudes, frequencies, and callsigns, drop readbacks, "
         "or omit elements — correct the erroneous element before the aircraft leaves "
         "your frequency. Correcting a *correct* readback is a false alarm and counts "
         "against you.",
-        "2-4. AIRSPACE / PROCEDURES / LOA:\n" + kmrl_cd.describe(),
+        "2-4. AIRSPACE / PROCEDURES / LOA (this facility's current chart pack — "
+        "authoritative for this session):\n" + pack.describe(),
         "5. SEPARATION: not applicable at CD (no aircraft movement).",
         "6. HANDOFF PROTOCOL: not applicable at CD.",
         "7. " + _COMMON_TOOLS,
-        "8. PHRASEOLOGY:\n" + _CD_PHRASEOLOGY,
+        "8. PHRASEOLOGY:\n" + _cd_phraseology(pack),
         f"9. SESSION: length {session_seconds} sim-seconds; time regime = {regime}. "
         "Transmissions consume sim time at 150 wpm on a half-duplex channel.",
     ]
@@ -147,9 +159,16 @@ _BUILDERS = {
 }
 
 
-def build_system_prompt(position: str, session_seconds: int, regime: str = "turn") -> tuple[str, str]:
-    """Return ``(prompt_text, prompt_hash)`` for a position key ("CD"|"GND"|"TWR")."""
-    text = _BUILDERS[position](session_seconds, regime)
+def build_system_prompt(position: str, session_seconds: int, regime: str = "turn",
+                        pack=None) -> tuple[str, str]:
+    """Return ``(prompt_text, prompt_hash)`` for a position key ("CD"|"GND"|"TWR").
+
+    CD prompts embed the scenario's seed-drawn chart pack (audit M6), so the hash
+    varies per seed by design — the template version prefix identifies the template."""
+    if position == "CD":
+        text = build_cd_system_prompt(session_seconds, regime, pack)
+    else:
+        text = _BUILDERS[position](session_seconds, regime)
     return text, prompt_hash(text, PROMPT_TEMPLATE_VERSIONS[position])
 
 
