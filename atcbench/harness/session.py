@@ -190,17 +190,9 @@ class CDSession:
                 CDState.AWAITING_CLEARANCE: "awaiting_clearance",
                 CDState.READBACK_PENDING: "readback_pending",
             }.get(fsm.state, "cleared")
-            last_rb = None
-            if fsm.state == CDState.READBACK_PENDING:
-                if fsm.readback_dropped:
-                    last_rb = {"dropped": True}
-                else:
-                    last_rb = {
-                        "altitude": fsm.readback.get("altitude"),
-                        "frequency": fsm.readback.get("frequency"),
-                        "squawk": fsm.readback.get("squawk"),
-                        "callsign_used": fsm.readback_acid,
-                    }
+            # No ground-truth leaks (§11.2): the filed plan is presented as filed —
+            # spotting a flawed filing is the skill under test, not a provided hint —
+            # and readbacks live only in the frequency feed, never pre-parsed.
             aircraft.append({
                 "acid": acid,
                 "actype": fsm.plan.actype,
@@ -212,10 +204,8 @@ class CDSession:
                     ),
                     "sid": fsm.plan.filed_sid,
                     "altitude": fsm.plan.filed_altitude,
-                    "filing_error_hint": fsm.plan.filing_error is not None,
                 },
                 "assigned_squawk": self.scn.expected_clearance[acid]["squawk"],
-                "last_readback": last_rb,
             })
         return {
             "tick": self.tick,

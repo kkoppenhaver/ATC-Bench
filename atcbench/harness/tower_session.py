@@ -89,11 +89,12 @@ class TowerSessionResult:
 
 class TowerSession:
     def __init__(self, scenario: TWRScenario, verbalizer=None, prompt_hash: str = "twr-template-v1",
-                 regime=None):
+                 regime=None, representation: str = "raw"):
         self.scn = scenario
         self.vb = verbalizer or default_verbalizer()
         self.prompt_hash = prompt_hash
         self.regime = regime or TurnBased()
+        self.representation = representation  # "raw" (default) | "enriched" (§11.2)
         self._think_remainder = 0.0
 
         self.log = EventLog()
@@ -156,12 +157,18 @@ class TowerSession:
                 entry["dist_nm"] = round(ac.dist_nm, 2)
                 entry["cleared_to_land"] = ac.phase == "cleared_land"
             aircraft.append(entry)
-        since = (self.tick - self.rw_last_use_start) if self.rw_last_use_start is not None else None
+        # Raw representation shows only what the tower cab sees now: who is on the
+        # runway. The wake/occupancy timing picture is the model's to maintain (§4.5);
+        # the derived fields exist only on the enriched track (§11.2, P4.6).
+        runway: dict = {"id": kmrl_twr.RUNWAY, "occupied_by": occ}
+        if self.representation == "enriched":
+            since = (self.tick - self.rw_last_use_start) if self.rw_last_use_start is not None else None
+            runway["since_last_use_sec"] = since
+            runway["last_use_wake"] = self.rw_last_wake
         return {
             "tick": self.tick, "sim_time": _sim_time(self.tick), "position": self.scn.position,
             "frequency": new_msgs,
-            "runway": {"id": kmrl_twr.RUNWAY, "occupied_by": occ,
-                       "since_last_use_sec": since, "last_use_wake": self.rw_last_wake},
+            "runway": runway,
             "aircraft": aircraft,
         }
 

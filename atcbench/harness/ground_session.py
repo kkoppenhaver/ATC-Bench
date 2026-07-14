@@ -28,8 +28,17 @@ from .regime import TurnBased
 SWEEP_SEC = 5
 DEADLOCK_SEC = 300  # head-on standoff beyond this = DEADLOCK cardinal (§13.1)
 CROSSING_SAFE_GAP_SEC = 40  # oracle margin before an upcoming hot window
+COORD_LEAD_SEC = 45  # Tower calls ahead this long before using the runway (§4.5)
 MAX_TURNS_PER_SWEEP = 40
 BASE_SIM_HOUR = 14
+TOWER_SPEAKER = "MRL_TWR"
+
+
+def _spoken_runway(rwy: str) -> str:
+    from ..verbalizer.template import spoken_digits
+
+    words = {"l": "left", "r": "right", "c": "center"}
+    return f"{spoken_digits(rwy[:-1])} {words.get(rwy[-1].lower(), rwy[-1])}"
 
 
 def _sim_time(tick: int) -> str:
@@ -93,6 +102,8 @@ class GroundSession:
         self._incursion_fired: set[str] = set()
         self._deadlock_fired: set[frozenset] = set()
         self._arrived: list[str] = []
+        self._coord_hold_sent: set[tuple[str, int]] = set()
+        self._coord_release_sent: set[tuple[str, int]] = set()
 
     # --- channel -------------------------------------------------------------
 
@@ -130,12 +141,28 @@ class GroundSession:
         return None
 
     def _runway_status(self) -> dict:
-        out = {}
-        for rwy in self.scn.hot_windows:
-            nh = self.scn.next_hot_after(rwy, self.tick)
-            out[rwy] = {"hot": self.scn.is_hot(rwy, self.tick),
-                        "next_hot_in": (nh - self.tick) if nh is not None else None}
-        return out
+        # Current status only — no future-schedule oracle (§4.5): upcoming runway use
+        # is announced on frequency via scripted Tower coordination, and keeping that
+        # picture is the model's job.
+        return {rwy: {"hot": self.scn.is_hot(rwy, self.tick)} for rwy in self.scn.hot_windows}
+
+    def _process_coordination(self) -> None:
+        """Scripted Tower coordination calls replace the ``next_hot_in`` field: Tower
+        calls ahead of each hot window and releases crossings when its traffic is done."""
+        for rwy, windows in self.scn.hot_windows.items():
+            for i, (ws, we) in enumerate(windows):
+                key = (rwy, i)
+                if key not in self._coord_hold_sent and ws - COORD_LEAD_SEC <= self.tick < we:
+                    self._coord_hold_sent.add(key)
+                    self._tx(TOWER_SPEAKER,
+                             f"Ground, Tower, departure traffic runway {_spoken_runway(rwy)}, "
+                             f"hold all crossings.")
+                elif key in self._coord_hold_sent and key not in self._coord_release_sent \
+                        and self.tick >= we:
+                    self._coord_release_sent.add(key)
+                    self._tx(TOWER_SPEAKER,
+                             f"Ground, Tower, runway {_spoken_runway(rwy)} traffic complete, "
+                             f"crossings at your discretion.")
 
     def _build_observation(self) -> dict:
         new_msgs = [dict(m) for m in self.transcript[self.last_shown:]]
@@ -183,6 +210,7 @@ class GroundSession:
             self._step_movement()
             self.tick += SWEEP_SEC
             self._process_spawns()
+            self._process_coordination()
 
     def _apply_calls(self, resp: dict) -> bool:
         calls = resp.get("tool_calls") or []
@@ -354,6 +382,7 @@ class GroundSession:
     def run(self, adapter) -> GroundSessionResult:
         while self.tick <= self.scn.session_seconds:
             self._process_spawns()
+            self._process_coordination()
             if self.active:
                 self._give_model_turns(adapter)
             self._step_movement()

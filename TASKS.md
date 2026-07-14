@@ -216,13 +216,18 @@ CI at every position and must **never** certify (extends the P2.9 falsification 
   readbacks — so silence-after-correct is a correct accept and blanket-negative scores
   H=0 (blind corrector: S 1.0 → ≈0.69). BlindCDCorrector probe in CI (X.5)._
   _Deps: none. Design §6.1, §13.3._
-- [ ] **P3.5.3 — Observation de-leakage (audit M1).** Remove `filing_error_hint` and the
+- [x] **P3.5.3 — Observation de-leakage (audit M1).** Remove `filing_error_hint` and the
   pre-parsed structured `last_readback` fields from observations — both are the skill
   under test, and the information is already available in the transcript + filed plan.
   Replace GND `next_hot_in` (a future-schedule oracle) with scripted Tower coordination
   transmissions; move TWR derived occupancy/wake fields (`since_last_use_sec`,
-  `last_use_wake`) behind the enriched-representation track (P4.6). _Deps: none.
-  Design §4.5, §11.2._
+  `last_use_wake`) behind the enriched-representation track (P4.6). _Done: CD oracle
+  now works hearback from the frequency feed alone (parses pilot radio calls, hears
+  RB-DROP as silence) and still catches 12/12 at heavy band; Tower coordination calls
+  ("hold all crossings" / "at your discretion") announce hot windows at GND;
+  `TowerSession(representation="raw"|"enriched")` stubs the P4.6 split, with the TWR
+  oracle keeping its own runway-use picture. Observation contract pinned in
+  `tests/test_observation.py`._ _Deps: none. Design §4.5, §11.2._
 - [~] **P3.5.4 — Parser integrity (audit M5).** Numeric extraction in corrections scoped
   to element keywords — no cross-assignment ("negative, squawk four five zero zero" must
   never become altitude 4500 and corrupt pilot state). Tier-4 (unparseable) transmissions

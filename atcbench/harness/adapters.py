@@ -17,6 +17,7 @@ Adapter output is a dict: ``{"tool_calls": [{"name", "input"}], "text", "output_
 from __future__ import annotations
 
 import math
+import re
 from typing import Any
 
 from ..charts import kmrl_cd
@@ -57,19 +58,46 @@ class ModelAdapter:
 
 
 class ScriptedCDController(ModelAdapter):
-    """Deterministic oracle: correct clearances, catches every catchable readback error."""
+    """Deterministic oracle: correct clearances, catches every catchable readback error.
+
+    Works hearback from the frequency feed alone (raw representation, §11.2): it reads
+    the pilot's actual radio call, never a pre-parsed readback. A dropped readback is
+    heard as silence — cleared aircraft that said nothing back get a prompt."""
 
     def __init__(self) -> None:
         self._issued: set[str] = set()
+        self._prompted: set[str] = set()
+        self._heard: dict[str, str] = {}   # acid -> latest transmission since clearance
+        self._judged: dict[str, str] = {}  # acid -> last transmission already acted on
 
     def step(self, observation: dict) -> dict:
+        position = observation.get("position")
+        for msg in observation["frequency"]:
+            if msg.get("from") != position:
+                self._heard[msg["from"]] = msg["text"]
         for ac in observation["aircraft"]:
             acid = ac["acid"]
             if ac["status"] == "awaiting_clearance" and acid not in self._issued:
                 self._issued.add(acid)
+                self._heard.pop(acid, None)  # forget the check-in; listen for the readback
                 return self.transmit(self._clearance_text(ac))
-            if ac["status"] == "readback_pending" and ac.get("last_readback"):
-                corr = self._correction_text(ac)
+            if ac["status"] == "readback_pending" and acid in self._issued:
+                text = self._heard.get(acid)
+                if text is None:
+                    # Cleared, and nothing came back on frequency: dropped readback.
+                    if acid not in self._prompted:
+                        self._prompted.add(acid)
+                        c = _correct_clearance_for(ac)
+                        cs = _callsign_words(acid)
+                        return self.transmit(
+                            f"{cs}, I need a full readback, "
+                            f"maintain {spoken_altitude(c['altitude'])}, "
+                            f"squawk {spoken_digits(c['squawk'])}.")
+                    continue
+                if self._judged.get(acid) == text:
+                    continue
+                self._judged[acid] = text
+                corr = self._correction_text(ac, text)
                 if corr:
                     return self.transmit(corr)
         return self.wait()
@@ -86,22 +114,23 @@ class ScriptedCDController(ModelAdapter):
             f"squawk {spoken_digits(c['squawk'])}."
         )
 
-    def _correction_text(self, ac: dict) -> str | None:
+    def _correction_text(self, ac: dict, text: str) -> str | None:
+        """Judge a heard readback against the correct clearance — text in, words out."""
+        from ..pilots import parser as P
+
         c = _correct_clearance_for(ac)
-        rb = ac["last_readback"]
         cs = _callsign_words(ac["acid"])
-        if rb.get("dropped"):
-            return (
-                f"{cs}, I need a full readback, maintain {spoken_altitude(c['altitude'])}, "
-                f"squawk {spoken_digits(c['squawk'])}."
-            )
-        if rb.get("callsign_used") and rb["callsign_used"] != ac["acid"]:
-            return f"{cs}, verify, squawk {spoken_digits(c['squawk'])}."
-        if rb.get("altitude") != c["altitude"]:
+        # Wrong callsign: the telephony tail of the readback names someone else.
+        m = re.match(r"[A-Za-z]+(\d+)", ac["acid"])
+        if m:
+            tail_digits = re.findall(r"\d+", P.normalize(text.rsplit(",", 1)[-1]))
+            if tail_digits and tail_digits[-1] != m.group(1):
+                return f"{cs}, verify, squawk {spoken_digits(c['squawk'])}."
+        if P.extract_altitude(text) != c["altitude"]:
             return f"{cs}, negative, maintain {spoken_altitude(c['altitude'])}."
-        if rb.get("frequency") != c["frequency"]:
+        if P.extract_frequency(text) != c["frequency"]:
             return f"{cs}, negative, departure {spoken_digits(c['frequency'])}."
-        if rb.get("squawk") != c["squawk"]:
+        if P.extract_squawk(text) != c["squawk"]:
             return f"{cs}, negative, squawk {spoken_digits(c['squawk'])}."
         return None
 
@@ -140,11 +169,20 @@ def _runway_spoken(rwy: str) -> str:
 
 class ScriptedGNDController(ModelAdapter):
     """Oracle ground controller: routes departures via A holding short of 31R, clears the
-    31R crossing only when the runway is idle with a safe gap, routes arrivals via B."""
+    31R crossing only when the runway is idle with no Tower hold in effect, routes
+    arrivals via B. Keeps its runway picture from the frequency feed alone (§4.5): Tower
+    coordination calls announce upcoming runway use — there is no schedule field."""
 
-    CROSSING_SAFE_GAP_SEC = 40
+    def __init__(self) -> None:
+        self._tower_holds = 0  # coordination "hold" calls heard minus releases
 
     def step(self, observation: dict) -> dict:
+        for msg in observation["frequency"]:
+            text = msg.get("text", "").lower()
+            if "hold all crossings" in text:
+                self._tower_holds += 1
+            elif "crossings at your discretion" in text:
+                self._tower_holds = max(0, self._tower_holds - 1)
         for ac in observation["aircraft"]:
             cs = _callsign_words(ac["acid"])
             if not ac["route_assigned"]:
@@ -156,8 +194,7 @@ class ScriptedGNDController(ModelAdapter):
         for ac in observation["aircraft"]:
             if ac["role"] == "departure" and ac["holding_short_of"] == "31R":
                 rw = observation["runways"].get("31R", {})
-                gap = rw.get("next_hot_in")
-                if not rw.get("hot") and (gap is None or gap > self.CROSSING_SAFE_GAP_SEC):
+                if not rw.get("hot") and self._tower_holds == 0:
                     cs = _callsign_words(ac["acid"])
                     return self.transmit(f"{cs}, cross runway {_runway_spoken('31R')}.")
         return self.wait()
@@ -192,19 +229,36 @@ class ScriptedTWRController(ModelAdapter):
     at a time (cleared_land / landing / luaw / takeoff) — so two aircraft never occupy it
     together. Clears an arrival only when wake separation holds at its threshold, and sends
     it around rather than clear it unsafely. Fits a departure into a gap only when the next
-    arrival is far and wake permits, then hands airborne departures to Approach."""
+    arrival is far and wake permits, then hands airborne departures to Approach.
+
+    Maintains its own runway-use picture (raw representation, §4.5): a takeoff use is
+    recorded when the clearance goes out; a landing use when the arrival is first seen
+    on the runway — up to one sweep late, which errs conservative. No derived
+    since-last-use fields are read from the observation."""
 
     LAND_CLEAR_NM = 4.0
     DEP_ARR_CLEAR_NM = 5.0
+
+    def __init__(self) -> None:
+        self._last_use_start: int | None = None
+        self._last_wake: str = "L"
+        self._landings_seen: set[str] = set()
 
     def step(self, observation: dict) -> dict:
         from ..charts import kmrl_twr
         from ..sim.performance import wake_min_sec
 
-        rw = observation["runway"]
-        since = rw["since_last_use_sec"]
-        last_wake = rw["last_use_wake"]
+        tick = observation["tick"]
         acs = observation["aircraft"]
+        # Update the picture: an arrival first observed on the runway marks a use.
+        for a in acs:
+            if (a["role"] == "arrival" and a["phase"] == "landing"
+                    and a["acid"] not in self._landings_seen):
+                self._landings_seen.add(a["acid"])
+                self._last_use_start = tick
+                self._last_wake = a["wake"]
+        since = (tick - self._last_use_start) if self._last_use_start is not None else None
+        last_wake = self._last_wake
         departures = [a for a in acs if a["role"] == "departure"]
 
         def eta(a):
@@ -235,16 +289,18 @@ class ScriptedTWRController(ModelAdapter):
                 return self.wait()
             # Nearest arrival still far — use the gap for a departure if it fits ahead.
             if a["dist_nm"] > self.DEP_ARR_CLEAR_NM:
-                launch = self._launch_departure(departures, since, last_wake, e, a["wake"], wake_min_sec, kmrl_twr)
+                launch = self._launch_departure(tick, departures, since, last_wake, e, a["wake"],
+                                                wake_min_sec, kmrl_twr)
                 if launch:
                     return launch
             return self.wait()
 
         # No arrivals inbound: launch a departure if wake permits.
-        launch = self._launch_departure(departures, since, last_wake, 1e9, "L", wake_min_sec, kmrl_twr)
+        launch = self._launch_departure(tick, departures, since, last_wake, 1e9, "L",
+                                        wake_min_sec, kmrl_twr)
         return launch or self.wait()
 
-    def _launch_departure(self, departures, since, last_wake, nearest_eta, nearest_wake,
+    def _launch_departure(self, tick, departures, since, last_wake, nearest_eta, nearest_wake,
                           wake_min_sec, kmrl_twr):
         for d in departures:
             if d["phase"] != "hold_short":
@@ -253,6 +309,9 @@ class ScriptedTWRController(ModelAdapter):
             ahead_ok = nearest_eta >= max(kmrl_twr.OCCUPY_DEP_SEC + 30,
                                           wake_min_sec(d["wake"], nearest_wake))
             if behind_ok and ahead_ok:
+                # Record the use at clearance time — the roll starts on readback.
+                self._last_use_start = tick
+                self._last_wake = d["wake"]
                 cs = _callsign_words(d["acid"])
                 return self.transmit(
                     f"{cs}, runway {_runway_spoken(kmrl_twr.RUNWAY)}, cleared for takeoff.")
