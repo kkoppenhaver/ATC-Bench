@@ -13,3 +13,4 @@ venv/
 !/runs/.gitkeep
 uv.lock
 .venv/
+.env
