@@ -108,7 +108,8 @@ def generate(seed: int, band: str = "standard", session_seconds: int = 3600) -> 
     used: set[str] = set()
     plans: list[FlightPlan] = []
 
-    # Spread call times across the session (lumpy: cluster a mid-session bank).
+    # Spread call times uniformly across the session. (A banked/"lumpy" mid-session
+    # cluster is future difficulty work — this draw is uniform.)
     call_ticks = sorted(traffic.randint(30, session_seconds - 120) for _ in range(n))
 
     for i in range(n):

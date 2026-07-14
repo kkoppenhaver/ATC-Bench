@@ -35,9 +35,11 @@ def _derive_seed(master_seed: int, stream_name: str) -> int:
 class SeedManager:
     """Hands out one independent ``random.Random`` per named stream.
 
-    Uses the stdlib Mersenne Twister, which is deterministic and stable across
-    CPython versions for a given seed — a property the determinism contract
-    (§17.2) relies on.
+    Uses the stdlib Mersenne Twister. The core generator is stable across CPython
+    versions; derived methods (``choice``/``randint``/...) are stable in practice but
+    not formally guaranteed, so the CI ``cross-version-determinism`` job byte-compares
+    run artifacts across the supported interpreters (§17.2), and every run record
+    carries its ``python_version``.
     """
 
     def __init__(self, master_seed: int):

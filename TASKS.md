@@ -271,11 +271,15 @@ CI at every position and must **never** certify (extends the P2.9 falsification 
   with P3.6.3 bust-rate certification). Probes live in `harness/adapters.py`; every
   new position must add its probes to the suite. **Phase 3.5 exit test: passing.**_
   _Deps: P3.5.1, P3.5.2. Design §15 exit-test pattern._
-- [ ] **P3.5.9 — Doc/claims alignment (audit m4).** Correct README certification wording
+- [x] **P3.5.9 — Doc/claims alignment (audit m4).** Correct README certification wording
   and channel-physics claims (README §features + tool descriptions say transmissions
   cost time at all positions — true only at CD until P4.0a); fix stale comments
   (uniform vs "lumpy" call times; strip-op cost at CD only). Keep docs at the honesty
-  standard of the fictional-facility flags. _Deps: P3.5.1–P3.5.5._
+  standard of the fictional-facility flags. _Done: README status/scoring/certification
+  rewritten to match audited reality (incl. "no headline numbers until a real model
+  runs"); channel physics flagged CD-only; seeds.py cross-version claim softened and
+  pointed at the CI job; stale comments fixed. The `transmit` tool description lives
+  in CD_TOOLS only, where the claim is true._ _Deps: P3.5.1–P3.5.5._
 - [x] **P3.5.10 — Route must be transmitted (audit M2, exploit-kill subset).**
   `_assign_route` fires only when the model's transmission contains a parseable,
   chart-legal route — bare "taxi" with no route gets a pilot "say again, request taxi

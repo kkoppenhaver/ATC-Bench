@@ -213,6 +213,8 @@ class TowerSession:
                 return True
             if name == "transmit":
                 self._handle_transmit(inp.get("text", ""))
+            # Strip ops are free here (CD charges 1 s each) until the shared
+            # channel/cost model lands (P4.0a).
             elif name == "strip_create":
                 self.strips.strip_create(inp["acid"], inp["bay"], inp.get("fields"))
             elif name == "strip_update":
