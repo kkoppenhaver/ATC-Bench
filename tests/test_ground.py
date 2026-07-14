@@ -89,6 +89,13 @@ def test_scenarios_feasible(seed):
     assert gnd_feasible(gnd_scenarios.generate(seed, band="standard"))
 
 
+def test_generation_is_a_feasible_fixed_point():
+    # generate() rejects-and-rerolls infeasible candidates (§12.2) and records the
+    # seed actually used — regenerating from the run record reproduces the scenario.
+    scn = gnd_scenarios.generate(42)
+    assert gnd_scenarios.generate(scn.seed).to_dict() == scn.to_dict()
+
+
 def test_ground_parser():
     pt = P.parse_ground_transmission(
         "Southwest 254, runway three one center, taxi via alpha, hold short runway three one right.",

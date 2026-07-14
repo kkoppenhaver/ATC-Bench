@@ -30,6 +30,16 @@ def test_oracle_certifies(seed, band):
     assert s["counts"]["caught_errors"] == s["counts"]["catchable_errors"]
 
 
+def test_no_special_purpose_squawks_assigned():
+    # 7500/7600/7700 are hijack/radio-failure/emergency codes (audit m5).
+    from atcbench.scenarios.cd import SPECIAL_SQUAWKS
+
+    for seed in range(1, 25):
+        scn = cd_scenarios.generate(seed, band="heavy", session_seconds=3600)
+        squawks = {c["squawk"] for c in scn.expected_clearance.values()}
+        assert not (squawks & SPECIAL_SQUAWKS)
+
+
 def test_bad_controller_busts():
     s = _score(BadCDController, 42)
     assert s["gate"] == 0

@@ -85,7 +85,25 @@ def _mk_callsign(rng, used: set[str]) -> str:
     raise RuntimeError("callsign space exhausted")  # pragma: no cover
 
 
+MAX_GEN_ATTEMPTS = 20
+_SEED_STRIDE = 1_000_003  # deterministic reroll offset for infeasible candidates
+
+
 def generate(seed: int, band: str = "standard", session_seconds: int = 3600) -> GNDScenario:
+    """Generate a *feasible* scenario (§12.2): candidates the oracle cannot work
+    cleanly are rejected and deterministically rerolled. The scenario records the
+    seed actually used, so regeneration from the run record is a fixed point."""
+    for attempt in range(MAX_GEN_ATTEMPTS):
+        scn = _generate_once(seed + attempt * _SEED_STRIDE, band, session_seconds)
+        from ..baselines.feasibility import gnd_feasible
+
+        if gnd_feasible(scn):
+            return scn
+    raise RuntimeError(  # pragma: no cover - generator defect, not model fault
+        f"no feasible GND scenario within {MAX_GEN_ATTEMPTS} rerolls of seed {seed}")
+
+
+def _generate_once(seed: int, band: str, session_seconds: int) -> GNDScenario:
     if band not in BANDS:
         raise ValueError(f"unknown band {band!r}")
     cfg = BANDS[band]

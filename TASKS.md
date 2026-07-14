@@ -157,11 +157,10 @@ Goal: a full CD session runs deterministically and is scorable from the log alon
   P1.6, P2.1. Design §6.2, §8.3._
 - [x] **P2.6 — GND scenario generator.** Departure pushes + scripted Tower runway demand
   + arrivals exiting; difficulty bands. _Deps: P1.9, P2.1. Design §6.2, §12._
-- [~] **P2.7 — Oracle controller policy (GND).** Heuristic controller for feasibility
+- [x] **P2.7 — Oracle controller policy (GND).** Heuristic controller for feasibility
   gating and the E-metric normalizer. Feasibility check rejects infeasible scenarios.
-  _Audit: E-normalizer half fixed by P3.5.5 (scorers run the oracle per seed).
-  Remaining: generation never rejects-and-regenerates → P3.5.6._ _Deps: P2.6.
-  Design §12.2, §13.2._
+  _Audit gaps closed: oracle as E-normalizer by P3.5.5; reject-and-regenerate wired
+  into generation by P3.5.6._ _Deps: P2.6. Design §12.2, §13.2._
 - [x] **P2.8 — GND scorer.** Taxi delay vs. oracle baseline, queue-order conformity,
   explicit-crossings log check, cardinal (RI-CTRL, DEADLOCK). _Audit gaps closed:
   NEGLECT cardinals + honest denominators by P3.5.1, oracle-normalized E/A by
@@ -246,10 +245,15 @@ CI at every position and must **never** certify (extends the P2.9 falsification 
   only commanded ones are purposeful, and only go-arounds in excess of the oracle's
   count against E. CD affirmations of pending readbacks (`readback_affirmed`) count
   as purposeful._ _Deps: P3.5.1. Design §13.2._
-- [ ] **P3.5.6 — Generation hygiene (audit m1, m5).** Wire `baselines/feasibility.py`
+- [x] **P3.5.6 — Generation hygiene (audit m1, m5).** Wire `baselines/feasibility.py`
   into scenario generation as reject-and-regenerate per §12.2 (currently test-only).
-  Exclude special-purpose squawks (7500/7600/7700) from assignment. _Deps: none.
-  Design §12.2._
+  Exclude special-purpose squawks (7500/7600/7700) from assignment. _Done: GND/TWR
+  `generate()` rejects infeasible candidates and deterministically rerolls (seed +
+  attempt·stride), recording the seed actually used so run-record regeneration is a
+  fixed point; feasibility checks inspect the oracle's event log directly (calling the
+  scorer would recurse through §13.2 normalization). CD scenarios are feasible by
+  construction (no spatial conflicts; all errors catchable in-window). Special squawks
+  excluded and pinned by test._ _Deps: none. Design §12.2._
 - [ ] **P3.5.7 — Replay compares all artifacts (audit m2, m4).** `replay` verifies
   transcript, strips history, and `score.json`, not just `events.jsonl`. Record the
   Python version in the run record; CI compares event logs across 3.11/3.12 (the matrix

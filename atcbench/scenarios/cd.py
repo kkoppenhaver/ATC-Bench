@@ -25,6 +25,7 @@ BANDS = {
 # Readback error classes catchable from the pilot's readback (feed the Hearback
 # metric H, §13.2). RB-DROP is a missing readback — caught by noticing silence.
 CATCHABLE_CLASSES = {"RB-ALT", "RB-FREQ", "RB-PART", "RB-DROP", "CS-WRONG"}
+SPECIAL_SQUAWKS = {"7500", "7600", "7700"}  # hijack/radio-failure/emergency — never assigned
 
 _PERSONAS = [
     Persona.AIRLINE_CRISP, Persona.AIRLINE_CRISP, Persona.AIRLINE_CRISP,
@@ -175,7 +176,10 @@ def generate(seed: int, band: str = "standard", session_seconds: int = 3600) -> 
     expected: dict[str, dict] = {}
     schedule: dict[str, ErrorEvent] = {}
     for fp in plans:
-        squawk = f"{errors.randint(1, 7)}{errors.randint(0, 7)}{errors.randint(0, 7)}{errors.randint(0, 7)}"
+        while True:
+            squawk = f"{errors.randint(1, 7)}{errors.randint(0, 7)}{errors.randint(0, 7)}{errors.randint(0, 7)}"
+            if squawk not in SPECIAL_SQUAWKS:
+                break
         expected[fp.acid] = _correct_clearance(fp, squawk)
 
         if errors.random() < cfg["error_rate"]:
