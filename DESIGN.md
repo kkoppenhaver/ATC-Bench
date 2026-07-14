@@ -505,7 +505,7 @@ Adjacent positions are environment-simulated (scripted, seeded), not agents. The
 
 - **Raw vs. enriched representation tracks:** *raw* sends lat/lon only; *enriched* adds computed `brg_rng_from` fixes and per-pair closure data for aircraft within 10 NM. Both tracks reported; the delta measures whether the model builds the picture or reads it.
 - Static context (chart pack, LOA table, wake tables, position rules, tool protocol, scoring-relevant procedures) lives in the system prompt, pinned per run.
-- History management is the model's problem — full conversation grows over 90 min; strips exist precisely so it can survive truncation. The harness never summarizes on the model's behalf. (Harness supports provider-side context management if the model offers it; usage is logged.)
+- History management is the model's problem — full conversation grows over 90 min; strips exist precisely so it can survive truncation. The harness never summarizes on the model's behalf; when the conversation outgrows the subject model's context window it drops the *oldest* turns (sliding window: proactive trim past a token trigger, reactive trim on a provider context-overflow error, both flagged `context_trimmed` in the turn record and counted in `score.model.context_trims`). Every observation is a complete state snapshot, so truncation costs the model exactly what it failed to externalize to strips. (Harness supports provider-side context management if the model offers it; usage is logged.)
 
 ### 11.3 System prompt contract (per position, assembled from chart pack)
 

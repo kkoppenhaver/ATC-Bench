@@ -494,14 +494,23 @@ class ReplayAdapter(ModelAdapter):
 class AnthropicAdapter(ModelAdapter):
     """Real model under test via the Anthropic Messages API (audit C3).
 
-    Maintains the growing conversation itself (history management is the model's
-    problem, §11.2). The session pushes real tool results (bay contents on
-    ``bay_read``, acks otherwise) via ``receive_tool_results``; they are attached to
-    the *next* request in the same user message as the new observation, preserving
-    strict role alternation. Includes retry/backoff for transient API errors and an
-    optional hard USD budget (§17.4): once exhausted, the adapter stops calling the
-    API and waits out the session, flagging every turn ``budget_exhausted`` so the
-    run record shows truncation rather than incompetence.
+    Maintains the growing conversation itself. The session pushes real tool results
+    (bay contents on ``bay_read``, acks otherwise) via ``receive_tool_results``; they
+    are attached to the *next* request in the same user message as the new
+    observation, preserving strict role alternation. Includes retry/backoff for
+    transient API errors and an optional hard USD budget (§17.4): once exhausted, the
+    adapter stops calling the API and waits out the session, flagging every turn
+    ``budget_exhausted`` so the run record shows truncation rather than incompetence.
+
+    Long sessions outgrow any model's context window (a full-length GND session is
+    700+ turns), so the conversation is a sliding window: when the last prompt
+    exceeded ``context_trim_trigger`` tokens, the oldest turn pairs are dropped down
+    to ``context_trim_target`` before the next request (plus a reactive trim if the
+    API still rejects the prompt as too long). This is construct-fair — every
+    observation is a complete state snapshot and strips are the model's designed
+    external memory (§9.1) — and each trim is flagged ``context_trimmed`` in the turn
+    record. Trims are infrequent by construction (trigger >> target) so the
+    prompt-cache prefix stays stable between them.
     """
 
     RETRYABLE_STATUS = {408, 409, 429, 500, 502, 503, 504, 529}
@@ -509,7 +518,8 @@ class AnthropicAdapter(ModelAdapter):
     def __init__(self, model_id: str, system_prompt: str, tools: list[dict],
                  max_tokens: int = 1024, max_usd: float | None = None,
                  usd_per_mtok_in: float | None = None, usd_per_mtok_out: float | None = None,
-                 max_retries: int = 5, client: Any = None):
+                 max_retries: int = 5, client: Any = None,
+                 context_trim_trigger: int = 150_000, context_trim_target: int = 50_000):
         if client is None:  # pragma: no cover - requires the anthropic extra + key
             from anthropic import Anthropic
 
@@ -523,9 +533,13 @@ class AnthropicAdapter(ModelAdapter):
         self.usd_per_mtok_in = usd_per_mtok_in
         self.usd_per_mtok_out = usd_per_mtok_out
         self.max_retries = max_retries
+        self.context_trim_trigger = context_trim_trigger
+        self.context_trim_target = context_trim_target
         self._messages: list[dict[str, Any]] = []
         self._pending_tool_ids: list[str] = []
         self._pending_results: list[str] | None = None
+        self._last_prompt_tokens = 0
+        self.context_trims = 0
         self.total_input_tokens = 0
         self.total_output_tokens = 0
         self.total_cache_read_tokens = 0
@@ -558,6 +572,10 @@ class AnthropicAdapter(ModelAdapter):
             return {"tool_calls": [{"name": "wait", "input": {}}], "text": "",
                     "output_tokens": 0, "budget_exhausted": True}
 
+        trimmed = 0
+        if self._last_prompt_tokens >= self.context_trim_trigger:
+            trimmed = self._trim_history()
+
         content: list[dict] = []
         if self._pending_tool_ids:
             results = self._pending_results or []
@@ -585,18 +603,58 @@ class AnthropicAdapter(ModelAdapter):
 
         self.total_input_tokens += resp.usage.input_tokens
         self.total_output_tokens += resp.usage.output_tokens
-        self.total_cache_read_tokens += getattr(resp.usage, "cache_read_input_tokens", 0) or 0
-        self.total_cache_write_tokens += getattr(resp.usage, "cache_creation_input_tokens", 0) or 0
+        cache_read = getattr(resp.usage, "cache_read_input_tokens", 0) or 0
+        cache_write = getattr(resp.usage, "cache_creation_input_tokens", 0) or 0
+        self.total_cache_read_tokens += cache_read
+        self.total_cache_write_tokens += cache_write
+        # Full prompt size this turn (cached or not) — drives the proactive trim.
+        self._last_prompt_tokens = resp.usage.input_tokens + cache_read + cache_write
         spent = self.spent_usd()
         if self.max_usd is not None and spent is not None and spent >= self.max_usd:
             self.budget_exhausted = True
 
-        return {
+        out = {
             "tool_calls": tool_calls or [{"name": "wait", "input": {}}],
             "text": "".join(text_parts),
             "output_tokens": resp.usage.output_tokens,
             "input_tokens": resp.usage.input_tokens,
         }
+        if trimmed:
+            out["context_trimmed"] = trimmed  # messages dropped before this turn
+        return out
+
+    def _trim_history(self, force: bool = False) -> int:
+        """Drop the oldest turn pairs until the estimated history fits the trim
+        target. The window must keep the trailing assistant turn (its tool_use ids
+        are answered by the next user message), so trimming stops at 2 messages; the
+        new head user message has any now-orphaned tool_result blocks removed and a
+        trim marker prepended, preserving strict role alternation. ``force`` (the
+        reactive path — the API rejected the prompt, so the estimate is wrong) drops
+        the oldest half of the history even if the estimate says it already fits."""
+        import json
+
+        if len(self._messages) <= 2:
+            return 0
+        est = [_est_tokens(json.dumps(m, default=str)) for m in self._messages]
+        total = sum(est)
+        drop = 0
+        while len(self._messages) - drop > 2 and total > self.context_trim_target:
+            total -= est[drop] + est[drop + 1]
+            drop += 2
+        if not drop and force:
+            half = (len(self._messages) - 2) // 2
+            drop = max(2, half - half % 2)
+        if not drop:
+            return 0
+        del self._messages[:drop]
+        head = self._messages[0]
+        content = [b for b in head["content"] if b.get("type") != "tool_result"]
+        content.insert(0, {"type": "text", "text":
+                           "[earlier turns trimmed to fit the context window — your "
+                           "strips and the current observation carry the picture]"})
+        self._messages[0] = {"role": "user", "content": content}
+        self.context_trims += 1
+        return drop
 
     def _create_with_retry(self):
         import time
@@ -617,6 +675,12 @@ class AnthropicAdapter(ModelAdapter):
                 )
             except Exception as e:  # noqa: BLE001 - classified below
                 status = getattr(e, "status_code", None)
+                # Reactive backstop for the proactive trim: if the prompt still
+                # overflows the model's context window, cut the history and go again.
+                if (status == 400 and "prompt is too long" in str(e)
+                        and len(self._messages) > 2 and attempt < self.max_retries):
+                    self._trim_history(force=True)
+                    continue
                 retryable = (status in self.RETRYABLE_STATUS
                              or "connection" in type(e).__name__.lower()
                              or "timeout" in type(e).__name__.lower())

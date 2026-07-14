@@ -185,3 +185,57 @@ def test_system_prompts_exist_per_position_with_versioned_hashes():
     assert "hold all crossings" in gnd_text  # coordination protocol is taught
     twr_text, _ = build_system_prompt("TWR", 3600, "turn")
     assert "H->L: 120s" in twr_text  # wake matrix is in the prompt
+
+
+def _text_resp(txt="ok", **usage_kw):
+    return _Resp([_Block(type="text", text=txt)], usage=_Usage(**usage_kw))
+
+
+def test_context_window_trims_oldest_turns_proactively():
+    # Trigger tiny so the second turn's prompt size (100 input tokens) trips a trim
+    # before the third request; target 1 forces the trim to cut to the 2-message floor.
+    tool_use = _Block(type="tool_use", id="t1", name="bay_read", input={})
+    a = _adapter([_Resp([tool_use]), _text_resp("two"), _text_resp("three")],
+                 context_trim_trigger=10, context_trim_target=1)
+    a.step({"tick": 0})
+    a.receive_tool_results(["bay contents"])
+    a.step({"tick": 5})
+    out = a.step({"tick": 10})
+    assert out["context_trimmed"] == 2 and a.context_trims == 1
+    msgs = a._client.calls[-1]["messages"]
+    # Alternation survives, the head is a sanitized user message with a trim marker
+    # and no tool_result orphaned against a dropped assistant turn.
+    assert [m["role"] for m in msgs] == ["user", "assistant", "user"]
+    head = msgs[0]["content"]
+    assert head[0]["type"] == "text" and "trimmed" in head[0]["text"]
+    assert all(b.get("type") != "tool_result" for b in head)
+
+
+def test_context_overflow_400_trims_reactively_and_retries():
+    class _TooLong(Exception):
+        status_code = 400
+
+        def __str__(self):
+            return "Error code: 400 - prompt is too long: 200142 tokens > 200000 maximum"
+
+    a = _adapter([_text_resp("one"), _text_resp("two"), _TooLong(), _text_resp("three")])
+    a.step({"tick": 0})
+    a.step({"tick": 5})
+    before = len(a._client.calls[-1]["messages"])
+    out = a.step({"tick": 10})
+    assert out["text"] == "three" and a.context_trims == 1
+    assert len(a._client.calls[-1]["messages"]) < before + 1  # history was cut, not grown
+    assert [m["role"] for m in a._client.calls[-1]["messages"]][0] == "user"
+
+
+def test_other_400s_still_raise():
+    class _BadReq(Exception):
+        status_code = 400
+
+        def __str__(self):
+            return "Error code: 400 - invalid tool schema"
+
+    a = _adapter([_text_resp("one"), _BadReq()])
+    a.step({"tick": 0})
+    with pytest.raises(_BadReq):
+        a.step({"tick": 5})

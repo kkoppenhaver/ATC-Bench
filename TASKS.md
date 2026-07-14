@@ -425,7 +425,21 @@ clustered CIs reported by `atcbench evaluate`.
   waits (see the status-note confound entry). The construct change stands on its own
   merits (one missed call should be recoverable; pre-truncation rote degeneration was
   real model behavior), but the probes say little about Haiku's true GND skill._
-  (§8.2) _Done: `pilot_recall` event + re-call after 90 s of own-radio silence
+  (§8.2)
+- [x] **P4.0g — Adapter sliding-window context management.** Found by the first
+  full-budget GND re-probe: with the $1.50 cap gone, the append-only conversation hit
+  Haiku's 200k context limit at ~turn 600 and the run died (the old caps were
+  accidentally masking this — no capped session ever ran long enough). Full-length
+  GND/TWR sessions are 700+ turns, so this gated the whole campaign. (§11.2) _Done:
+  `AnthropicAdapter` trims the oldest turn pairs when the last prompt exceeded
+  `context_trim_trigger` (150k default) down to `context_trim_target` (50k), plus a
+  forced reactive trim if the API still rejects the prompt; the new head user message
+  is sanitized (orphaned tool_results dropped, trim marker prepended) preserving role
+  alternation; trims flagged per-turn (`context_trimmed`) and counted in
+  `score.model.context_trims`. Construct-fair per §11.2: observations are complete
+  snapshots and strips are the designed external memory — truncation costs the model
+  exactly what it failed to externalize. Trigger >> target keeps trims rare so the
+  prompt-cache prefix stays stable between them._ _Done: `pilot_recall` event + re-call after 90 s of own-radio silence
   (half the 180 s NEGLECT thresholds — every neglect gets ≥1 audible second chance) at
   all three positions: CD awaiting-clearance (also the CS-CONF recovery path — the twin
   target re-calls), GND no-route + stranded-at-hold-bar (patience clock restarts while
