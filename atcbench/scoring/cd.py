@@ -72,13 +72,21 @@ def score_cd(log: EventLog, expected: dict[str, dict], error_schedule: dict[str,
             latency = max(1, clearance_issued[acid] - t0)
             response_ratios.append(_clamp(RESPONSE_THRESHOLD_SEC / latency))
 
-    # Hearback: caught / catchable.
+    # Hearback as signal detection: catch rate on scheduled errors minus false-alarm
+    # rate on correct readbacks. Silence after a correct readback is a correct accept;
+    # blanket "negative ..." spam catches everything but false-alarms everything and
+    # scores 0 — listening, not re-clearing, is what H measures (§13.3).
     catchable = [a for a, e in error_schedule.items() if e.get("code") in CATCHABLE_CLASSES]
     caught = sum(1 for a in catchable if cleared.get(a) and cleared[a].payload.get("error_caught"))
-    H = (caught / len(catchable)) if catchable else 1.0
+    tpr = (caught / len(catchable)) if catchable else 1.0
+    spurious_acids = {e.payload["acid"] for e in log.of_type("spurious_correction")}
+    correct_rb = [a for a in cleared if a not in set(catchable)]
+    fpr = (sum(1 for a in correct_rb if a in spurious_acids) / len(correct_rb)) if correct_rb else 0.0
+    H = _clamp(tpr - fpr)
 
     # Frequency & protocol discipline: fraction of controller transmissions that
     # parsed to a purposeful, addressed intent (proxy for phraseology cleanliness).
+    # Spurious corrections land in the denominator only — spam costs F.
     ctrl_tx = [e for e in log.of_type("transmission") if e.payload.get("speaker", "").endswith("_CD")]
     n_ctrl = len(ctrl_tx)
     purposeful = len(log.of_type("clearance_issued")) + len(log.of_type("clearance_corrected"))
@@ -110,6 +118,7 @@ def score_cd(log: EventLog, expected: dict[str, dict], error_schedule: dict[str,
             "aircraft": len(cleared),
             "catchable_errors": len(catchable),
             "caught_errors": caught,
+            "spurious_corrections": len(log.of_type("spurious_correction")),
             "cardinals": len(cardinals),
             "severes": severe_count,
         },

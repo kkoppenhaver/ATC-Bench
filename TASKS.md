@@ -116,11 +116,11 @@ Goal: a full CD session runs deterministically and is scorable from the log alon
 ### Scoring
 - [~] **P1.14 — CD scorer.** Pure function of the log. Cardinal detection (NEGLECT,
   uncorrected bad readback on departed queue item), severe cap, S_raw components with
-  CD-specific E (service time). Hearback H from RB-*/CS-* catch rate. _Audit:
-  exploitable — a blind "negative …" re-clearance to every pending readback scores
-  H=1.0 without reading a single readback (`receive_correction` sets `error_caught`
-  unconditionally, spurious corrections are free); E uses fixed thresholds instead of
-  §13.2 oracle normalization → P3.5.2, P3.5.5._ _Deps: P1.2. Design §13.1–§13.3, §6.1._
+  CD-specific E (service time). Hearback H from RB-*/CS-* catch rate. _Audit: blind
+  "negative …" re-clearance scored H=1.0 without listening — fixed by P3.5.2 (H is
+  catch rate minus false-alarm rate; spurious corrections dock F). Remaining: E uses
+  fixed thresholds instead of §13.2 oracle normalization → P3.5.5._ _Deps: P1.2.
+  Design §13.1–§13.3, §6.1._
 - [x] **P1.15 — Flight strip store + tools.** Bay/strip data structures, tool impls
   (`strip_create/update/move/delete`, `bay_read`), auto-strip on handoff_offered,
   `strips_history.jsonl`. _Deps: P1.11. Design §9.2, §9.3._
@@ -206,13 +206,16 @@ CI at every position and must **never** certify (extends the P2.9 falsification 
   NEGLECT (never cleared, 180 s grace); all-spawned denominators; empty aggregates → 0
   with traffic present; H excluded + weights renormalized; do-nothing and
   strand-departures probes in CI at all positions._ _Deps: none. Design §13.1, §13.2._
-- [ ] **P3.5.2 — Hearback integrity (audit C2).** An error counts as *caught* only when
+- [x] **P3.5.2 — Hearback integrity (audit C2).** An error counts as *caught* only when
   (a) a scheduled error actually existed and (b) the correction addresses the erroneous
   element specifically. `receive_correction` (`pilots/fsm.py`) no longer sets
   `error_caught` unconditionally. Corrections issued after **correct** readbacks emit
   `spurious_correction` and dock F. Score the "readback correct" affirmation path so
-  blanket-negative strategies are distinguishable from real hearback. _Deps: none.
-  Design §6.1, §13.3._
+  blanket-negative strategies are distinguishable from real hearback. _Done: H is now
+  signal detection — catch rate on scheduled errors minus false-alarm rate on correct
+  readbacks — so silence-after-correct is a correct accept and blanket-negative scores
+  H=0 (blind corrector: S 1.0 → ≈0.69). BlindCDCorrector probe in CI (X.5)._
+  _Deps: none. Design §6.1, §13.3._
 - [ ] **P3.5.3 — Observation de-leakage (audit M1).** Remove `filing_error_hint` and the
   pre-parsed structured `last_readback` fields from observations — both are the skill
   under test, and the information is already available in the transcript + filed plan.
@@ -220,12 +223,16 @@ CI at every position and must **never** certify (extends the P2.9 falsification 
   transmissions; move TWR derived occupancy/wake fields (`since_last_use_sec`,
   `last_use_wake`) behind the enriched-representation track (P4.6). _Deps: none.
   Design §4.5, §11.2._
-- [ ] **P3.5.4 — Parser integrity (audit M5).** Numeric extraction in corrections scoped
+- [~] **P3.5.4 — Parser integrity (audit M5).** Numeric extraction in corrections scoped
   to element keywords — no cross-assignment ("negative, squawk four five zero zero" must
   never become altitude 4500 and corrupt pilot state). Tier-4 (unparseable) transmissions
   trigger a pilot `say_again` instead of a silent drop; `ParseTier` logged per
   transmission; model text arriving with no tool call logs `unparsed_model_output`
-  instead of silently becoming `wait`. _Deps: none. Design §7.2._
+  instead of silently becoming `wait`. _Cross-assignment fixed with P3.5.2 (the altitude
+  fallback was corrupting pilot state from the oracle's own squawk corrections;
+  keyword-claimed spans now scrubbed first). Remaining: say_again, tier logging,
+  unparsed_model_output; known edge — flight numbers divisible by 100 can still hit the
+  altitude fallback._ _Deps: none. Design §7.2._
 - [ ] **P3.5.5 — Oracle-normalized efficiency (audit M7).** Run the oracle per seed at
   score time and compute `E = clamp(model_metric / oracle_metric)` per §13.2, replacing
   the fixed absolute thresholds (which the oracle saturates on 97% of seeds). Fix the

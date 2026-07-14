@@ -167,8 +167,12 @@ def extract_altitude(text: str) -> Optional[int]:
     m = re.search(r"(?:climb|maintain|altitude|to)\s+(?:and maintain\s+)?(\d{3,5})", norm)
     if m:
         return int(m.group(1))
-    # Fall back to any plausible altitude-magnitude token (multiple of 100, >= 1000).
-    for run in re.findall(r"\d+", norm):
+    # Fall back to any plausible altitude-magnitude token (multiple of 100, >= 1000) —
+    # but never a number already claimed by another element's keyword: "squawk four
+    # five zero zero" must not cross-assign as altitude 4500 and corrupt pilot state.
+    scrubbed = re.sub(r"(?:squawk|transponder|code)\D*\d{4}", " ", norm)
+    scrubbed = re.sub(r"\d{2,3}\.\d{1,3}", " ", scrubbed)
+    for run in re.findall(r"\d+", scrubbed):
         val = int(run)
         if 1000 <= val <= 60000 and val % 100 == 0:
             return val

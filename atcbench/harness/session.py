@@ -308,9 +308,13 @@ class CDSession:
             else:
                 self.log.emit(self.tick, E.PILOT_DEVIATION, acid=acid, kind="readback_dropped")
         elif fsm.state == CDState.READBACK_PENDING and parsed.intent in ("correction", "clearance"):
-            ack = fsm.receive_correction(self.tick, parsed)
-            self.log.emit(self.tick, E.CLEARANCE_CORRECTED, acid=acid, caught=fsm.error_caught)
+            ack, spurious = fsm.receive_correction(self.tick, parsed)
             if ack is not None:
+                if spurious:
+                    self.log.emit(self.tick, E.SPURIOUS_CORRECTION, acid=acid)
+                else:
+                    self.log.emit(self.tick, E.CLEARANCE_CORRECTED, acid=acid,
+                                  caught=fsm.error_caught)
                 self._emit_transmission(acid, self.vb.render(ack))
                 self.log.emit(self.tick, E.READBACK, acid=acid, readback=fsm.readback,
                               readback_acid=fsm.readback_acid, corrected=True)

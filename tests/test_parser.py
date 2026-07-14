@@ -36,6 +36,19 @@ def test_clearance_tier_standard():
     assert pt.altitude == 5000 and pt.squawk == "4321" and pt.frequency == "119.35"
 
 
+def test_squawk_never_cross_assigns_as_altitude():
+    # Audit M5: "negative, squawk four five zero zero" used to parse as altitude 4500
+    # and corrupt the pilot's altitude, fabricating a NEGLECT against a correct model.
+    pt = P.parse_controller_transmission(
+        "American 2452, negative, squawk four five zero zero.", ["AAL2452"], kmrl_cd.PACK)
+    assert pt.squawk == "4500"
+    assert pt.altitude is None
+    assert P.extract_altitude("verify, squawk seven four zero zero") is None
+    assert P.extract_altitude("negative, transponder one seven zero zero") is None
+    # Keyword-led altitudes still parse.
+    assert P.extract_altitude("maintain five thousand, squawk four five zero zero") == 5000
+
+
 def test_missing_callsign_is_ambiguous():
     pt = P.parse_controller_transmission(
         "cleared to Detroit, maintain five thousand, squawk 4321", ["AAL2452"], kmrl_cd.PACK

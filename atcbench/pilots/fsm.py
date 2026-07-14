@@ -119,36 +119,58 @@ class PilotFSM:
         }
         return verb, fsm_intent_event
 
-    def receive_correction(self, tick: int, parsed) -> Optional[dict]:
-        """Apply a controller correction if it's in-window. Returns a re-readback intent."""
-        if self.state != CDState.READBACK_PENDING:
-            return None
-        if self.readback_deadline is not None and tick > self.readback_deadline:
-            return None  # too late — no longer a catch
+    def receive_correction(self, tick: int, parsed) -> tuple[Optional[dict], bool]:
+        """Apply a controller correction if it's in-window.
 
-        corrected = False
+        Returns ``(ack_intent, spurious)``. An error counts as *caught* only when a
+        scheduled error was live and the correction addressed the erroneous element —
+        blind re-clearance of a correct readback is a false alarm, not hearback, and
+        comes back flagged ``spurious`` (§13.3).
+        """
+        if self.state != CDState.READBACK_PENDING:
+            return None, False
+        if self.readback_deadline is not None and tick > self.readback_deadline:
+            return None, False  # too late — no longer a catch
+
+        touched: set[str] = set()
         if parsed.altitude is not None:
             self.readback["altitude"] = parsed.altitude
             self.comply_as["altitude"] = parsed.altitude
-            corrected = True
+            touched.add("altitude")
         if parsed.frequency is not None:
             self.readback["frequency"] = parsed.frequency
             self.comply_as["frequency"] = parsed.frequency
-            corrected = True
+            touched.add("frequency")
         if parsed.squawk is not None:
             self.readback["squawk"] = parsed.squawk
             self.comply_as["squawk"] = parsed.squawk
-            corrected = True
+            touched.add("squawk")
         # A bare prompt (e.g., re-addressing after RB-DROP or wrong callsign) also
         # closes the loop: the pilot re-reads back correctly with the right callsign.
+        bare_prompt = False
         if self.readback_dropped or self.readback_acid != self.acid:
             self.readback_dropped = False
             self.readback_acid = self.acid
-            corrected = True
+            bare_prompt = True
 
-        if not corrected:
-            return None
-        self.error_caught = True
+        if not touched and not bare_prompt:
+            return None, False
+
+        code = self.error.code if self.error else None
+        was_caught = self.error_caught
+        if code in ("RB-ALT", "RB-FREQ"):
+            addressed = {"RB-ALT": "altitude", "RB-FREQ": "frequency"}[code] in touched
+        elif code == "RB-PART":
+            addressed = self.error.detail.get("omit", "squawk") in touched
+        elif code in ("RB-DROP", "CS-WRONG"):
+            addressed = True  # any in-window re-address closes the loop
+        else:
+            addressed = False
+        if addressed and not was_caught:
+            self.error_caught = True
+        # Spurious: nothing was wrong (no scheduled error, or already corrected).
+        spurious = code is None or was_caught
+
         return {
             "kind": "correction_ack",
             "acid": self.acid,
@@ -158,7 +180,7 @@ class PilotFSM:
                 "frequency": self.readback.get("frequency"),
                 "squawk": self.readback.get("squawk"),
             },
-        }
+        }, spurious
 
     def finalize(self, tick: int) -> dict:
         """Depart the aircraft with whatever clearance it currently holds."""

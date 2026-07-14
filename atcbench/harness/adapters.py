@@ -286,6 +286,39 @@ class DoNothingController(ModelAdapter):
         return self.wait()
 
 
+class BlindCDCorrector(ModelAdapter):
+    """Low-skill probe: transmits the full correct clearance as a "negative ..."
+    correction to every pending readback without ever reading one. Before the 2026-07
+    audit (finding C2) this matched the oracle's S=1.0; scoring integrity demands it
+    score H=0 — it catches every error but false-alarms every correct readback (X.5)."""
+
+    def __init__(self) -> None:
+        self._issued: set[str] = set()
+        self._corrected: set[str] = set()
+
+    def step(self, observation: dict) -> dict:
+        for ac in observation["aircraft"]:
+            acid = ac["acid"]
+            if ac["status"] == "awaiting_clearance" and acid not in self._issued:
+                self._issued.add(acid)
+                return self.transmit(self._full_text(ac, prefix=""))
+            if ac["status"] == "readback_pending" and acid not in self._corrected:
+                self._corrected.add(acid)
+                return self.transmit(self._full_text(ac, prefix="negative, "))
+        return self.wait()
+
+    def _full_text(self, ac: dict, prefix: str) -> str:
+        c = _correct_clearance_for(ac)
+        cs = _callsign_words(ac["acid"])
+        sid = kmrl_cd.SIDS.get(c["route"], {"name": c["route"]})["name"]
+        return (
+            f"{cs}, {prefix}cleared to {ac['filed']['destination_name']}, {sid} departure, "
+            f"maintain {spoken_altitude(c['altitude'])}, "
+            f"departure {spoken_digits(c['frequency'])}, "
+            f"squawk {spoken_digits(c['squawk'])}."
+        )
+
+
 class ReasoningController(ModelAdapter):
     """Wraps any controller and inflates its reported output tokens by a fixed amount,
     standing in for a model that reasons at length before each action. Under the
