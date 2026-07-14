@@ -1,0 +1,51 @@
+{"from": "SWA4278", "t": 30, "text": "Marlow Tower, Southwest four two seven eight, eight mile final, runway three one center"}
+{"from": "MRL_TWR", "t": 30, "text": "Southwest four two seven eight, Marlow Tower, runway three one center, cleared to land."}
+{"from": "SWA4278", "t": 30, "text": "cleared to land runway three one center, Southwest four two seven eight"}
+{"from": "SWA4554", "t": 60, "text": "Marlow Tower, Southwest four five five four, holding short runway three one center, ready"}
+{"from": "MRL_TWR", "t": 60, "text": "Southwest four five five four, runway three one center, cleared for takeoff."}
+{"from": "SWA4554", "t": 60, "text": "cleared for takeoff runway three one center, Southwest four five five four"}
+{"from": "MRL_TWR", "t": 100, "text": "Southwest four five five four, contact departure one one niner point three five."}
+{"from": "UAL4074", "t": 175, "text": "Marlow Tower, United four zero seven four, eight mile final, runway three one center"}
+{"from": "UAL972", "t": 230, "text": "Marlow Tower, United niner seven two, holding short runway three one center, ready"}
+{"from": "MRL_TWR", "t": 315, "text": "United niner seven two, runway three one center, cleared for takeoff."}
+{"from": "UAL972", "t": 315, "text": "cleared for takeoff runway three one center, United niner seven two"}
+{"from": "UAL4733", "t": 320, "text": "Marlow Tower, United four seven three three, eight mile final, runway three one center"}
+{"from": "MRL_TWR", "t": 355, "text": "United four zero seven four, runway three one center, cleared to land."}
+{"from": "UAL4074", "t": 355, "text": "cleared to land runway three one center, United four zero seven four"}
+{"from": "MRL_TWR", "t": 355, "text": "United niner seven two, contact departure one one niner point three five."}
+{"from": "DAL3125", "t": 385, "text": "Marlow Tower, Delta three one two five, holding short runway three one center, ready"}
+{"from": "AAL108", "t": 445, "text": "Marlow Tower, American one zero eight, eight mile final, runway three one center"}
+{"from": "MRL_TWR", "t": 450, "text": "Delta three one two five, runway three one center, cleared for takeoff."}
+{"from": "DAL3125", "t": 450, "text": "cleared for takeoff runway three one center, Delta three one two five"}
+{"from": "MRL_TWR", "t": 490, "text": "United four seven three three, runway three one center, cleared to land."}
+{"from": "UAL4733", "t": 490, "text": "cleared to land runway three one center, United four seven three three"}
+{"from": "MRL_TWR", "t": 490, "text": "Delta three one two five, contact departure one one niner point three five."}
+{"from": "SWA4431", "t": 540, "text": "Marlow Tower, Southwest four four three one, holding short runway three one center, ready"}
+{"from": "SWA4080", "t": 570, "text": "Marlow Tower, Southwest four zero eight zero, eight mile final, runway three one center"}
+{"from": "MRL_TWR", "t": 580, "text": "American one zero eight, runway three one center, cleared to land."}
+{"from": "AAL108", "t": 580, "text": "cleared to land runway three one center, American one zero eight"}
+{"from": "AAL108", "t": 590, "text": "Going around, American one zero eight"}
+{"from": "MRL_TWR", "t": 595, "text": "American one zero eight, roger, fly runway heading, climb and maintain three thousand, contact departure one one niner point three five."}
+{"from": "AAL108", "t": 595, "text": "Say again for American one zero eight?"}
+{"from": "MRL_TWR", "t": 595, "text": "American one zero eight, fly runway heading, contact departure one one niner point three five."}
+{"from": "AAL108", "t": 595, "text": "Say again for American one zero eight?"}
+{"from": "MRL_TWR", "t": 595, "text": "American one zero eight, contact departure one one niner point three five."}
+{"from": "AAL108", "t": 595, "text": "Say again for American one zero eight?"}
+{"from": "MRL_TWR", "t": 600, "text": "Southwest four four three one, runway three one center, cleared for takeoff."}
+{"from": "SWA4431", "t": 600, "text": "cleared for takeoff runway three one center, Southwest four four three one"}
+{"from": "MRL_TWR", "t": 640, "text": "Southwest four four three one, contact departure one one niner point three five."}
+{"from": "MRL_TWR", "t": 640, "text": "Southwest four zero eight zero, runway three one center, cleared to land."}
+{"from": "SWA4080", "t": 640, "text": "cleared to land runway three one center, Southwest four zero eight zero"}
+{"from": "AAL4143", "t": 710, "text": "Marlow Tower, American four one four three, eight mile final, runway three one center"}
+{"from": "SWA739", "t": 720, "text": "Marlow Tower, Southwest seven three niner, holding short runway three one center, ready"}
+{"from": "MRL_TWR", "t": 845, "text": "Southwest seven three niner, runway three one center, cleared for takeoff."}
+{"from": "SWA739", "t": 845, "text": "cleared for takeoff runway three one center, Southwest seven three niner"}
+{"from": "MRL_TWR", "t": 885, "text": "Southwest seven three niner, contact departure one one niner point three five."}
+{"from": "MRL_TWR", "t": 910, "text": "American one zero eight, runway three one center, cleared to land."}
+{"from": "AAL108", "t": 910, "text": "cleared to land runway three one center, American one zero eight"}
+{"from": "MRL_TWR", "t": 910, "text": "American four one four three, go around, I say again, go around, wake turbulence separation."}
+{"from": "AAL4143", "t": 910, "text": "Going around, American four one four three"}
+{"from": "AAL4143", "t": 1510, "text": "Going around, American four one four three"}
+{"from": "AAL4143", "t": 2110, "text": "Going around, American four one four three"}
+{"from": "AAL4143", "t": 2710, "text": "Going around, American four one four three"}
+{"from": "AAL4143", "t": 3310, "text": "Going around, American four one four three"}

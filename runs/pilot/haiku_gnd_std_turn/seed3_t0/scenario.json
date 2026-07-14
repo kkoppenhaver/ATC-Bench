@@ -1,0 +1,126 @@
+{
+  "arrivals": [
+    {
+      "acid": "UAL4938",
+      "actype": "B739",
+      "call_tick": 685,
+      "gate": "G1",
+      "goal": "G1",
+      "node": "RWEX",
+      "role": "arrival",
+      "wake": "L"
+    },
+    {
+      "acid": "AAL2637",
+      "actype": "A320",
+      "call_tick": 376,
+      "gate": "G1",
+      "goal": "G1",
+      "node": "RWEX",
+      "role": "arrival",
+      "wake": "L"
+    },
+    {
+      "acid": "DAL881",
+      "actype": "E175",
+      "call_tick": 412,
+      "gate": "G1",
+      "goal": "G1",
+      "node": "RWEX",
+      "role": "arrival",
+      "wake": "L"
+    }
+  ],
+  "band": "standard",
+  "departures": [
+    {
+      "acid": "SWA4977",
+      "actype": "E175",
+      "call_tick": 90,
+      "gate": "G1",
+      "goal": "HS_31C",
+      "node": "G1",
+      "role": "departure",
+      "wake": "L"
+    },
+    {
+      "acid": "AAL2657",
+      "actype": "E175",
+      "call_tick": 130,
+      "gate": "G2",
+      "goal": "HS_31C",
+      "node": "G2",
+      "role": "departure",
+      "wake": "L"
+    },
+    {
+      "acid": "DAL2595",
+      "actype": "B739",
+      "call_tick": 373,
+      "gate": "G1",
+      "goal": "HS_31C",
+      "node": "G1",
+      "role": "departure",
+      "wake": "L"
+    },
+    {
+      "acid": "AAL3470",
+      "actype": "B738",
+      "call_tick": 502,
+      "gate": "G1",
+      "goal": "HS_31C",
+      "node": "G1",
+      "role": "departure",
+      "wake": "L"
+    },
+    {
+      "acid": "AAL3634",
+      "actype": "E175",
+      "call_tick": 778,
+      "gate": "G1",
+      "goal": "HS_31C",
+      "node": "G1",
+      "role": "departure",
+      "wake": "L"
+    }
+  ],
+  "error_schedule": {},
+  "hot_windows": {
+    "31R": [
+      [
+        168,
+        193
+      ],
+      [
+        329,
+        354
+      ],
+      [
+        506,
+        531
+      ],
+      [
+        682,
+        707
+      ],
+      [
+        861,
+        886
+      ],
+      [
+        1029,
+        1054
+      ]
+    ]
+  },
+  "position": "MRL_GND",
+  "seed": 1000006,
+  "session_seconds": 1200,
+  "tower_sequence": [
+    "SWA4977",
+    "AAL2657",
+    "DAL2595",
+    "AAL3470",
+    "AAL3634"
+  ]
+}

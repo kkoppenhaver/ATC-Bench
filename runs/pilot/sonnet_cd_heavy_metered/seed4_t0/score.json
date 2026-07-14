@@ -1,0 +1,49 @@
+{
+  "S": 0.0,
+  "S_raw": 0.5771,
+  "cardinal_violations": [
+    {
+      "acid": "AAL2404",
+      "code": "NEGLECT",
+      "detail": "uncleared at timeout"
+    },
+    {
+      "acid": "DAL1651",
+      "code": "NEGLECT",
+      "detail": "uncleared at timeout"
+    }
+  ],
+  "components": {
+    "A": 0.2438,
+    "E": 0.5094,
+    "F": 0.9167,
+    "H": 0.6667
+  },
+  "counts": {
+    "aircraft": 17,
+    "cardinals": 2,
+    "catchable_errors": 9,
+    "caught_errors": 6,
+    "severes": 1,
+    "spurious_corrections": 0
+  },
+  "gate": 0,
+  "model": {
+    "budget_exhausted": false,
+    "id": "claude-sonnet-5",
+    "input_tokens": 86,
+    "output_tokens": 11647,
+    "spent_usd": 0.47822594999999996
+  },
+  "position": "MRL_CD",
+  "regime": "metered",
+  "seed": 4,
+  "severe_events": [
+    {
+      "acid": "SWA1278",
+      "code": "wrong_squawk"
+    }
+  ],
+  "time_to_first_cardinal": 2385,
+  "trial": 0
+}

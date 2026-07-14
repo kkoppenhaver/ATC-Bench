@@ -1,0 +1,410 @@
+{
+  "band": "heavy",
+  "error_schedule": {
+    "AAL4017": {
+      "code": "RB-FREQ",
+      "detail": {
+        "wrong_frequency": "119.53"
+      }
+    },
+    "DAL1411": {
+      "code": "RB-ALT",
+      "detail": {
+        "wrong_altitude": 15000
+      }
+    },
+    "DAL3723": {
+      "code": "RB-DROP",
+      "detail": {}
+    },
+    "DAL3729": {
+      "code": "CS-WRONG",
+      "detail": {
+        "wrong_callsign": "DAL3739"
+      }
+    },
+    "DAL3950": {
+      "code": "RB-ALT",
+      "detail": {
+        "wrong_altitude": 4000
+      }
+    },
+    "DAL4201": {
+      "code": "RB-ALT",
+      "detail": {
+        "wrong_altitude": 6000
+      }
+    },
+    "DAL4425": {
+      "code": "RB-ALT",
+      "detail": {
+        "wrong_altitude": 4000
+      }
+    },
+    "SWA1012": {
+      "code": "RB-PART",
+      "detail": {
+        "omit": "frequency"
+      }
+    },
+    "SWA2476": {
+      "code": "CS-WRONG",
+      "detail": {
+        "wrong_callsign": "SWA2486"
+      }
+    },
+    "SWA2486": {
+      "code": "RB-ALT",
+      "detail": {
+        "wrong_altitude": 15000
+      }
+    },
+    "UAL2454": {
+      "code": "RB-ALT",
+      "detail": {
+        "wrong_altitude": 4000
+      }
+    },
+    "UAL3615": {
+      "code": "RB-ALT",
+      "detail": {
+        "wrong_altitude": 6000
+      }
+    },
+    "UAL4138": {
+      "code": "RB-ALT",
+      "detail": {
+        "wrong_altitude": 4000
+      }
+    },
+    "UAL4270": {
+      "code": "RB-ALT",
+      "detail": {
+        "wrong_altitude": 4000
+      }
+    }
+  },
+  "expected_clearance": {
+    "AAL114": {
+      "altitude": 5000,
+      "clearance_limit": "KDTW",
+      "frequency": "119.35",
+      "route": "PANGG5",
+      "squawk": "5636"
+    },
+    "AAL4017": {
+      "altitude": 5000,
+      "clearance_limit": "KDTW",
+      "frequency": "119.35",
+      "route": "MRLW5",
+      "squawk": "2713"
+    },
+    "AAL553": {
+      "altitude": 5000,
+      "clearance_limit": "KLGA",
+      "frequency": "119.35",
+      "route": "HALIE4",
+      "squawk": "1254"
+    },
+    "DAL1411": {
+      "altitude": 5000,
+      "clearance_limit": "KLGA",
+      "frequency": "119.35",
+      "route": "MRLW5",
+      "squawk": "4124"
+    },
+    "DAL3723": {
+      "altitude": 5000,
+      "clearance_limit": "KMCO",
+      "frequency": "119.35",
+      "route": "PANGG5",
+      "squawk": "2002"
+    },
+    "DAL3729": {
+      "altitude": 5000,
+      "clearance_limit": "KATL",
+      "frequency": "119.35",
+      "route": "HALIE4",
+      "squawk": "4740"
+    },
+    "DAL3739": {
+      "altitude": 5000,
+      "clearance_limit": "KDCA",
+      "frequency": "119.35",
+      "route": "MRLW5",
+      "squawk": "4333"
+    },
+    "DAL3950": {
+      "altitude": 5000,
+      "clearance_limit": "KDTW",
+      "frequency": "119.35",
+      "route": "HALIE4",
+      "squawk": "5142"
+    },
+    "DAL4201": {
+      "altitude": 5000,
+      "clearance_limit": "KDCA",
+      "frequency": "119.35",
+      "route": "HALIE4",
+      "squawk": "5373"
+    },
+    "DAL4425": {
+      "altitude": 5000,
+      "clearance_limit": "KMCO",
+      "frequency": "119.35",
+      "route": "PANGG5",
+      "squawk": "5040"
+    },
+    "SWA1012": {
+      "altitude": 5000,
+      "clearance_limit": "KBOS",
+      "frequency": "119.35",
+      "route": "MRLW5",
+      "squawk": "3077"
+    },
+    "SWA2476": {
+      "altitude": 5000,
+      "clearance_limit": "KBOS",
+      "frequency": "119.35",
+      "route": "HALIE4",
+      "squawk": "5557"
+    },
+    "SWA2486": {
+      "altitude": 5000,
+      "clearance_limit": "KDTW",
+      "frequency": "119.35",
+      "route": "PANGG5",
+      "squawk": "1154"
+    },
+    "SWA2705": {
+      "altitude": 5000,
+      "clearance_limit": "KDCA",
+      "frequency": "119.35",
+      "route": "MRLW5",
+      "squawk": "5305"
+    },
+    "UAL2454": {
+      "altitude": 5000,
+      "clearance_limit": "KATL",
+      "frequency": "119.35",
+      "route": "MRLW5",
+      "squawk": "2033"
+    },
+    "UAL3615": {
+      "altitude": 5000,
+      "clearance_limit": "KATL",
+      "frequency": "119.35",
+      "route": "MRLW5",
+      "squawk": "4301"
+    },
+    "UAL4138": {
+      "altitude": 5000,
+      "clearance_limit": "KDTW",
+      "frequency": "119.35",
+      "route": "HALIE4",
+      "squawk": "1476"
+    },
+    "UAL4270": {
+      "altitude": 5000,
+      "clearance_limit": "KATL",
+      "frequency": "119.35",
+      "route": "PANGG5",
+      "squawk": "4247"
+    }
+  },
+  "flight_plans": [
+    {
+      "acid": "DAL1411",
+      "actype": "E175",
+      "call_tick": 66,
+      "destination": "KLGA",
+      "filed_altitude": 9000,
+      "filed_sid": "MRLW5",
+      "filing_error": "wrong_initial_altitude",
+      "persona": "foreign_carrier"
+    },
+    {
+      "acid": "DAL3723",
+      "actype": "B739",
+      "call_tick": 267,
+      "destination": "KMCO",
+      "filed_altitude": 17000,
+      "filed_sid": "PANGG5",
+      "filing_error": null,
+      "persona": "airline_crisp"
+    },
+    {
+      "acid": "DAL4425",
+      "actype": "B738",
+      "call_tick": 494,
+      "destination": "KMCO",
+      "filed_altitude": 35000,
+      "filed_sid": "PANGG5",
+      "filing_error": null,
+      "persona": "student_pilot"
+    },
+    {
+      "acid": "DAL3950",
+      "actype": "B739",
+      "call_tick": 671,
+      "destination": "KDTW",
+      "filed_altitude": 16000,
+      "filed_sid": "HALIE4",
+      "filing_error": null,
+      "persona": "ga_relaxed"
+    },
+    {
+      "acid": "SWA2476",
+      "actype": "B739",
+      "call_tick": 709,
+      "destination": "KBOS",
+      "filed_altitude": 16000,
+      "filed_sid": "HALIE4",
+      "filing_error": null,
+      "persona": "foreign_carrier"
+    },
+    {
+      "acid": "SWA2486",
+      "actype": "B738",
+      "call_tick": 792,
+      "destination": "KDTW",
+      "filed_altitude": 16000,
+      "filed_sid": "PANGG5",
+      "filing_error": null,
+      "persona": "airline_crisp"
+    },
+    {
+      "acid": "AAL114",
+      "actype": "B739",
+      "call_tick": 1316,
+      "destination": "KDTW",
+      "filed_altitude": 23000,
+      "filed_sid": "PANGG5",
+      "filing_error": null,
+      "persona": "student_pilot"
+    },
+    {
+      "acid": "UAL2454",
+      "actype": "B738",
+      "call_tick": 1526,
+      "destination": "KATL",
+      "filed_altitude": 9000,
+      "filed_sid": "MRLW5",
+      "filing_error": "wrong_initial_altitude",
+      "persona": "airline_crisp"
+    },
+    {
+      "acid": "AAL4017",
+      "actype": "B738",
+      "call_tick": 1643,
+      "destination": "KDTW",
+      "filed_altitude": 9000,
+      "filed_sid": "MRLW5",
+      "filing_error": "wrong_initial_altitude",
+      "persona": "foreign_carrier"
+    },
+    {
+      "acid": "UAL4270",
+      "actype": "B738",
+      "call_tick": 1740,
+      "destination": "KATL",
+      "filed_altitude": 17000,
+      "filed_sid": "PANGG5",
+      "filing_error": null,
+      "persona": "airline_crisp"
+    },
+    {
+      "acid": "AAL553",
+      "actype": "E175",
+      "call_tick": 2514,
+      "destination": "KLGA",
+      "filed_altitude": 16000,
+      "filed_sid": "HALIE4",
+      "filing_error": null,
+      "persona": "airline_crisp"
+    },
+    {
+      "acid": "UAL4138",
+      "actype": "E175",
+      "call_tick": 2566,
+      "destination": "KDTW",
+      "filed_altitude": 9000,
+      "filed_sid": "HALIE4",
+      "filing_error": "wrong_initial_altitude",
+      "persona": "foreign_carrier"
+    },
+    {
+      "acid": "UAL3615",
+      "actype": "B738",
+      "call_tick": 3063,
+      "destination": "KATL",
+      "filed_altitude": 23000,
+      "filed_sid": "BOGUS9",
+      "filing_error": "invalid_sid",
+      "persona": "ga_relaxed"
+    },
+    {
+      "acid": "DAL3729",
+      "actype": "A320",
+      "call_tick": 3084,
+      "destination": "KATL",
+      "filed_altitude": 9000,
+      "filed_sid": "HALIE4",
+      "filing_error": "wrong_initial_altitude",
+      "persona": "ga_relaxed"
+    },
+    {
+      "acid": "DAL4201",
+      "actype": "E175",
+      "call_tick": 3141,
+      "destination": "KDCA",
+      "filed_altitude": 35000,
+      "filed_sid": "HALIE4",
+      "filing_error": null,
+      "persona": "student_pilot"
+    },
+    {
+      "acid": "DAL3739",
+      "actype": "B738",
+      "call_tick": 3145,
+      "destination": "KDCA",
+      "filed_altitude": 16000,
+      "filed_sid": "MRLW5",
+      "filing_error": null,
+      "persona": "airline_crisp"
+    },
+    {
+      "acid": "SWA1012",
+      "actype": "A320",
+      "call_tick": 3356,
+      "destination": "KBOS",
+      "filed_altitude": 35000,
+      "filed_sid": "MRLW5",
+      "filing_error": null,
+      "persona": "student_pilot"
+    },
+    {
+      "acid": "SWA2705",
+      "actype": "C172",
+      "call_tick": 3373,
+      "destination": "KDCA",
+      "filed_altitude": 16000,
+      "filed_sid": "MRLW5",
+      "filing_error": null,
+      "persona": "airline_crisp"
+    }
+  ],
+  "position": "MRL_CD",
+  "seed": 2,
+  "session_seconds": 3600,
+  "similar_pairs": [
+    [
+      "DAL3729",
+      "DAL3739"
+    ],
+    [
+      "SWA2476",
+      "SWA2486"
+    ]
+  ]
+}

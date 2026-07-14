@@ -1,0 +1,101 @@
+{
+  "arrivals": [
+    {
+      "acid": "DAL1411",
+      "actype": "B739",
+      "call_tick": 30,
+      "role": "arrival",
+      "start_dist_nm": 8.0,
+      "wake": "L"
+    },
+    {
+      "acid": "DAL3723",
+      "actype": "B738",
+      "call_tick": 166,
+      "role": "arrival",
+      "start_dist_nm": 8.0,
+      "wake": "L"
+    },
+    {
+      "acid": "DAL4425",
+      "actype": "B77W",
+      "call_tick": 314,
+      "role": "arrival",
+      "start_dist_nm": 8.0,
+      "wake": "H"
+    },
+    {
+      "acid": "DAL3950",
+      "actype": "B739",
+      "call_tick": 464,
+      "role": "arrival",
+      "start_dist_nm": 8.0,
+      "wake": "L"
+    },
+    {
+      "acid": "SWA2476",
+      "actype": "A320",
+      "call_tick": 589,
+      "role": "arrival",
+      "start_dist_nm": 8.0,
+      "wake": "L"
+    },
+    {
+      "acid": "AAL114",
+      "actype": "B77W",
+      "call_tick": 717,
+      "role": "arrival",
+      "start_dist_nm": 8.0,
+      "wake": "H"
+    }
+  ],
+  "band": "standard",
+  "departures": [
+    {
+      "acid": "UAL2454",
+      "actype": "C172",
+      "call_tick": 60,
+      "role": "departure",
+      "start_dist_nm": 0.0,
+      "wake": "S"
+    },
+    {
+      "acid": "AAL4017",
+      "actype": "B739",
+      "call_tick": 235,
+      "role": "departure",
+      "start_dist_nm": 0.0,
+      "wake": "L"
+    },
+    {
+      "acid": "UAL4270",
+      "actype": "C172",
+      "call_tick": 390,
+      "role": "departure",
+      "start_dist_nm": 0.0,
+      "wake": "S"
+    },
+    {
+      "acid": "AAL553",
+      "actype": "B738",
+      "call_tick": 543,
+      "role": "departure",
+      "start_dist_nm": 0.0,
+      "wake": "L"
+    },
+    {
+      "acid": "UAL4138",
+      "actype": "B738",
+      "call_tick": 703,
+      "role": "departure",
+      "start_dist_nm": 0.0,
+      "wake": "L"
+    }
+  ],
+  "forced_go_arounds": [
+    "DAL3950"
+  ],
+  "position": "MRL_TWR",
+  "seed": 2,
+  "session_seconds": 3600
+}

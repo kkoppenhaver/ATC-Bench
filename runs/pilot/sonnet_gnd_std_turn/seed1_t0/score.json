@@ -1,0 +1,40 @@
+{
+  "S": 1.0,
+  "S_raw": 1.0,
+  "cardinal_violations": [],
+  "components": {
+    "A": 1.0,
+    "E": 1.0,
+    "F": 1.0,
+    "H": null
+  },
+  "counts": {
+    "aircraft": 8,
+    "arrived": 8,
+    "cardinals": 0,
+    "deadlocks": 0,
+    "incursions_model": 0,
+    "neglects": 0
+  },
+  "gate": 1,
+  "model": {
+    "budget_exhausted": true,
+    "id": "claude-sonnet-5",
+    "input_tokens": 352,
+    "output_tokens": 12194,
+    "spent_usd": 3.0274272
+  },
+  "position": "MRL_GND",
+  "queue_conformity": 1.0,
+  "regime": "turn",
+  "reported_events": [
+    {
+      "acid": "UAL4074",
+      "code": "pilot_incursion",
+      "tick": 865
+    }
+  ],
+  "seed": 1,
+  "time_to_first_cardinal": null,
+  "trial": 0
+}

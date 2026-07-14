@@ -1,0 +1,3929 @@
+{
+  "harness_version": "0.1.0",
+  "prompt_hash": "cd-v3:3bdece25d22a",
+  "python_version": "3.11.15",
+  "regime": "turn",
+  "turns": [
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL786",
+            "actype": "C172",
+            "assigned_squawk": "1070",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "HALIE4"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "AAL786",
+            "t": 205,
+            "text": "Marlow Clearance, American seven eight six, IFR to Atlanta, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:03:29Z",
+        "tick": 209
+      },
+      "output": {
+        "input_tokens": 1885,
+        "output_tokens": 202,
+        "text": "I'll process this IFR clearance request for American 786. Let me first create a flight strip and then verify the filed plan against the chart pack.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "AAL786",
+              "bay": "working",
+              "fields": {
+                "actype": "C172",
+                "assigned_squawk": "1070",
+                "destination": "KATL",
+                "destination_name": "Atlanta",
+                "filed_altitude": 17000,
+                "filed_sid": "HALIE4",
+                "status": "awaiting_clearance"
+              }
+            },
+            "name": "strip_create"
+          }
+        ]
+      },
+      "tick": 209,
+      "tool_results": [
+        "strip created for AAL786 in working"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL786",
+            "actype": "C172",
+            "assigned_squawk": "1070",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "HALIE4"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:03:30Z",
+        "tick": 210
+      },
+      "output": {
+        "input_tokens": 2206,
+        "output_tokens": 334,
+        "text": "I need to issue the clearance. I've identified an issue with the filed plan:\n\n**PLAN VALIDATION:**\n- **Filed altitude:** 17,000 ft \u2014 **INVALID** (LOA constraint: all KMRL IFR departures initial altitude = 5,000 ft)\n- **Filed SID:** HALIE4 \u2014 **VALID** (published, fixes: HALIE EONNA)\n- **Destination:** KATL (Atlanta) \u2014 **VALID**\n\nI will issue the clearance with the **corrected initial altitude of 5,000 ft** per the LOA and the filed HALIE4 departure.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American seven eight six, cleared to Atlanta, Halie Four departure, maintain five thousand, departure one one niner point three five, squawk one zero seven zero."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "AAL786",
+              "patch": {
+                "assigned_squawk": "1070",
+                "cleared_altitude": 5000,
+                "cleared_sid": "HALIE4",
+                "departure_freq": "119.35",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 210,
+      "tool_results": [
+        "transmitted",
+        "strip AAL786 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL786",
+            "actype": "C172",
+            "assigned_squawk": "1070",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "HALIE4"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 210,
+            "text": "American seven eight six, cleared to Atlanta, Halie Four departure, maintain five thousand, departure one one niner point three five, squawk one zero seven zero."
+          },
+          {
+            "from": "AAL786",
+            "t": 216,
+            "text": "maintain five thousand, departure one one niner point three five, squawk one zero seven zero, American seven eight six"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:03:41Z",
+        "tick": 221
+      },
+      "output": {
+        "input_tokens": 2821,
+        "output_tokens": 272,
+        "text": "I'll verify the readback against the clearance issued.\n\n**READBACK VERIFICATION:**\n- **Altitude:** Pilot read \"maintain five thousand\" \u2014 **CORRECT** (cleared 5,000 ft)\n- **Departure frequency:** Pilot read \"one one niner point three five\" \u2014 **CORRECT** (119.35)\n- **Squawk:** Pilot read \"one zero seven zero\" \u2014 **CORRECT** (1070)\n- **Callsign:** Pilot read \"American seven eight six\" \u2014 **CORRECT**\n\nThe readback is complete and correct per local convention (altitude, frequency, squawk, and callsign only).",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American seven eight six, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "AAL786",
+              "patch": {
+                "status": "readback_correct"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 221,
+      "tool_results": [
+        "transmitted",
+        "strip AAL786 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL786",
+            "actype": "C172",
+            "assigned_squawk": "1070",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "HALIE4"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 221,
+            "text": "American seven eight six, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:03:44Z",
+        "tick": 224
+      },
+      "output": {
+        "input_tokens": 3305,
+        "output_tokens": 35,
+        "text": "",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 224,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL1110",
+            "actype": "A320",
+            "assigned_squawk": "4376",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "MRLW5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "UAL1110",
+            "t": 335,
+            "text": "Marlow Clearance, United one one one zero, IFR to Detroit, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:05:39Z",
+        "tick": 339
+      },
+      "output": {
+        "input_tokens": 3513,
+        "output_tokens": 184,
+        "text": "I'll process this IFR clearance request for United 1110. Let me create a flight strip and verify the filed plan.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "UAL1110",
+              "bay": "working",
+              "fields": {
+                "actype": "A320",
+                "assigned_squawk": "4376",
+                "destination": "KDTW",
+                "destination_name": "Detroit",
+                "filed_altitude": 35000,
+                "filed_sid": "MRLW5",
+                "status": "awaiting_clearance"
+              }
+            },
+            "name": "strip_create"
+          }
+        ]
+      },
+      "tick": 339,
+      "tool_results": [
+        "strip created for UAL1110 in working"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL1110",
+            "actype": "A320",
+            "assigned_squawk": "4376",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "MRLW5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:05:40Z",
+        "tick": 340
+      },
+      "output": {
+        "input_tokens": 3836,
+        "output_tokens": 338,
+        "text": "I'll now issue the clearance. Let me verify the filed plan:\n\n**PLAN VALIDATION:**\n- **Filed altitude:** 35,000 ft \u2014 **INVALID** (LOA constraint: all KMRL IFR departures initial altitude = 5,000 ft)\n- **Filed SID:** MRLW5 \u2014 **VALID** (published vector departure, initial 5,000 ft)\n- **Destination:** KDTW (Detroit) \u2014 **VALID**\n\nI will issue the clearance with the **corrected initial altitude of 5,000 ft** per the LOA and the filed MRLW5 departure.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "United one one one zero, cleared to Detroit, Marlow Five departure, maintain five thousand, departure one one niner point three five, squawk four three seven six."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "UAL1110",
+              "patch": {
+                "assigned_squawk": "4376",
+                "cleared_altitude": 5000,
+                "cleared_sid": "MRLW5",
+                "departure_freq": "119.35",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 340,
+      "tool_results": [
+        "transmitted",
+        "strip UAL1110 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL1110",
+            "actype": "A320",
+            "assigned_squawk": "4376",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "MRLW5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 340,
+            "text": "United one one one zero, cleared to Detroit, Marlow Five departure, maintain five thousand, departure one one niner point three five, squawk four three seven six."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:05:47Z",
+        "tick": 347
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 35,
+        "text": "",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 347,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL2936",
+            "actype": "B739",
+            "assigned_squawk": "3177",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "PANGG5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "DAL2936",
+            "t": 469,
+            "text": "Marlow Clearance, Delta two niner three six, IFR to LaGuardia, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:07:53Z",
+        "tick": 473
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 185,
+        "text": "I'll process this IFR clearance request for Delta 2936. Let me create a flight strip and verify the filed plan.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "DAL2936",
+              "bay": "working",
+              "fields": {
+                "actype": "B739",
+                "assigned_squawk": "3177",
+                "destination": "KLGA",
+                "destination_name": "LaGuardia",
+                "filed_altitude": 16000,
+                "filed_sid": "PANGG5",
+                "status": "awaiting_clearance"
+              }
+            },
+            "name": "strip_create"
+          }
+        ]
+      },
+      "tick": 473,
+      "tool_results": [
+        "strip created for DAL2936 in working"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL2936",
+            "actype": "B739",
+            "assigned_squawk": "3177",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "PANGG5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:07:54Z",
+        "tick": 474
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 353,
+        "text": "I'll now issue the clearance. Let me verify the filed plan:\n\n**PLAN VALIDATION:**\n- **Filed altitude:** 16,000 ft \u2014 **INVALID** (LOA constraint: all KMRL IFR departures initial altitude = 5,000 ft)\n- **Filed SID:** PANGG5 \u2014 **VALID** (published RNAV departure, fixes: PANGG GRIST, initial 5,000 ft)\n- **Destination:** KLGA (LaGuardia) \u2014 **VALID**\n\nI will issue the clearance with the **corrected initial altitude of 5,000 ft** per the LOA and the filed PANGG5 departure.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "Delta two niner three six, cleared to LaGuardia, Pangg Five departure, maintain five thousand, departure one one niner point three five, squawk three one seven seven."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "DAL2936",
+              "patch": {
+                "assigned_squawk": "3177",
+                "cleared_altitude": 5000,
+                "cleared_sid": "PANGG5",
+                "departure_freq": "119.35",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 474,
+      "tool_results": [
+        "transmitted",
+        "strip DAL2936 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL2936",
+            "actype": "B739",
+            "assigned_squawk": "3177",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 474,
+            "text": "Delta two niner three six, cleared to LaGuardia, Pangg Five departure, maintain five thousand, departure one one niner point three five, squawk three one seven seven."
+          },
+          {
+            "from": "DAL2936",
+            "t": 480,
+            "text": "maintain six thousand, departure one one niner point three five, squawk three one seven seven, Delta two niner three six"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:08:05Z",
+        "tick": 485
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 162,
+        "text": "I've detected an error in the readback. The pilot read back an incorrect altitude.\n\n**READBACK VERIFICATION:**\n- **Altitude:** Pilot read \"maintain six thousand\" \u2014 **INCORRECT** (cleared 5,000 ft)\n- **Departure frequency:** Correct\n- **Squawk:** Correct\n- **Callsign:** Correct\n\nI must correct the erroneous altitude before the aircraft leaves my frequency.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "Delta two niner three six, negative, maintain five thousand."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 485,
+      "tool_results": [
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL2936",
+            "actype": "B739",
+            "assigned_squawk": "3177",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 485,
+            "text": "Delta two niner three six, negative, maintain five thousand."
+          },
+          {
+            "from": "DAL2936",
+            "t": 487,
+            "text": "Correction, maintain five thousand, departure one one niner point three five, squawk three one seven seven, Delta two niner three six"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:08:11Z",
+        "tick": 491
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 264,
+        "text": "I'll verify the corrected readback.\n\n**READBACK VERIFICATION:**\n- **Altitude:** Pilot read \"maintain five thousand\" \u2014 **CORRECT** (cleared 5,000 ft)\n- **Departure frequency:** Pilot read \"one one niner point three five\" \u2014 **CORRECT** (119.35)\n- **Squawk:** Pilot read \"three one seven seven\" \u2014 **CORRECT** (3177)\n- **Callsign:** Pilot read \"Delta two niner three six\" \u2014 **CORRECT**\n\nThe corrected readback is now complete and correct per local convention.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "Delta two niner three six, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "DAL2936",
+              "patch": {
+                "status": "readback_correct"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 491,
+      "tool_results": [
+        "transmitted",
+        "strip DAL2936 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL2936",
+            "actype": "B739",
+            "assigned_squawk": "3177",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 491,
+            "text": "Delta two niner three six, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:08:14Z",
+        "tick": 494
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 35,
+        "text": "",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 494,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL3679",
+            "actype": "A320",
+            "assigned_squawk": "2637",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "PANGG5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "UAL3679",
+            "t": 635,
+            "text": "Marlow Clearance, United three six seven niner, request IFR clearance to Atlanta"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:10:39Z",
+        "tick": 639
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 182,
+        "text": "I'll process this IFR clearance request for United 3679. Let me create a flight strip and verify the filed plan.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "UAL3679",
+              "bay": "working",
+              "fields": {
+                "actype": "A320",
+                "assigned_squawk": "2637",
+                "destination": "KATL",
+                "destination_name": "Atlanta",
+                "filed_altitude": 16000,
+                "filed_sid": "PANGG5",
+                "status": "awaiting_clearance"
+              }
+            },
+            "name": "strip_create"
+          }
+        ]
+      },
+      "tick": 639,
+      "tool_results": [
+        "strip created for UAL3679 in working"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL3679",
+            "actype": "A320",
+            "assigned_squawk": "2637",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "PANGG5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:10:40Z",
+        "tick": 640
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 382,
+        "text": "I'll now issue the clearance. Let me verify the filed plan:\n\n**PLAN VALIDATION:**\n- **Filed altitude:** 16,000 ft \u2014 **INVALID** (LOA constraint: all KMRL IFR departures initial altitude = 5,000 ft)\n- **Filed SID:** PANGG5 \u2014 **INVALID for Atlanta** (PANGG5 is published with fixes PANGG GRIST, but does not serve Atlanta as a valid departure. The appropriate SID for Atlanta is HALIE4, which has fixes HALIE EONNA)\n- **Destination:** KATL (Atlanta) \u2014 **VALID**\n\nI will issue the clearance with the **corrected SID of HALIE4** (appropriate for Atlanta) and the **corrected initial altitude of 5,000 ft** per the LOA.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "United three six seven niner, cleared to Atlanta, Halie Four departure, maintain five thousand, departure one one niner point three five, squawk two six three seven."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "UAL3679",
+              "patch": {
+                "assigned_squawk": "2637",
+                "cleared_altitude": 5000,
+                "cleared_sid": "HALIE4",
+                "departure_freq": "119.35",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 640,
+      "tool_results": [
+        "transmitted",
+        "strip UAL3679 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL3679",
+            "actype": "A320",
+            "assigned_squawk": "2637",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 640,
+            "text": "United three six seven niner, cleared to Atlanta, Halie Four departure, maintain five thousand, departure one one niner point three five, squawk two six three seven."
+          },
+          {
+            "from": "UAL3679",
+            "t": 646,
+            "text": "maintain five thousand, departure one one niner point three five, squawk two six three seven, United three six seven niner"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:10:51Z",
+        "tick": 651
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 277,
+        "text": "I'll verify the readback against the clearance issued.\n\n**READBACK VERIFICATION:**\n- **Altitude:** Pilot read \"maintain five thousand\" \u2014 **CORRECT** (cleared 5,000 ft)\n- **Departure frequency:** Pilot read \"one one niner point three five\" \u2014 **CORRECT** (119.35)\n- **Squawk:** Pilot read \"two six three seven\" \u2014 **CORRECT** (2637)\n- **Callsign:** Pilot read \"United three six seven niner\" \u2014 **CORRECT**\n\nThe readback is complete and correct per local convention (altitude, frequency, squawk, and callsign only).",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "United three six seven niner, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "UAL3679",
+              "patch": {
+                "status": "readback_correct"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 651,
+      "tool_results": [
+        "transmitted",
+        "strip UAL3679 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL3679",
+            "actype": "A320",
+            "assigned_squawk": "2637",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 651,
+            "text": "United three six seven niner, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:10:54Z",
+        "tick": 654
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 35,
+        "text": "",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 654,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL4812",
+            "actype": "B739",
+            "assigned_squawk": "5130",
+            "filed": {
+              "altitude": 9000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "PANGG5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "AAL4812",
+            "t": 907,
+            "text": "Marlow Clearance, American four eight one two, IFR to Orlando, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:15:11Z",
+        "tick": 911
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 182,
+        "text": "I'll process this IFR clearance request for American 4812. Let me create a flight strip and verify the filed plan.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "AAL4812",
+              "bay": "working",
+              "fields": {
+                "actype": "B739",
+                "assigned_squawk": "5130",
+                "destination": "KMCO",
+                "destination_name": "Orlando",
+                "filed_altitude": 9000,
+                "filed_sid": "PANGG5",
+                "status": "awaiting_clearance"
+              }
+            },
+            "name": "strip_create"
+          }
+        ]
+      },
+      "tick": 911,
+      "tool_results": [
+        "strip created for AAL4812 in working"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL4812",
+            "actype": "B739",
+            "assigned_squawk": "5130",
+            "filed": {
+              "altitude": 9000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "PANGG5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:15:12Z",
+        "tick": 912
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 346,
+        "text": "I'll now issue the clearance. Let me verify the filed plan:\n\n**PLAN VALIDATION:**\n- **Filed altitude:** 9,000 ft \u2014 **INVALID** (LOA constraint: all KMRL IFR departures initial altitude = 5,000 ft)\n- **Filed SID:** PANGG5 \u2014 **VALID** (published RNAV departure, fixes: PANGG GRIST, initial 5,000 ft)\n- **Destination:** KMCO (Orlando) \u2014 **VALID**\n\nI will issue the clearance with the **corrected initial altitude of 5,000 ft** per the LOA and the filed PANGG5 departure.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American four eight one two, cleared to Orlando, Pangg Five departure, maintain five thousand, departure one one niner point three five, squawk five one three zero."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "AAL4812",
+              "patch": {
+                "assigned_squawk": "5130",
+                "cleared_altitude": 5000,
+                "cleared_sid": "PANGG5",
+                "departure_freq": "119.35",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 912,
+      "tool_results": [
+        "transmitted",
+        "strip AAL4812 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL4812",
+            "actype": "B739",
+            "assigned_squawk": "5130",
+            "filed": {
+              "altitude": 9000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 912,
+            "text": "American four eight one two, cleared to Orlando, Pangg Five departure, maintain five thousand, departure one one niner point three five, squawk five one three zero."
+          },
+          {
+            "from": "AAL4812",
+            "t": 918,
+            "text": "maintain five thousand, departure one one niner point three five, squawk five one three zero, American four eight one two"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:15:23Z",
+        "tick": 923
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 275,
+        "text": "I'll verify the readback against the clearance issued.\n\n**READBACK VERIFICATION:**\n- **Altitude:** Pilot read \"maintain five thousand\" \u2014 **CORRECT** (cleared 5,000 ft)\n- **Departure frequency:** Pilot read \"one one niner point three five\" \u2014 **CORRECT** (119.35)\n- **Squawk:** Pilot read \"five one three zero\" \u2014 **CORRECT** (5130)\n- **Callsign:** Pilot read \"American four eight one two\" \u2014 **CORRECT**\n\nThe readback is complete and correct per local convention (altitude, frequency, squawk, and callsign only).",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American four eight one two, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "AAL4812",
+              "patch": {
+                "status": "readback_correct"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 923,
+      "tool_results": [
+        "transmitted",
+        "strip AAL4812 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL4812",
+            "actype": "B739",
+            "assigned_squawk": "5130",
+            "filed": {
+              "altitude": 9000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 923,
+            "text": "American four eight one two, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:15:26Z",
+        "tick": 926
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 35,
+        "text": "",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 926,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL3110",
+            "actype": "E175",
+            "assigned_squawk": "3337",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDCA",
+              "destination_name": "Washington National",
+              "sid": "MRLW5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "UAL3110",
+            "t": 958,
+            "text": "Uh, Marlow Clearance, United three one one zero, we're, uh, ready to copy IFR to Washington National"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:16:04Z",
+        "tick": 964
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 184,
+        "text": "I'll process this IFR clearance request for United 3110. Let me create a flight strip and verify the filed plan.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "UAL3110",
+              "bay": "working",
+              "fields": {
+                "actype": "E175",
+                "assigned_squawk": "3337",
+                "destination": "KDCA",
+                "destination_name": "Washington National",
+                "filed_altitude": 35000,
+                "filed_sid": "MRLW5",
+                "status": "awaiting_clearance"
+              }
+            },
+            "name": "strip_create"
+          }
+        ]
+      },
+      "tick": 964,
+      "tool_results": [
+        "strip created for UAL3110 in working"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL3110",
+            "actype": "E175",
+            "assigned_squawk": "3337",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDCA",
+              "destination_name": "Washington National",
+              "sid": "MRLW5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:16:05Z",
+        "tick": 965
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 339,
+        "text": "I'll now issue the clearance. Let me verify the filed plan:\n\n**PLAN VALIDATION:**\n- **Filed altitude:** 35,000 ft \u2014 **INVALID** (LOA constraint: all KMRL IFR departures initial altitude = 5,000 ft)\n- **Filed SID:** MRLW5 \u2014 **VALID** (published vector departure, initial 5,000 ft)\n- **Destination:** KDCA (Washington National) \u2014 **VALID**\n\nI will issue the clearance with the **corrected initial altitude of 5,000 ft** per the LOA and the filed MRLW5 departure.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "United three one one zero, cleared to Washington National, Marlow Five departure, maintain five thousand, departure one one niner point three five, squawk three three three seven."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "UAL3110",
+              "patch": {
+                "assigned_squawk": "3337",
+                "cleared_altitude": 5000,
+                "cleared_sid": "MRLW5",
+                "departure_freq": "119.35",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 965,
+      "tool_results": [
+        "transmitted",
+        "strip UAL3110 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL3110",
+            "actype": "E175",
+            "assigned_squawk": "3337",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDCA",
+              "destination_name": "Washington National",
+              "sid": "MRLW5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 965,
+            "text": "United three one one zero, cleared to Washington National, Marlow Five departure, maintain five thousand, departure one one niner point three five, squawk three three three seven."
+          },
+          {
+            "from": "UAL3110",
+            "t": 971,
+            "text": "Okay, uh, maintain five thousand, departure one one niner point three five, squawk three three three seven, United three one one zero"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:16:16Z",
+        "tick": 976
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 275,
+        "text": "I'll verify the readback against the clearance issued.\n\n**READBACK VERIFICATION:**\n- **Altitude:** Pilot read \"maintain five thousand\" \u2014 **CORRECT** (cleared 5,000 ft)\n- **Departure frequency:** Pilot read \"one one niner point three five\" \u2014 **CORRECT** (119.35)\n- **Squawk:** Pilot read \"three three three seven\" \u2014 **CORRECT** (3337)\n- **Callsign:** Pilot read \"United three one one zero\" \u2014 **CORRECT**\n\nThe readback is complete and correct per local convention (altitude, frequency, squawk, and callsign only).",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "United three one one zero, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "UAL3110",
+              "patch": {
+                "status": "readback_correct"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 976,
+      "tool_results": [
+        "transmitted",
+        "strip UAL3110 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL3110",
+            "actype": "E175",
+            "assigned_squawk": "3337",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDCA",
+              "destination_name": "Washington National",
+              "sid": "MRLW5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 976,
+            "text": "United three one one zero, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:16:19Z",
+        "tick": 979
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 51,
+        "text": "I'll check if there are any pending aircraft or wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 979,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL162",
+            "actype": "B738",
+            "assigned_squawk": "1563",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "MRLW5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "UAL162",
+            "t": 1224,
+            "text": "Marlow Clearance, United one six two, IFR to Orlando, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:20:28Z",
+        "tick": 1228
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 181,
+        "text": "I'll process this IFR clearance request for United 162. Let me create a flight strip and verify the filed plan.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "UAL162",
+              "bay": "working",
+              "fields": {
+                "actype": "B738",
+                "assigned_squawk": "1563",
+                "destination": "KMCO",
+                "destination_name": "Orlando",
+                "filed_altitude": 35000,
+                "filed_sid": "MRLW5",
+                "status": "awaiting_clearance"
+              }
+            },
+            "name": "strip_create"
+          }
+        ]
+      },
+      "tick": 1228,
+      "tool_results": [
+        "strip created for UAL162 in working"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL162",
+            "actype": "B738",
+            "assigned_squawk": "1563",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "MRLW5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:20:29Z",
+        "tick": 1229
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 335,
+        "text": "I'll now issue the clearance. Let me verify the filed plan:\n\n**PLAN VALIDATION:**\n- **Filed altitude:** 35,000 ft \u2014 **INVALID** (LOA constraint: all KMRL IFR departures initial altitude = 5,000 ft)\n- **Filed SID:** MRLW5 \u2014 **VALID** (published vector departure, initial 5,000 ft)\n- **Destination:** KMCO (Orlando) \u2014 **VALID**\n\nI will issue the clearance with the **corrected initial altitude of 5,000 ft** per the LOA and the filed MRLW5 departure.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "United one six two, cleared to Orlando, Marlow Five departure, maintain five thousand, departure one one niner point three five, squawk one five six three."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "UAL162",
+              "patch": {
+                "assigned_squawk": "1563",
+                "cleared_altitude": 5000,
+                "cleared_sid": "MRLW5",
+                "departure_freq": "119.35",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 1229,
+      "tool_results": [
+        "transmitted",
+        "strip UAL162 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL162",
+            "actype": "B738",
+            "assigned_squawk": "1563",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "MRLW5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1229,
+            "text": "United one six two, cleared to Orlando, Marlow Five departure, maintain five thousand, departure one one niner point three five, squawk one five six three."
+          },
+          {
+            "from": "UAL162",
+            "t": 1235,
+            "text": "maintain five thousand, departure one one niner point three five, squawk one five six three, United one six two"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:20:40Z",
+        "tick": 1240
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 272,
+        "text": "I'll verify the readback against the clearance issued.\n\n**READBACK VERIFICATION:**\n- **Altitude:** Pilot read \"maintain five thousand\" \u2014 **CORRECT** (cleared 5,000 ft)\n- **Departure frequency:** Pilot read \"one one niner point three five\" \u2014 **CORRECT** (119.35)\n- **Squawk:** Pilot read \"one five six three\" \u2014 **CORRECT** (1563)\n- **Callsign:** Pilot read \"United one six two\" \u2014 **CORRECT**\n\nThe readback is complete and correct per local convention (altitude, frequency, squawk, and callsign only).",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "United one six two, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "UAL162",
+              "patch": {
+                "status": "readback_correct"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 1240,
+      "tool_results": [
+        "transmitted",
+        "strip UAL162 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL162",
+            "actype": "B738",
+            "assigned_squawk": "1563",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "MRLW5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1240,
+            "text": "United one six two, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:20:43Z",
+        "tick": 1243
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 1243,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL1175",
+            "actype": "B739",
+            "assigned_squawk": "5520",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "PANGG5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "AAL1175",
+            "t": 1371,
+            "text": "Uh, Marlow Clearance, American one one seven five, we're, uh, ready to copy IFR to Orlando"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:22:57Z",
+        "tick": 1377
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 182,
+        "text": "I'll process this IFR clearance request for American 1175. Let me create a flight strip and verify the filed plan.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "AAL1175",
+              "bay": "working",
+              "fields": {
+                "actype": "B739",
+                "assigned_squawk": "5520",
+                "destination": "KMCO",
+                "destination_name": "Orlando",
+                "filed_altitude": 23000,
+                "filed_sid": "PANGG5",
+                "status": "awaiting_clearance"
+              }
+            },
+            "name": "strip_create"
+          }
+        ]
+      },
+      "tick": 1377,
+      "tool_results": [
+        "strip created for AAL1175 in working"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL1175",
+            "actype": "B739",
+            "assigned_squawk": "5520",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "PANGG5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:22:58Z",
+        "tick": 1378
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 346,
+        "text": "I'll now issue the clearance. Let me verify the filed plan:\n\n**PLAN VALIDATION:**\n- **Filed altitude:** 23,000 ft \u2014 **INVALID** (LOA constraint: all KMRL IFR departures initial altitude = 5,000 ft)\n- **Filed SID:** PANGG5 \u2014 **VALID** (published RNAV departure, fixes: PANGG GRIST, initial 5,000 ft)\n- **Destination:** KMCO (Orlando) \u2014 **VALID**\n\nI will issue the clearance with the **corrected initial altitude of 5,000 ft** per the LOA and the filed PANGG5 departure.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American one one seven five, cleared to Orlando, Pangg Five departure, maintain five thousand, departure one one niner point three five, squawk five five two zero."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "AAL1175",
+              "patch": {
+                "assigned_squawk": "5520",
+                "cleared_altitude": 5000,
+                "cleared_sid": "PANGG5",
+                "departure_freq": "119.35",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 1378,
+      "tool_results": [
+        "transmitted",
+        "strip AAL1175 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL1175",
+            "actype": "B739",
+            "assigned_squawk": "5520",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1378,
+            "text": "American one one seven five, cleared to Orlando, Pangg Five departure, maintain five thousand, departure one one niner point three five, squawk five five two zero."
+          },
+          {
+            "from": "AAL1175",
+            "t": 1384,
+            "text": "Okay, uh, maintain five thousand, departure one one niner point three five, squawk five five two zero, American one one six five"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:23:09Z",
+        "tick": 1389
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 229,
+        "text": "I've detected an error in the readback. The pilot read back an incorrect callsign.\n\n**READBACK VERIFICATION:**\n- **Altitude:** Pilot read \"maintain five thousand\" \u2014 **CORRECT** (cleared 5,000 ft)\n- **Departure frequency:** Pilot read \"one one niner point three five\" \u2014 **CORRECT** (119.35)\n- **Squawk:** Pilot read \"five five two zero\" \u2014 **CORRECT** (5520)\n- **Callsign:** Pilot read \"American one one six five\" \u2014 **INCORRECT** (cleared American one one seven five)\n\nI must correct the erroneous callsign before the aircraft leaves my frequency.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American one one seven five, negative, your callsign is American one one seven five."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 1389,
+      "tool_results": [
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL1175",
+            "actype": "B739",
+            "assigned_squawk": "5520",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1389,
+            "text": "American one one seven five, negative, your callsign is American one one seven five."
+          },
+          {
+            "from": "AAL1175",
+            "t": 1393,
+            "text": "Correction, maintain five thousand, departure one one niner point three five, squawk five five two zero, American one one seven five"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:23:17Z",
+        "tick": 1397
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 262,
+        "text": "I'll verify the corrected readback.\n\n**READBACK VERIFICATION:**\n- **Altitude:** Pilot read \"maintain five thousand\" \u2014 **CORRECT** (cleared 5,000 ft)\n- **Departure frequency:** Pilot read \"one one niner point three five\" \u2014 **CORRECT** (119.35)\n- **Squawk:** Pilot read \"five five two zero\" \u2014 **CORRECT** (5520)\n- **Callsign:** Pilot read \"American one one seven five\" \u2014 **CORRECT**\n\nThe corrected readback is now complete and correct per local convention.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American one one seven five, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "AAL1175",
+              "patch": {
+                "status": "readback_correct"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 1397,
+      "tool_results": [
+        "transmitted",
+        "strip AAL1175 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL1175",
+            "actype": "B739",
+            "assigned_squawk": "5520",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1397,
+            "text": "American one one seven five, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:23:20Z",
+        "tick": 1400
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 1400,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL1175",
+            "actype": "B739",
+            "assigned_squawk": "5520",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "AAL1165",
+            "actype": "B738",
+            "assigned_squawk": "6045",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "PANGG5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "AAL1165",
+            "t": 1400,
+            "text": "Marlow Clearance, American one one six five, IFR to Orlando, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:23:24Z",
+        "tick": 1404
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 182,
+        "text": "I'll process this IFR clearance request for American 1165. Let me create a flight strip and verify the filed plan.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "AAL1165",
+              "bay": "working",
+              "fields": {
+                "actype": "B738",
+                "assigned_squawk": "6045",
+                "destination": "KMCO",
+                "destination_name": "Orlando",
+                "filed_altitude": 16000,
+                "filed_sid": "PANGG5",
+                "status": "awaiting_clearance"
+              }
+            },
+            "name": "strip_create"
+          }
+        ]
+      },
+      "tick": 1404,
+      "tool_results": [
+        "strip created for AAL1165 in working"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL1175",
+            "actype": "B739",
+            "assigned_squawk": "5520",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "AAL1165",
+            "actype": "B738",
+            "assigned_squawk": "6045",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "PANGG5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:23:25Z",
+        "tick": 1405
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 346,
+        "text": "I'll now issue the clearance. Let me verify the filed plan:\n\n**PLAN VALIDATION:**\n- **Filed altitude:** 16,000 ft \u2014 **INVALID** (LOA constraint: all KMRL IFR departures initial altitude = 5,000 ft)\n- **Filed SID:** PANGG5 \u2014 **VALID** (published RNAV departure, fixes: PANGG GRIST, initial 5,000 ft)\n- **Destination:** KMCO (Orlando) \u2014 **VALID**\n\nI will issue the clearance with the **corrected initial altitude of 5,000 ft** per the LOA and the filed PANGG5 departure.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American one one six five, cleared to Orlando, Pangg Five departure, maintain five thousand, departure one one niner point three five, squawk six zero four five."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "AAL1165",
+              "patch": {
+                "assigned_squawk": "6045",
+                "cleared_altitude": 5000,
+                "cleared_sid": "PANGG5",
+                "departure_freq": "119.35",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 1405,
+      "tool_results": [
+        "transmitted",
+        "strip AAL1165 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL1175",
+            "actype": "B739",
+            "assigned_squawk": "5520",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "AAL1165",
+            "actype": "B738",
+            "assigned_squawk": "6045",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1405,
+            "text": "American one one six five, cleared to Orlando, Pangg Five departure, maintain five thousand, departure one one niner point three five, squawk six zero four five."
+          },
+          {
+            "from": "AAL1165",
+            "t": 1411,
+            "text": "maintain five thousand, squawk six zero four five, American one one six five"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:23:35Z",
+        "tick": 1415
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 206,
+        "text": "I've detected an incomplete readback. The pilot omitted the departure frequency.\n\n**READBACK VERIFICATION:**\n- **Altitude:** Pilot read \"maintain five thousand\" \u2014 **CORRECT** (cleared 5,000 ft)\n- **Departure frequency:** Pilot did NOT read back \u2014 **MISSING**\n- **Squawk:** Pilot read \"squawk six zero four five\" \u2014 **CORRECT** (6045)\n- **Callsign:** Pilot read \"American one one six five\" \u2014 **CORRECT**\n\nPer local convention, the departure frequency must be read back. I need to prompt for a complete readback.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American one one six five, say again your departure frequency."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 1415,
+      "tool_results": [
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL1175",
+            "actype": "B739",
+            "assigned_squawk": "5520",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "AAL1165",
+            "actype": "B738",
+            "assigned_squawk": "6045",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1415,
+            "text": "American one one six five, say again your departure frequency."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:23:39Z",
+        "tick": 1419
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 44,
+        "text": "I'll wait for the pilot's response.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 1419,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL1165",
+            "actype": "B738",
+            "assigned_squawk": "6045",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:23:39Z",
+        "tick": 1419
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 51,
+        "text": "I'll wait for the pilot's response to my request for the departure frequency.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 1419,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL1185",
+            "actype": "B738",
+            "assigned_squawk": "7505",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "HALIE4"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "AAL1185",
+            "t": 1457,
+            "text": "Marlow Clearance, American one one eight five, IFR to Boston, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:24:21Z",
+        "tick": 1461
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 183,
+        "text": "I'll process this IFR clearance request for American 1185. Let me create a flight strip and verify the filed plan.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "AAL1185",
+              "bay": "working",
+              "fields": {
+                "actype": "B738",
+                "assigned_squawk": "7505",
+                "destination": "KBOS",
+                "destination_name": "Boston",
+                "filed_altitude": 16000,
+                "filed_sid": "HALIE4",
+                "status": "awaiting_clearance"
+              }
+            },
+            "name": "strip_create"
+          }
+        ]
+      },
+      "tick": 1461,
+      "tool_results": [
+        "strip created for AAL1185 in working"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL1185",
+            "actype": "B738",
+            "assigned_squawk": "7505",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "HALIE4"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:24:22Z",
+        "tick": 1462
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 347,
+        "text": "I'll now issue the clearance. Let me verify the filed plan:\n\n**PLAN VALIDATION:**\n- **Filed altitude:** 16,000 ft \u2014 **INVALID** (LOA constraint: all KMRL IFR departures initial altitude = 5,000 ft)\n- **Filed SID:** HALIE4 \u2014 **VALID** (published RNAV departure, fixes: HALIE EONNA, initial 5,000 ft)\n- **Destination:** KBOS (Boston) \u2014 **VALID**\n\nI will issue the clearance with the **corrected initial altitude of 5,000 ft** per the LOA and the filed HALIE4 departure.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American one one eight five, cleared to Boston, Halie Four departure, maintain five thousand, departure one one niner point three five, squawk seven five zero five."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "AAL1185",
+              "patch": {
+                "assigned_squawk": "7505",
+                "cleared_altitude": 5000,
+                "cleared_sid": "HALIE4",
+                "departure_freq": "119.35",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 1462,
+      "tool_results": [
+        "transmitted",
+        "strip AAL1185 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL1185",
+            "actype": "B738",
+            "assigned_squawk": "7505",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "HALIE4"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1462,
+            "text": "American one one eight five, cleared to Boston, Halie Four departure, maintain five thousand, departure one one niner point three five, squawk seven five zero five."
+          },
+          {
+            "from": "AAL1185",
+            "t": 1468,
+            "text": "maintain five thousand, departure one one niner point five three, squawk seven five zero five, American one one eight five"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:24:33Z",
+        "tick": 1473
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 218,
+        "text": "I've detected an error in the readback. The pilot read back an incorrect departure frequency.\n\n**READBACK VERIFICATION:**\n- **Altitude:** Pilot read \"maintain five thousand\" \u2014 **CORRECT** (cleared 5,000 ft)\n- **Departure frequency:** Pilot read \"one one niner point five three\" \u2014 **INCORRECT** (cleared 119.35)\n- **Squawk:** Pilot read \"seven five zero five\" \u2014 **CORRECT** (7505)\n- **Callsign:** Pilot read \"American one one eight five\" \u2014 **CORRECT**\n\nI must correct the erroneous frequency before the aircraft leaves my frequency.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American one one eight five, negative, departure one one niner point three five."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 1473,
+      "tool_results": [
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL1185",
+            "actype": "B738",
+            "assigned_squawk": "7505",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "HALIE4"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1473,
+            "text": "American one one eight five, negative, departure one one niner point three five."
+          },
+          {
+            "from": "AAL1185",
+            "t": 1475,
+            "text": "Correction, maintain five thousand, departure one one niner point three five, squawk seven five zero five, American one one eight five"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:24:39Z",
+        "tick": 1479
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 262,
+        "text": "I'll verify the corrected readback.\n\n**READBACK VERIFICATION:**\n- **Altitude:** Pilot read \"maintain five thousand\" \u2014 **CORRECT** (cleared 5,000 ft)\n- **Departure frequency:** Pilot read \"one one niner point three five\" \u2014 **CORRECT** (119.35)\n- **Squawk:** Pilot read \"seven five zero five\" \u2014 **CORRECT** (7505)\n- **Callsign:** Pilot read \"American one one eight five\" \u2014 **CORRECT**\n\nThe corrected readback is now complete and correct per local convention.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American one one eight five, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "AAL1185",
+              "patch": {
+                "status": "readback_correct"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 1479,
+      "tool_results": [
+        "transmitted",
+        "strip AAL1185 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL1185",
+            "actype": "B738",
+            "assigned_squawk": "7505",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "HALIE4"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1479,
+            "text": "American one one eight five, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:24:42Z",
+        "tick": 1482
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 1482,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL4498",
+            "actype": "B739",
+            "assigned_squawk": "2335",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "BOGUS9"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "UAL4498",
+            "t": 1511,
+            "text": "Uh, Marlow Clearance, United four four niner eight, we're, uh, ready to copy IFR to Boston"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:25:17Z",
+        "tick": 1517
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 183,
+        "text": "I'll process this IFR clearance request for United 4498. Let me create a flight strip and verify the filed plan.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "UAL4498",
+              "bay": "working",
+              "fields": {
+                "actype": "B739",
+                "assigned_squawk": "2335",
+                "destination": "KBOS",
+                "destination_name": "Boston",
+                "filed_altitude": 23000,
+                "filed_sid": "BOGUS9",
+                "status": "awaiting_clearance"
+              }
+            },
+            "name": "strip_create"
+          }
+        ]
+      },
+      "tick": 1517,
+      "tool_results": [
+        "strip created for UAL4498 in working"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL4498",
+            "actype": "B739",
+            "assigned_squawk": "2335",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "BOGUS9"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:25:18Z",
+        "tick": 1518
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 394,
+        "text": "I need to address an issue with the filed plan before issuing a clearance.\n\n**PLAN VALIDATION:**\n- **Filed altitude:** 23,000 ft \u2014 **INVALID** (LOA constraint: all KMRL IFR departures initial altitude = 5,000 ft)\n- **Filed SID:** BOGUS9 \u2014 **INVALID** (not a published SID at KMRL. Published SIDs are: MRLW5, PANGG5, HALIE4)\n- **Destination:** KBOS (Boston) \u2014 **VALID**\n\nThe filed SID is not published. For Boston, the appropriate SID is **HALIE4** (fixes: HALIE EONNA). I will issue the clearance with the **corrected SID of HALIE4** and the **corrected initial altitude of 5,000 ft** per the LOA.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "United four four niner eight, cleared to Boston, Halie Four departure, maintain five thousand, departure one one niner point three five, squawk two three three five."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "UAL4498",
+              "patch": {
+                "assigned_squawk": "2335",
+                "cleared_altitude": 5000,
+                "cleared_sid": "HALIE4",
+                "departure_freq": "119.35",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 1518,
+      "tool_results": [
+        "transmitted",
+        "strip UAL4498 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL4498",
+            "actype": "B739",
+            "assigned_squawk": "2335",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "BOGUS9"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1518,
+            "text": "United four four niner eight, cleared to Boston, Halie Four departure, maintain five thousand, departure one one niner point three five, squawk two three three five."
+          },
+          {
+            "from": "UAL4498",
+            "t": 1524,
+            "text": "Okay, uh, maintain five thousand, departure one one niner point three five, squawk two three three five, United four four niner eight"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:25:29Z",
+        "tick": 1529
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 277,
+        "text": "I'll verify the readback against the clearance issued.\n\n**READBACK VERIFICATION:**\n- **Altitude:** Pilot read \"maintain five thousand\" \u2014 **CORRECT** (cleared 5,000 ft)\n- **Departure frequency:** Pilot read \"one one niner point three five\" \u2014 **CORRECT** (119.35)\n- **Squawk:** Pilot read \"two three three five\" \u2014 **CORRECT** (2335)\n- **Callsign:** Pilot read \"United four four niner eight\" \u2014 **CORRECT**\n\nThe readback is complete and correct per local convention (altitude, frequency, squawk, and callsign only).",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "United four four niner eight, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "UAL4498",
+              "patch": {
+                "status": "readback_correct"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 1529,
+      "tool_results": [
+        "transmitted",
+        "strip UAL4498 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL4498",
+            "actype": "B739",
+            "assigned_squawk": "2335",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "BOGUS9"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1529,
+            "text": "United four four niner eight, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:25:32Z",
+        "tick": 1532
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 1532,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL4498",
+            "actype": "B739",
+            "assigned_squawk": "2335",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "BOGUS9"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "AAL3886",
+            "actype": "B738",
+            "assigned_squawk": "3051",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "HALIE4"
+            },
+            "status": "awaiting_clearance"
+          },
+          {
+            "acid": "AAL1734",
+            "actype": "B739",
+            "assigned_squawk": "5322",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "HALIE4"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "AAL3886",
+            "t": 1532,
+            "text": "Marlow Clearance, American three eight eight six, request IFR clearance to Orlando"
+          },
+          {
+            "from": "AAL1734",
+            "t": 1536,
+            "text": "Marlow Clearance, American one seven three four, IFR to Boston, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:25:40Z",
+        "tick": 1540
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 318,
+        "text": "I'll process these two IFR clearance requests in CRAFT order. Let me create flight strips and verify the filed plans.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "AAL3886",
+              "bay": "working",
+              "fields": {
+                "actype": "B738",
+                "assigned_squawk": "3051",
+                "destination": "KMCO",
+                "destination_name": "Orlando",
+                "filed_altitude": 17000,
+                "filed_sid": "HALIE4",
+                "status": "awaiting_clearance"
+              }
+            },
+            "name": "strip_create"
+          },
+          {
+            "input": {
+              "acid": "AAL1734",
+              "bay": "working",
+              "fields": {
+                "actype": "B739",
+                "assigned_squawk": "5322",
+                "destination": "KBOS",
+                "destination_name": "Boston",
+                "filed_altitude": 16000,
+                "filed_sid": "HALIE4",
+                "status": "awaiting_clearance"
+              }
+            },
+            "name": "strip_create"
+          }
+        ]
+      },
+      "tick": 1540,
+      "tool_results": [
+        "strip created for AAL3886 in working",
+        "strip created for AAL1734 in working"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL4498",
+            "actype": "B739",
+            "assigned_squawk": "2335",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "BOGUS9"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "AAL3886",
+            "actype": "B738",
+            "assigned_squawk": "3051",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "HALIE4"
+            },
+            "status": "awaiting_clearance"
+          },
+          {
+            "acid": "AAL1734",
+            "actype": "B739",
+            "assigned_squawk": "5322",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "HALIE4"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:25:42Z",
+        "tick": 1542
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 552,
+        "text": "I'll now issue clearances in CRAFT order. First, American 3886 (to Orlando):\n\n**PLAN VALIDATION - AAL3886:**\n- **Filed altitude:** 17,000 ft \u2014 **INVALID** (LOA constraint: all KMRL IFR departures initial altitude = 5,000 ft)\n- **Filed SID:** HALIE4 \u2014 **INVALID for Orlando** (HALIE4 is published with fixes HALIE EONNA, appropriate for Atlanta/Boston, not Orlando. The appropriate SID for Orlando is PANGG5, which has fixes PANGG GRIST)\n- **Destination:** KMCO (Orlando) \u2014 **VALID**\n\nI will issue the clearance with the **corrected SID of PANGG5** (appropriate for Orlando) and the **corrected initial altitude of 5,000 ft** per the LOA.\n\nThen American 1734 (to Boston):\n\n**PLAN VALIDATION - AAL1734:**\n- **Filed altitude:** 16,000 ft \u2014 **INVALID** (LOA constraint: all KMRL IFR departures initial altitude = 5,000 ft)\n- **Filed SID:** HALIE4 \u2014 **VALID** (published RNAV departure, fixes: HALIE EONNA, initial 5,000 ft)\n- **Destination:** KBOS (Boston) \u2014 **VALID**\n\nI will issue the clearance with the **corrected initial altitude of 5,000 ft** per the LOA and the filed HALIE4 departure.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American three eight eight six, cleared to Orlando, Pangg Five departure, maintain five thousand, departure one one niner point three five, squawk three zero five one."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "AAL3886",
+              "patch": {
+                "assigned_squawk": "3051",
+                "cleared_altitude": 5000,
+                "cleared_sid": "PANGG5",
+                "departure_freq": "119.35",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 1542,
+      "tool_results": [
+        "transmitted",
+        "strip AAL3886 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL4498",
+            "actype": "B739",
+            "assigned_squawk": "2335",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "BOGUS9"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "AAL3886",
+            "actype": "B738",
+            "assigned_squawk": "3051",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "HALIE4"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "AAL1734",
+            "actype": "B739",
+            "assigned_squawk": "5322",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "HALIE4"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1542,
+            "text": "American three eight eight six, cleared to Orlando, Pangg Five departure, maintain five thousand, departure one one niner point three five, squawk three zero five one."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:25:49Z",
+        "tick": 1549
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 54,
+        "text": "I'll wait for American 3886's readback before issuing the next clearance.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 1549,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL3886",
+            "actype": "B738",
+            "assigned_squawk": "3051",
+            "filed": {
+              "altitude": 17000,
+              "destination": "KMCO",
+              "destination_name": "Orlando",
+              "sid": "HALIE4"
+            },
+            "status": "readback_pending"
+          },
+          {
+            "acid": "AAL1734",
+            "actype": "B739",
+            "assigned_squawk": "5322",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "HALIE4"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:25:54Z",
+        "tick": 1554
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 47,
+        "text": "I'll wait for American 3886's readback.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 1554,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL1734",
+            "actype": "B739",
+            "assigned_squawk": "5322",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "HALIE4"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:26:18Z",
+        "tick": 1578
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 364,
+        "text": "American 3886 did not respond to the clearance. I'll proceed to issue the clearance for American 1734.\n\n**PLAN VALIDATION - AAL1734:**\n- **Filed altitude:** 16,000 ft \u2014 **INVALID** (LOA constraint: all KMRL IFR departures initial altitude = 5,000 ft)\n- **Filed SID:** HALIE4 \u2014 **VALID** (published RNAV departure, fixes: HALIE EONNA, initial 5,000 ft)\n- **Destination:** KBOS (Boston) \u2014 **VALID**\n\nI will issue the clearance with the **corrected initial altitude of 5,000 ft** per the LOA and the filed HALIE4 departure.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American one seven three four, cleared to Boston, Halie Four departure, maintain five thousand, departure one one niner point three five, squawk five three two two."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "AAL1734",
+              "patch": {
+                "assigned_squawk": "5322",
+                "cleared_altitude": 5000,
+                "cleared_sid": "HALIE4",
+                "departure_freq": "119.35",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 1578,
+      "tool_results": [
+        "transmitted",
+        "strip AAL1734 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL1734",
+            "actype": "B739",
+            "assigned_squawk": "5322",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "HALIE4"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1578,
+            "text": "American one seven three four, cleared to Boston, Halie Four departure, maintain five thousand, departure one one niner point three five, squawk five three two two."
+          },
+          {
+            "from": "AAL1734",
+            "t": 1584,
+            "text": "maintain five thousand, departure one one niner point three five, squawk five three two two, American one seven three four"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:26:29Z",
+        "tick": 1589
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 275,
+        "text": "I'll verify the readback against the clearance issued.\n\n**READBACK VERIFICATION:**\n- **Altitude:** Pilot read \"maintain five thousand\" \u2014 **CORRECT** (cleared 5,000 ft)\n- **Departure frequency:** Pilot read \"one one niner point three five\" \u2014 **CORRECT** (119.35)\n- **Squawk:** Pilot read \"five three two two\" \u2014 **CORRECT** (5322)\n- **Callsign:** Pilot read \"American one seven three four\" \u2014 **CORRECT**\n\nThe readback is complete and correct per local convention (altitude, frequency, squawk, and callsign only).",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American one seven three four, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "AAL1734",
+              "patch": {
+                "status": "readback_correct"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 1589,
+      "tool_results": [
+        "transmitted",
+        "strip AAL1734 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL1734",
+            "actype": "B739",
+            "assigned_squawk": "5322",
+            "filed": {
+              "altitude": 16000,
+              "destination": "KBOS",
+              "destination_name": "Boston",
+              "sid": "HALIE4"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1589,
+            "text": "American one seven three four, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:26:32Z",
+        "tick": 1592
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 1592,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL3213",
+            "actype": "B739",
+            "assigned_squawk": "1531",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "PANGG5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "DAL3213",
+            "t": 1697,
+            "text": "Marlow Clearance, Delta three two one three, IFR to Detroit, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:28:21Z",
+        "tick": 1701
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 183,
+        "text": "I'll process this IFR clearance request for Delta 3213. Let me create a flight strip and verify the filed plan.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "DAL3213",
+              "bay": "working",
+              "fields": {
+                "actype": "B739",
+                "assigned_squawk": "1531",
+                "destination": "KDTW",
+                "destination_name": "Detroit",
+                "filed_altitude": 23000,
+                "filed_sid": "PANGG5",
+                "status": "awaiting_clearance"
+              }
+            },
+            "name": "strip_create"
+          }
+        ]
+      },
+      "tick": 1701,
+      "tool_results": [
+        "strip created for DAL3213 in working"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL3213",
+            "actype": "B739",
+            "assigned_squawk": "1531",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "PANGG5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:28:22Z",
+        "tick": 1702
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 381,
+        "text": "I'll now issue the clearance. Let me verify the filed plan:\n\n**PLAN VALIDATION:**\n- **Filed altitude:** 23,000 ft \u2014 **INVALID** (LOA constraint: all KMRL IFR departures initial altitude = 5,000 ft)\n- **Filed SID:** PANGG5 \u2014 **INVALID for Detroit** (PANGG5 is published with fixes PANGG GRIST, but does not serve Detroit as a valid departure. The appropriate SID for Detroit is MRLW5, which is a vector departure)\n- **Destination:** KDTW (Detroit) \u2014 **VALID**\n\nI will issue the clearance with the **corrected SID of MRLW5** (appropriate for Detroit) and the **corrected initial altitude of 5,000 ft** per the LOA.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "Delta three two one three, cleared to Detroit, Marlow Five departure, maintain five thousand, departure one one niner point three five, squawk one five three one."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "DAL3213",
+              "patch": {
+                "assigned_squawk": "1531",
+                "cleared_altitude": 5000,
+                "cleared_sid": "MRLW5",
+                "departure_freq": "119.35",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 1702,
+      "tool_results": [
+        "transmitted",
+        "strip DAL3213 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL3213",
+            "actype": "B739",
+            "assigned_squawk": "1531",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1702,
+            "text": "Delta three two one three, cleared to Detroit, Marlow Five departure, maintain five thousand, departure one one niner point three five, squawk one five three one."
+          },
+          {
+            "from": "DAL3213",
+            "t": 1708,
+            "text": "maintain five thousand, squawk one five three one, Delta three two one three"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:28:32Z",
+        "tick": 1712
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 206,
+        "text": "I've detected an incomplete readback. The pilot omitted the departure frequency.\n\n**READBACK VERIFICATION:**\n- **Altitude:** Pilot read \"maintain five thousand\" \u2014 **CORRECT** (cleared 5,000 ft)\n- **Departure frequency:** Pilot did NOT read back \u2014 **MISSING**\n- **Squawk:** Pilot read \"squawk one five three one\" \u2014 **CORRECT** (1531)\n- **Callsign:** Pilot read \"Delta three two one three\" \u2014 **CORRECT**\n\nPer local convention, the departure frequency must be read back. I need to prompt for a complete readback.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "Delta three two one three, say again your departure frequency."
+            },
+            "name": "transmit"
+          }
+        ]
+      },
+      "tick": 1712,
+      "tool_results": [
+        "transmitted"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL3213",
+            "actype": "B739",
+            "assigned_squawk": "1531",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 1712,
+            "text": "Delta three two one three, say again your departure frequency."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:28:36Z",
+        "tick": 1716
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 44,
+        "text": "I'll wait for the pilot's response.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 1716,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL1539",
+            "actype": "B738",
+            "assigned_squawk": "6630",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "PANGG5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "DAL1539",
+            "t": 2164,
+            "text": "Marlow Clearance, Delta one five three niner, IFR to Atlanta, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:36:08Z",
+        "tick": 2168
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 182,
+        "text": "I'll process this IFR clearance request for Delta 1539. Let me create a flight strip and verify the filed plan.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "DAL1539",
+              "bay": "working",
+              "fields": {
+                "actype": "B738",
+                "assigned_squawk": "6630",
+                "destination": "KATL",
+                "destination_name": "Atlanta",
+                "filed_altitude": 23000,
+                "filed_sid": "PANGG5",
+                "status": "awaiting_clearance"
+              }
+            },
+            "name": "strip_create"
+          }
+        ]
+      },
+      "tick": 2168,
+      "tool_results": [
+        "strip created for DAL1539 in working"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL1539",
+            "actype": "B738",
+            "assigned_squawk": "6630",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "PANGG5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:36:09Z",
+        "tick": 2169
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 382,
+        "text": "I'll now issue the clearance. Let me verify the filed plan:\n\n**PLAN VALIDATION:**\n- **Filed altitude:** 23,000 ft \u2014 **INVALID** (LOA constraint: all KMRL IFR departures initial altitude = 5,000 ft)\n- **Filed SID:** PANGG5 \u2014 **INVALID for Atlanta** (PANGG5 is published with fixes PANGG GRIST, but does not serve Atlanta as a valid departure. The appropriate SID for Atlanta is HALIE4, which has fixes HALIE EONNA)\n- **Destination:** KATL (Atlanta) \u2014 **VALID**\n\nI will issue the clearance with the **corrected SID of HALIE4** (appropriate for Atlanta) and the **corrected initial altitude of 5,000 ft** per the LOA.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "Delta one five three niner, cleared to Atlanta, Halie Four departure, maintain five thousand, departure one one niner point three five, squawk six six three zero."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "DAL1539",
+              "patch": {
+                "assigned_squawk": "6630",
+                "cleared_altitude": 5000,
+                "cleared_sid": "HALIE4",
+                "departure_freq": "119.35",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 2169,
+      "tool_results": [
+        "transmitted",
+        "strip DAL1539 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL1539",
+            "actype": "B738",
+            "assigned_squawk": "6630",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 2169,
+            "text": "Delta one five three niner, cleared to Atlanta, Halie Four departure, maintain five thousand, departure one one niner point three five, squawk six six three zero."
+          },
+          {
+            "from": "DAL1539",
+            "t": 2175,
+            "text": "maintain five thousand, departure one one niner point three five, squawk six six three zero, Delta one five three niner"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:36:20Z",
+        "tick": 2180
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 277,
+        "text": "I'll verify the readback against the clearance issued.\n\n**READBACK VERIFICATION:**\n- **Altitude:** Pilot read \"maintain five thousand\" \u2014 **CORRECT** (cleared 5,000 ft)\n- **Departure frequency:** Pilot read \"one one niner point three five\" \u2014 **CORRECT** (119.35)\n- **Squawk:** Pilot read \"six six three zero\" \u2014 **CORRECT** (6630)\n- **Callsign:** Pilot read \"Delta one five three niner\" \u2014 **CORRECT**\n\nThe readback is complete and correct per local convention (altitude, frequency, squawk, and callsign only).",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "Delta one five three niner, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "DAL1539",
+              "patch": {
+                "status": "readback_correct"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 2180,
+      "tool_results": [
+        "transmitted",
+        "strip DAL1539 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "DAL1539",
+            "actype": "B738",
+            "assigned_squawk": "6630",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KATL",
+              "destination_name": "Atlanta",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 2180,
+            "text": "Delta one five three niner, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:36:23Z",
+        "tick": 2183
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 2183,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "SWA3536",
+            "actype": "B739",
+            "assigned_squawk": "1537",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "BOGUS9"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "SWA3536",
+            "t": 2608,
+            "text": "Marlow Clearance, Southwest three five three six, IFR to LaGuardia, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:43:32Z",
+        "tick": 2612
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 186,
+        "text": "I'll process this IFR clearance request for Southwest 3536. Let me create a flight strip and verify the filed plan.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "SWA3536",
+              "bay": "working",
+              "fields": {
+                "actype": "B739",
+                "assigned_squawk": "1537",
+                "destination": "KLGA",
+                "destination_name": "LaGuardia",
+                "filed_altitude": 35000,
+                "filed_sid": "BOGUS9",
+                "status": "awaiting_clearance"
+              }
+            },
+            "name": "strip_create"
+          }
+        ]
+      },
+      "tick": 2612,
+      "tool_results": [
+        "strip created for SWA3536 in working"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "SWA3536",
+            "actype": "B739",
+            "assigned_squawk": "1537",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "BOGUS9"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:43:33Z",
+        "tick": 2613
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 402,
+        "text": "I need to address an issue with the filed plan before issuing a clearance.\n\n**PLAN VALIDATION:**\n- **Filed altitude:** 35,000 ft \u2014 **INVALID** (LOA constraint: all KMRL IFR departures initial altitude = 5,000 ft)\n- **Filed SID:** BOGUS9 \u2014 **INVALID** (not a published SID at KMRL. Published SIDs are: MRLW5, PANGG5, HALIE4)\n- **Destination:** KLGA (LaGuardia) \u2014 **VALID**\n\nThe filed SID is not published. For LaGuardia, the appropriate SID is **PANGG5** (fixes: PANGG GRIST). I will issue the clearance with the **corrected SID of PANGG5** and the **corrected initial altitude of 5,000 ft** per the LOA.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "Southwest three five three six, cleared to LaGuardia, Pangg Five departure, maintain five thousand, departure one one niner point three five, squawk one five three seven."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "SWA3536",
+              "patch": {
+                "assigned_squawk": "1537",
+                "cleared_altitude": 5000,
+                "cleared_sid": "PANGG5",
+                "departure_freq": "119.35",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 2613,
+      "tool_results": [
+        "transmitted",
+        "strip SWA3536 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "SWA3536",
+            "actype": "B739",
+            "assigned_squawk": "1537",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KLGA",
+              "destination_name": "LaGuardia",
+              "sid": "BOGUS9"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 2613,
+            "text": "Southwest three five three six, cleared to LaGuardia, Pangg Five departure, maintain five thousand, departure one one niner point three five, squawk one five three seven."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:43:40Z",
+        "tick": 2620
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 45,
+        "text": "I'll wait for the pilot's readback.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 2620,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL3205",
+            "actype": "A320",
+            "assigned_squawk": "6656",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "MRLW5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "UAL3205",
+            "t": 2765,
+            "text": "Marlow Clearance, United three two zero five, IFR to Detroit, ready to copy"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:46:09Z",
+        "tick": 2769
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 184,
+        "text": "I'll process this IFR clearance request for United 3205. Let me create a flight strip and verify the filed plan.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "UAL3205",
+              "bay": "working",
+              "fields": {
+                "actype": "A320",
+                "assigned_squawk": "6656",
+                "destination": "KDTW",
+                "destination_name": "Detroit",
+                "filed_altitude": 23000,
+                "filed_sid": "MRLW5",
+                "status": "awaiting_clearance"
+              }
+            },
+            "name": "strip_create"
+          }
+        ]
+      },
+      "tick": 2769,
+      "tool_results": [
+        "strip created for UAL3205 in working"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL3205",
+            "actype": "A320",
+            "assigned_squawk": "6656",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "MRLW5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:46:10Z",
+        "tick": 2770
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 338,
+        "text": "I'll now issue the clearance. Let me verify the filed plan:\n\n**PLAN VALIDATION:**\n- **Filed altitude:** 23,000 ft \u2014 **INVALID** (LOA constraint: all KMRL IFR departures initial altitude = 5,000 ft)\n- **Filed SID:** MRLW5 \u2014 **VALID** (published vector departure, initial 5,000 ft)\n- **Destination:** KDTW (Detroit) \u2014 **VALID**\n\nI will issue the clearance with the **corrected initial altitude of 5,000 ft** per the LOA and the filed MRLW5 departure.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "United three two zero five, cleared to Detroit, Marlow Five departure, maintain five thousand, departure one one niner point three five, squawk six six five six."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "UAL3205",
+              "patch": {
+                "assigned_squawk": "6656",
+                "cleared_altitude": 5000,
+                "cleared_sid": "MRLW5",
+                "departure_freq": "119.35",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 2770,
+      "tool_results": [
+        "transmitted",
+        "strip UAL3205 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL3205",
+            "actype": "A320",
+            "assigned_squawk": "6656",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "MRLW5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 2770,
+            "text": "United three two zero five, cleared to Detroit, Marlow Five departure, maintain five thousand, departure one one niner point three five, squawk six six five six."
+          },
+          {
+            "from": "UAL3205",
+            "t": 2776,
+            "text": "maintain five thousand, departure one one niner point three five, squawk six six five six, United three two zero five"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:46:21Z",
+        "tick": 2781
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 275,
+        "text": "I'll verify the readback against the clearance issued.\n\n**READBACK VERIFICATION:**\n- **Altitude:** Pilot read \"maintain five thousand\" \u2014 **CORRECT** (cleared 5,000 ft)\n- **Departure frequency:** Pilot read \"one one niner point three five\" \u2014 **CORRECT** (119.35)\n- **Squawk:** Pilot read \"six six five six\" \u2014 **CORRECT** (6656)\n- **Callsign:** Pilot read \"United three two zero five\" \u2014 **CORRECT**\n\nThe readback is complete and correct per local convention (altitude, frequency, squawk, and callsign only).",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "United three two zero five, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "UAL3205",
+              "patch": {
+                "status": "readback_correct"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 2781,
+      "tool_results": [
+        "transmitted",
+        "strip UAL3205 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "UAL3205",
+            "actype": "A320",
+            "assigned_squawk": "6656",
+            "filed": {
+              "altitude": 23000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "MRLW5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 2781,
+            "text": "United three two zero five, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:46:24Z",
+        "tick": 2784
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 2784,
+      "tool_results": [
+        "ok"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL4891",
+            "actype": "A320",
+            "assigned_squawk": "2637",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "PANGG5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "AAL4891",
+            "t": 3349,
+            "text": "Uh, Marlow Clearance, American four eight niner one, we're, uh, ready to copy IFR to Detroit"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:55:55Z",
+        "tick": 3355
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 183,
+        "text": "I'll process this IFR clearance request for American 4891. Let me create a flight strip and verify the filed plan.",
+        "tool_calls": [
+          {
+            "input": {
+              "acid": "AAL4891",
+              "bay": "working",
+              "fields": {
+                "actype": "A320",
+                "assigned_squawk": "2637",
+                "destination": "KDTW",
+                "destination_name": "Detroit",
+                "filed_altitude": 35000,
+                "filed_sid": "PANGG5",
+                "status": "awaiting_clearance"
+              }
+            },
+            "name": "strip_create"
+          }
+        ]
+      },
+      "tick": 3355,
+      "tool_results": [
+        "strip created for AAL4891 in working"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL4891",
+            "actype": "A320",
+            "assigned_squawk": "2637",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "PANGG5"
+            },
+            "status": "awaiting_clearance"
+          }
+        ],
+        "frequency": [],
+        "position": "MRL_CD",
+        "sim_time": "14:55:56Z",
+        "tick": 3356
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 382,
+        "text": "I'll now issue the clearance. Let me verify the filed plan:\n\n**PLAN VALIDATION:**\n- **Filed altitude:** 35,000 ft \u2014 **INVALID** (LOA constraint: all KMRL IFR departures initial altitude = 5,000 ft)\n- **Filed SID:** PANGG5 \u2014 **INVALID for Detroit** (PANGG5 is published with fixes PANGG GRIST, but does not serve Detroit as a valid departure. The appropriate SID for Detroit is MRLW5, which is a vector departure)\n- **Destination:** KDTW (Detroit) \u2014 **VALID**\n\nI will issue the clearance with the **corrected SID of MRLW5** (appropriate for Detroit) and the **corrected initial altitude of 5,000 ft** per the LOA.",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American four eight niner one, cleared to Detroit, Marlow Five departure, maintain five thousand, departure one one niner point three five, squawk two six three seven."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "AAL4891",
+              "patch": {
+                "assigned_squawk": "2637",
+                "cleared_altitude": 5000,
+                "cleared_sid": "MRLW5",
+                "departure_freq": "119.35",
+                "status": "cleared"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 3356,
+      "tool_results": [
+        "transmitted",
+        "strip AAL4891 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL4891",
+            "actype": "A320",
+            "assigned_squawk": "2637",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 3356,
+            "text": "American four eight niner one, cleared to Detroit, Marlow Five departure, maintain five thousand, departure one one niner point three five, squawk two six three seven."
+          },
+          {
+            "from": "AAL4891",
+            "t": 3362,
+            "text": "Okay, uh, maintain five thousand, departure one one niner point three five, squawk two six three seven, American four eight niner one"
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:56:07Z",
+        "tick": 3367
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 277,
+        "text": "I'll verify the readback against the clearance issued.\n\n**READBACK VERIFICATION:**\n- **Altitude:** Pilot read \"maintain five thousand\" \u2014 **CORRECT** (cleared 5,000 ft)\n- **Departure frequency:** Pilot read \"one one niner point three five\" \u2014 **CORRECT** (119.35)\n- **Squawk:** Pilot read \"two six three seven\" \u2014 **CORRECT** (2637)\n- **Callsign:** Pilot read \"American four eight niner one\" \u2014 **CORRECT**\n\nThe readback is complete and correct per local convention (altitude, frequency, squawk, and callsign only).",
+        "tool_calls": [
+          {
+            "input": {
+              "text": "American four eight niner one, readback correct."
+            },
+            "name": "transmit"
+          },
+          {
+            "input": {
+              "acid": "AAL4891",
+              "patch": {
+                "status": "readback_correct"
+              }
+            },
+            "name": "strip_update"
+          }
+        ]
+      },
+      "tick": 3367,
+      "tool_results": [
+        "transmitted",
+        "strip AAL4891 updated"
+      ]
+    },
+    {
+      "observation": {
+        "aircraft": [
+          {
+            "acid": "AAL4891",
+            "actype": "A320",
+            "assigned_squawk": "2637",
+            "filed": {
+              "altitude": 35000,
+              "destination": "KDTW",
+              "destination_name": "Detroit",
+              "sid": "PANGG5"
+            },
+            "status": "readback_pending"
+          }
+        ],
+        "frequency": [
+          {
+            "from": "MRL_CD",
+            "t": 3367,
+            "text": "American four eight niner one, readback correct."
+          }
+        ],
+        "position": "MRL_CD",
+        "sim_time": "14:56:10Z",
+        "tick": 3370
+      },
+      "output": {
+        "input_tokens": 3,
+        "output_tokens": 43,
+        "text": "I'll wait for the next event.",
+        "tool_calls": [
+          {
+            "input": {},
+            "name": "wait"
+          }
+        ]
+      },
+      "tick": 3370,
+      "tool_results": [
+        "ok"
+      ]
+    }
+  ]
+}

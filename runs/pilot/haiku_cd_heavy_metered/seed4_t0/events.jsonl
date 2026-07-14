@@ -1,0 +1,446 @@
+{"payload":{"acid":"UAL536","actype":"A320","destination":"KMCO","persona":"airline_crisp"},"tick":292,"type":"aircraft_spawn"}
+{"payload":{"acid":"UAL536","bay":"queue","op":"auto_create"},"tick":292,"type":"strip_op"}
+{"payload":{"end_tick":296,"speaker":"UAL536","start_tick":292,"text":"Marlow Clearance, United five three six, IFR to Orlando, ready to copy"},"tick":292,"type":"transmission"}
+{"payload":{"n_aircraft":1},"tick":296,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":296,"type":"model_turn_start"}
+{"payload":{"output_tokens":274},"tick":296,"type":"model_turn_end"}
+{"payload":{"acid":"UAL536","op":"create"},"tick":308,"type":"strip_op"}
+{"payload":{"end_tick":314,"speaker":"MRL_CD","start_tick":308,"text":"United five three six, cleared to Orlando, Marlow Five departure, maintain five thousand, departure one one niner point three five, squawk six one two two."},"tick":308,"type":"transmission"}
+{"payload":{"acid":"UAL536","intent":"clearance","tier":1,"tier_name":"STANDARD"},"tick":314,"type":"controller_parse"}
+{"payload":{"acid":"UAL536","altitude":5000,"destination":"KMCO","frequency":"119.35","route":"MRLW5","squawk":"6122"},"tick":314,"type":"clearance_issued"}
+{"payload":{"acid":"UAL536","error_code":null,"instruction_understood":{"altitude":5000,"clearance_limit":"KMCO","frequency":"119.35","route":"MRLW5","squawk":"6122"},"readback_acid":"UAL536","readback_content":{"altitude":5000,"clearance_limit":"KMCO","frequency":"119.35","route":"MRLW5","squawk":"6122"},"will_comply_as":{"altitude":5000,"clearance_limit":"KMCO","frequency":"119.35","route":"MRLW5","squawk":"6122"}},"tick":314,"type":"fsm_intent"}
+{"payload":{"end_tick":318,"speaker":"UAL536","start_tick":314,"text":"maintain five thousand, departure one one niner point three five, squawk six one two two, United five three six"},"tick":314,"type":"transmission"}
+{"payload":{"acid":"UAL536","readback":{"altitude":5000,"clearance_limit":"KMCO","frequency":"119.35","route":"MRLW5","squawk":"6122"},"readback_acid":"UAL536"},"tick":318,"type":"readback"}
+{"payload":{"n_aircraft":1},"tick":318,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":318,"type":"model_turn_start"}
+{"payload":{"output_tokens":135},"tick":318,"type":"model_turn_end"}
+{"payload":{"acid":"UAL536","op":"update"},"tick":325,"type":"strip_op"}
+{"payload":{"end_tick":327,"speaker":"MRL_CD","start_tick":325,"text":"United five three six, readback correct."},"tick":325,"type":"transmission"}
+{"payload":{"acid":"UAL536","intent":"affirm","tier":1,"tier_name":"STANDARD"},"tick":327,"type":"controller_parse"}
+{"payload":{"acid":"UAL536"},"tick":327,"type":"readback_affirmed"}
+{"payload":{"n_aircraft":1},"tick":327,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":327,"type":"model_turn_start"}
+{"payload":{"output_tokens":46},"tick":327,"type":"model_turn_end"}
+{"payload":{"acid":"UAL536","comply_as":{"altitude":5000,"clearance_limit":"KMCO","frequency":"119.35","route":"MRLW5","squawk":"6122"},"error_caught":false,"error_code":null,"neglected":false,"readback_dropped":false,"understood":{"altitude":5000,"clearance_limit":"KMCO","frequency":"119.35","route":"MRLW5","squawk":"6122"}},"tick":344,"type":"aircraft_cleared"}
+{"payload":{"acid":"UAL536","bay":"cleared","op":"auto_move"},"tick":344,"type":"strip_op"}
+{"payload":{"acid":"UAL2617","actype":"E175","destination":"KDTW","persona":"airline_crisp"},"tick":622,"type":"aircraft_spawn"}
+{"payload":{"acid":"UAL2617","bay":"queue","op":"auto_create"},"tick":622,"type":"strip_op"}
+{"payload":{"end_tick":626,"speaker":"UAL2617","start_tick":622,"text":"Marlow Clearance, United two six one seven, IFR to Detroit, ready to copy"},"tick":622,"type":"transmission"}
+{"payload":{"n_aircraft":1},"tick":626,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":626,"type":"model_turn_start"}
+{"payload":{"output_tokens":249},"tick":626,"type":"model_turn_end"}
+{"payload":{"acid":"UAL2617","op":"create"},"tick":637,"type":"strip_op"}
+{"payload":{"end_tick":643,"speaker":"MRL_CD","start_tick":637,"text":"United two six one seven, cleared to Detroit, Pangg Five departure, maintain five thousand, departure one one niner point three five, squawk six six seven zero."},"tick":637,"type":"transmission"}
+{"payload":{"acid":"UAL2617","intent":"clearance","tier":1,"tier_name":"STANDARD"},"tick":643,"type":"controller_parse"}
+{"payload":{"acid":"UAL2617","altitude":5000,"destination":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"6670"},"tick":643,"type":"clearance_issued"}
+{"payload":{"acid":"UAL2617","error_code":"RB-FREQ","instruction_understood":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"6670"},"readback_acid":"UAL2617","readback_content":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.53","route":"PANGG5","squawk":"6670"},"will_comply_as":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.53","route":"PANGG5","squawk":"6670"}},"tick":643,"type":"fsm_intent"}
+{"payload":{"end_tick":647,"speaker":"UAL2617","start_tick":643,"text":"maintain five thousand, departure one one niner point five three, squawk six six seven zero, United two six one seven"},"tick":643,"type":"transmission"}
+{"payload":{"acid":"UAL2617","readback":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.53","route":"PANGG5","squawk":"6670"},"readback_acid":"UAL2617"},"tick":647,"type":"readback"}
+{"payload":{"n_aircraft":1},"tick":647,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":647,"type":"model_turn_start"}
+{"payload":{"output_tokens":91},"tick":647,"type":"model_turn_end"}
+{"payload":{"end_tick":653,"speaker":"MRL_CD","start_tick":651,"text":"United two six one seven, negative, departure one one niner point three five."},"tick":651,"type":"transmission"}
+{"payload":{"acid":"UAL2617","intent":"correction","tier":1,"tier_name":"STANDARD"},"tick":653,"type":"controller_parse"}
+{"payload":{"acid":"UAL2617","caught":true},"tick":653,"type":"clearance_corrected"}
+{"payload":{"end_tick":657,"speaker":"UAL2617","start_tick":653,"text":"Correction, maintain five thousand, departure one one niner point three five, squawk six six seven zero, United two six one seven"},"tick":653,"type":"transmission"}
+{"payload":{"acid":"UAL2617","corrected":true,"readback":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"6670"},"readback_acid":"UAL2617"},"tick":657,"type":"readback"}
+{"payload":{"n_aircraft":1},"tick":657,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":657,"type":"model_turn_start"}
+{"payload":{"output_tokens":138},"tick":657,"type":"model_turn_end"}
+{"payload":{"acid":"UAL2617","op":"update"},"tick":664,"type":"strip_op"}
+{"payload":{"end_tick":666,"speaker":"MRL_CD","start_tick":664,"text":"United two six one seven, readback correct."},"tick":664,"type":"transmission"}
+{"payload":{"acid":"UAL2617","intent":"affirm","tier":1,"tier_name":"STANDARD"},"tick":666,"type":"controller_parse"}
+{"payload":{"acid":"UAL2617"},"tick":666,"type":"readback_affirmed"}
+{"payload":{"n_aircraft":1},"tick":666,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":666,"type":"model_turn_start"}
+{"payload":{"output_tokens":46},"tick":666,"type":"model_turn_end"}
+{"payload":{"acid":"UAL2617","comply_as":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"6670"},"error_caught":true,"error_code":"RB-FREQ","neglected":false,"readback_dropped":false,"understood":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"6670"}},"tick":673,"type":"aircraft_cleared"}
+{"payload":{"acid":"UAL2617","bay":"cleared","op":"auto_move"},"tick":673,"type":"strip_op"}
+{"payload":{"acid":"UAL3436","actype":"E175","destination":"KATL","persona":"foreign_carrier"},"tick":1012,"type":"aircraft_spawn"}
+{"payload":{"acid":"UAL3436","bay":"queue","op":"auto_create"},"tick":1012,"type":"strip_op"}
+{"payload":{"end_tick":1016,"speaker":"UAL3436","start_tick":1012,"text":"Marlow Clearance, United three four three six, request IFR clearance to Atlanta"},"tick":1012,"type":"transmission"}
+{"payload":{"n_aircraft":1},"tick":1016,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":1016,"type":"model_turn_start"}
+{"payload":{"output_tokens":249},"tick":1016,"type":"model_turn_end"}
+{"payload":{"acid":"UAL3436","op":"create"},"tick":1027,"type":"strip_op"}
+{"payload":{"end_tick":1033,"speaker":"MRL_CD","start_tick":1027,"text":"United three four three six, cleared to Atlanta, Marlow Five departure, maintain five thousand, departure one one niner point three five, squawk two four two three."},"tick":1027,"type":"transmission"}
+{"payload":{"acid":"UAL3436","intent":"clearance","tier":1,"tier_name":"STANDARD"},"tick":1033,"type":"controller_parse"}
+{"payload":{"acid":"UAL3436","altitude":5000,"destination":"KATL","frequency":"119.35","route":"MRLW5","squawk":"2423"},"tick":1033,"type":"clearance_issued"}
+{"payload":{"acid":"UAL3436","error_code":"RB-DROP","instruction_understood":{"altitude":5000,"clearance_limit":"KATL","frequency":"119.35","route":"MRLW5","squawk":"2423"},"readback_acid":"UAL3436","readback_content":null,"will_comply_as":{"altitude":5000,"clearance_limit":"KATL","frequency":"119.35","route":"MRLW5","squawk":"2423"}},"tick":1033,"type":"fsm_intent"}
+{"payload":{"acid":"UAL3436","kind":"readback_dropped"},"tick":1033,"type":"pilot_deviation"}
+{"payload":{"n_aircraft":1},"tick":1033,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":1033,"type":"model_turn_start"}
+{"payload":{"output_tokens":45},"tick":1033,"type":"model_turn_end"}
+{"payload":{"acid":"UAL3436","comply_as":{"altitude":5000,"clearance_limit":"KATL","frequency":"119.35","route":"MRLW5","squawk":"2423"},"error_caught":false,"error_code":"RB-DROP","neglected":false,"readback_dropped":true,"understood":{"altitude":5000,"clearance_limit":"KATL","frequency":"119.35","route":"MRLW5","squawk":"2423"}},"tick":1063,"type":"aircraft_cleared"}
+{"payload":{"acid":"UAL3436","bay":"cleared","op":"auto_move"},"tick":1063,"type":"strip_op"}
+{"payload":{"acid":"DAL875","actype":"B739","destination":"KBOS","persona":"ga_relaxed"},"tick":1079,"type":"aircraft_spawn"}
+{"payload":{"acid":"DAL875","bay":"queue","op":"auto_create"},"tick":1079,"type":"strip_op"}
+{"payload":{"end_tick":1083,"speaker":"DAL875","start_tick":1079,"text":"Marlow Clearance, Delta eight seven five, IFR to Boston, ready to copy"},"tick":1079,"type":"transmission"}
+{"payload":{"n_aircraft":1},"tick":1083,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":1083,"type":"model_turn_start"}
+{"payload":{"output_tokens":246},"tick":1083,"type":"model_turn_end"}
+{"payload":{"acid":"DAL875","op":"create"},"tick":1094,"type":"strip_op"}
+{"payload":{"end_tick":1100,"speaker":"MRL_CD","start_tick":1094,"text":"Delta eight seven five, cleared to Boston, Halie Four departure, maintain five thousand, departure one one niner point three five, squawk five five six six."},"tick":1094,"type":"transmission"}
+{"payload":{"acid":"DAL875","intent":"clearance","tier":1,"tier_name":"STANDARD"},"tick":1100,"type":"controller_parse"}
+{"payload":{"acid":"DAL875","altitude":5000,"destination":"KBOS","frequency":"119.35","route":"HALIE4","squawk":"5566"},"tick":1100,"type":"clearance_issued"}
+{"payload":{"acid":"DAL875","error_code":"RB-ALT","instruction_understood":{"altitude":5000,"clearance_limit":"KBOS","frequency":"119.35","route":"HALIE4","squawk":"5566"},"readback_acid":"DAL875","readback_content":{"altitude":6000,"clearance_limit":"KBOS","frequency":"119.35","route":"HALIE4","squawk":"5566"},"will_comply_as":{"altitude":6000,"clearance_limit":"KBOS","frequency":"119.35","route":"HALIE4","squawk":"5566"}},"tick":1100,"type":"fsm_intent"}
+{"payload":{"end_tick":1104,"speaker":"DAL875","start_tick":1100,"text":"maintain six thousand, departure one one niner point three five, squawk five five six six, Delta eight seven five"},"tick":1100,"type":"transmission"}
+{"payload":{"acid":"DAL875","readback":{"altitude":6000,"clearance_limit":"KBOS","frequency":"119.35","route":"HALIE4","squawk":"5566"},"readback_acid":"DAL875"},"tick":1104,"type":"readback"}
+{"payload":{"n_aircraft":1},"tick":1104,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":1104,"type":"model_turn_start"}
+{"payload":{"output_tokens":79},"tick":1104,"type":"model_turn_end"}
+{"payload":{"acid":"UAL1667","actype":"C172","destination":"KLGA","persona":"ga_relaxed"},"tick":1097,"type":"aircraft_spawn"}
+{"payload":{"acid":"UAL1667","bay":"queue","op":"auto_create"},"tick":1097,"type":"strip_op"}
+{"payload":{"end_tick":1108,"speaker":"UAL1667","start_tick":1104,"text":"Marlow Clearance, United one six six seven, IFR to LaGuardia, ready to copy"},"tick":1104,"type":"transmission"}
+{"payload":{"end_tick":1110,"speaker":"MRL_CD","start_tick":1108,"text":"Delta eight seven five, negative, maintain five thousand."},"tick":1108,"type":"transmission"}
+{"payload":{"acid":"DAL875","intent":"correction","tier":1,"tier_name":"STANDARD"},"tick":1110,"type":"controller_parse"}
+{"payload":{"acid":"DAL875","caught":true},"tick":1110,"type":"clearance_corrected"}
+{"payload":{"end_tick":1114,"speaker":"DAL875","start_tick":1110,"text":"Correction, maintain five thousand, departure one one niner point three five, squawk five five six six, Delta eight seven five"},"tick":1110,"type":"transmission"}
+{"payload":{"acid":"DAL875","corrected":true,"readback":{"altitude":5000,"clearance_limit":"KBOS","frequency":"119.35","route":"HALIE4","squawk":"5566"},"readback_acid":"DAL875"},"tick":1114,"type":"readback"}
+{"payload":{"n_aircraft":2},"tick":1114,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":1114,"type":"model_turn_start"}
+{"payload":{"output_tokens":142},"tick":1114,"type":"model_turn_end"}
+{"payload":{"acid":"DAL875","op":"update"},"tick":1121,"type":"strip_op"}
+{"payload":{"end_tick":1123,"speaker":"MRL_CD","start_tick":1121,"text":"Delta eight seven five, readback correct."},"tick":1121,"type":"transmission"}
+{"payload":{"acid":"DAL875","intent":"affirm","tier":1,"tier_name":"STANDARD"},"tick":1123,"type":"controller_parse"}
+{"payload":{"acid":"DAL875"},"tick":1123,"type":"readback_affirmed"}
+{"payload":{"n_aircraft":2},"tick":1123,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":1123,"type":"model_turn_start"}
+{"payload":{"output_tokens":249},"tick":1123,"type":"model_turn_end"}
+{"payload":{"acid":"DAL875","comply_as":{"altitude":5000,"clearance_limit":"KBOS","frequency":"119.35","route":"HALIE4","squawk":"5566"},"error_caught":true,"error_code":"RB-ALT","neglected":false,"readback_dropped":false,"understood":{"altitude":5000,"clearance_limit":"KBOS","frequency":"119.35","route":"HALIE4","squawk":"5566"}},"tick":1130,"type":"aircraft_cleared"}
+{"payload":{"acid":"DAL875","bay":"cleared","op":"auto_move"},"tick":1130,"type":"strip_op"}
+{"payload":{"acid":"UAL1667","op":"create"},"tick":1134,"type":"strip_op"}
+{"payload":{"end_tick":1140,"speaker":"MRL_CD","start_tick":1134,"text":"United one six six seven, cleared to LaGuardia, Halie Four departure, maintain five thousand, departure one one niner point three five, squawk three zero one zero."},"tick":1134,"type":"transmission"}
+{"payload":{"acid":"UAL1667","intent":"clearance","tier":1,"tier_name":"STANDARD"},"tick":1140,"type":"controller_parse"}
+{"payload":{"acid":"UAL1667","altitude":5000,"destination":"KLGA","frequency":"119.35","route":"HALIE4","squawk":"3010"},"tick":1140,"type":"clearance_issued"}
+{"payload":{"acid":"UAL1667","error_code":null,"instruction_understood":{"altitude":5000,"clearance_limit":"KLGA","frequency":"119.35","route":"HALIE4","squawk":"3010"},"readback_acid":"UAL1667","readback_content":{"altitude":5000,"clearance_limit":"KLGA","frequency":"119.35","route":"HALIE4","squawk":"3010"},"will_comply_as":{"altitude":5000,"clearance_limit":"KLGA","frequency":"119.35","route":"HALIE4","squawk":"3010"}},"tick":1140,"type":"fsm_intent"}
+{"payload":{"end_tick":1144,"speaker":"UAL1667","start_tick":1140,"text":"maintain five thousand, departure one one niner point three five, squawk three zero one zero, United one six six seven"},"tick":1140,"type":"transmission"}
+{"payload":{"acid":"UAL1667","readback":{"altitude":5000,"clearance_limit":"KLGA","frequency":"119.35","route":"HALIE4","squawk":"3010"},"readback_acid":"UAL1667"},"tick":1144,"type":"readback"}
+{"payload":{"n_aircraft":1},"tick":1144,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":1144,"type":"model_turn_start"}
+{"payload":{"output_tokens":137},"tick":1144,"type":"model_turn_end"}
+{"payload":{"acid":"UAL1667","op":"update"},"tick":1151,"type":"strip_op"}
+{"payload":{"end_tick":1153,"speaker":"MRL_CD","start_tick":1151,"text":"United one six six seven, readback correct."},"tick":1151,"type":"transmission"}
+{"payload":{"acid":"UAL1667","intent":"affirm","tier":1,"tier_name":"STANDARD"},"tick":1153,"type":"controller_parse"}
+{"payload":{"acid":"UAL1667"},"tick":1153,"type":"readback_affirmed"}
+{"payload":{"n_aircraft":1},"tick":1153,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":1153,"type":"model_turn_start"}
+{"payload":{"output_tokens":46},"tick":1153,"type":"model_turn_end"}
+{"payload":{"acid":"UAL1667","comply_as":{"altitude":5000,"clearance_limit":"KLGA","frequency":"119.35","route":"HALIE4","squawk":"3010"},"error_caught":false,"error_code":null,"neglected":false,"readback_dropped":false,"understood":{"altitude":5000,"clearance_limit":"KLGA","frequency":"119.35","route":"HALIE4","squawk":"3010"}},"tick":1170,"type":"aircraft_cleared"}
+{"payload":{"acid":"UAL1667","bay":"cleared","op":"auto_move"},"tick":1170,"type":"strip_op"}
+{"payload":{"acid":"SWA612","actype":"E175","destination":"KBOS","persona":"airline_crisp"},"tick":1208,"type":"aircraft_spawn"}
+{"payload":{"acid":"SWA612","bay":"queue","op":"auto_create"},"tick":1208,"type":"strip_op"}
+{"payload":{"end_tick":1212,"speaker":"SWA612","start_tick":1208,"text":"Marlow Clearance, Southwest six one two, IFR to Boston, ready to copy"},"tick":1208,"type":"transmission"}
+{"payload":{"n_aircraft":1},"tick":1212,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":1212,"type":"model_turn_start"}
+{"payload":{"output_tokens":162},"tick":1212,"type":"model_turn_end"}
+{"payload":{"end_tick":1231,"speaker":"MRL_CD","start_tick":1219,"text":"Southwest six one two, I have an invalid SID filed. Marlow Regional publishes Marlow Five, Pangg Five, and Halie Four departures. Request you advise which departure you'll accept."},"tick":1219,"type":"transmission"}
+{"payload":{"acid":"SWA612","intent":"other","tier":2,"tier_name":"NONSTANDARD"},"tick":1231,"type":"controller_parse"}
+{"payload":{"acid":"SWA612","intent":"other","tier":2},"tick":1231,"type":"say_again"}
+{"payload":{"end_tick":1233,"speaker":"SWA612","start_tick":1231,"text":"Say again for Southwest six one two?"},"tick":1231,"type":"transmission"}
+{"payload":{"n_aircraft":1},"tick":1233,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":1233,"type":"model_turn_start"}
+{"payload":{"output_tokens":102},"tick":1233,"type":"model_turn_end"}
+{"payload":{"end_tick":1247,"speaker":"MRL_CD","start_tick":1238,"text":"Southwest six one two, your filed SID is invalid. Available departures are Marlow Five, Pangg Five, and Halie Four. Which will you accept?"},"tick":1238,"type":"transmission"}
+{"payload":{"acid":"SWA612","intent":"other","tier":2,"tier_name":"NONSTANDARD"},"tick":1247,"type":"controller_parse"}
+{"payload":{"acid":"SWA612","intent":"other","tier":2},"tick":1247,"type":"say_again"}
+{"payload":{"end_tick":1249,"speaker":"SWA612","start_tick":1247,"text":"Say again for Southwest six one two?"},"tick":1247,"type":"transmission"}
+{"payload":{"n_aircraft":1},"tick":1249,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":1249,"type":"model_turn_start"}
+{"payload":{"output_tokens":58},"tick":1249,"type":"model_turn_end"}
+{"payload":{"acid":"DAL1990","actype":"C172","destination":"KDTW","persona":"airline_crisp"},"tick":1282,"type":"aircraft_spawn"}
+{"payload":{"acid":"DAL1990","bay":"queue","op":"auto_create"},"tick":1282,"type":"strip_op"}
+{"payload":{"end_tick":1286,"speaker":"DAL1990","start_tick":1282,"text":"Marlow Clearance, Delta one niner niner zero, IFR to Detroit, ready to copy"},"tick":1282,"type":"transmission"}
+{"payload":{"n_aircraft":2},"tick":1286,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":1286,"type":"model_turn_start"}
+{"payload":{"output_tokens":260},"tick":1286,"type":"model_turn_end"}
+{"payload":{"acid":"DAL1990","op":"create"},"tick":1298,"type":"strip_op"}
+{"payload":{"end_tick":1304,"speaker":"MRL_CD","start_tick":1298,"text":"Delta one niner niner zero, cleared to Detroit, Pangg Five departure, maintain five thousand, departure one one niner point three five, squawk six five one three."},"tick":1298,"type":"transmission"}
+{"payload":{"acid":"DAL1990","intent":"clearance","tier":1,"tier_name":"STANDARD"},"tick":1304,"type":"controller_parse"}
+{"payload":{"acid":"DAL1990","altitude":5000,"destination":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"6513"},"tick":1304,"type":"clearance_issued"}
+{"payload":{"acid":"DAL1990","error_code":null,"instruction_understood":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"6513"},"readback_acid":"DAL1990","readback_content":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"6513"},"will_comply_as":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"6513"}},"tick":1304,"type":"fsm_intent"}
+{"payload":{"end_tick":1308,"speaker":"DAL1990","start_tick":1304,"text":"maintain five thousand, departure one one niner point three five, squawk six five one three, Delta one niner niner zero"},"tick":1304,"type":"transmission"}
+{"payload":{"acid":"DAL1990","readback":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"6513"},"readback_acid":"DAL1990"},"tick":1308,"type":"readback"}
+{"payload":{"n_aircraft":2},"tick":1308,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":1308,"type":"model_turn_start"}
+{"payload":{"output_tokens":139},"tick":1308,"type":"model_turn_end"}
+{"payload":{"acid":"DAL1990","op":"update"},"tick":1315,"type":"strip_op"}
+{"payload":{"end_tick":1317,"speaker":"MRL_CD","start_tick":1315,"text":"Delta one niner niner zero, readback correct."},"tick":1315,"type":"transmission"}
+{"payload":{"acid":"DAL1990","intent":"affirm","tier":1,"tier_name":"STANDARD"},"tick":1317,"type":"controller_parse"}
+{"payload":{"acid":"DAL1990"},"tick":1317,"type":"readback_affirmed"}
+{"payload":{"n_aircraft":2},"tick":1317,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":1317,"type":"model_turn_start"}
+{"payload":{"output_tokens":46},"tick":1317,"type":"model_turn_end"}
+{"payload":{"acid":"DAL1990","comply_as":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"6513"},"error_caught":false,"error_code":null,"neglected":false,"readback_dropped":false,"understood":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"6513"}},"tick":1334,"type":"aircraft_cleared"}
+{"payload":{"acid":"DAL1990","bay":"cleared","op":"auto_move"},"tick":1334,"type":"strip_op"}
+{"payload":{"n_aircraft":1},"tick":1334,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":1334,"type":"model_turn_start"}
+{"payload":{"output_tokens":52},"tick":1334,"type":"model_turn_end"}
+{"payload":{"acid":"SWA612","comply_as":{},"error_caught":false,"error_code":"RB-ALT","neglected":true,"readback_dropped":false,"understood":{}},"tick":1388,"type":"aircraft_cleared"}
+{"payload":{"acid":"SWA612","bay":"cleared","op":"auto_move"},"tick":1388,"type":"strip_op"}
+{"payload":{"acid":"SWA1356","actype":"E175","destination":"KDCA","persona":"airline_crisp"},"tick":2040,"type":"aircraft_spawn"}
+{"payload":{"acid":"SWA1356","bay":"queue","op":"auto_create"},"tick":2040,"type":"strip_op"}
+{"payload":{"end_tick":2045,"speaker":"SWA1356","start_tick":2040,"text":"Marlow Clearance, Southwest one three five six, IFR to Washington National, ready to copy"},"tick":2040,"type":"transmission"}
+{"payload":{"n_aircraft":1},"tick":2045,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":2045,"type":"model_turn_start"}
+{"payload":{"output_tokens":252},"tick":2045,"type":"model_turn_end"}
+{"payload":{"acid":"SWA1356","op":"create"},"tick":2057,"type":"strip_op"}
+{"payload":{"end_tick":2063,"speaker":"MRL_CD","start_tick":2057,"text":"Southwest one three five six, cleared to Washington National, Halie Four departure, maintain five thousand, departure one one niner point three five, squawk one four five six."},"tick":2057,"type":"transmission"}
+{"payload":{"acid":"SWA1356","intent":"clearance","tier":1,"tier_name":"STANDARD"},"tick":2063,"type":"controller_parse"}
+{"payload":{"acid":"SWA1356","altitude":5000,"destination":"KDCA","frequency":"119.35","route":"HALIE4","squawk":"1456"},"tick":2063,"type":"clearance_issued"}
+{"payload":{"acid":"SWA1356","error_code":null,"instruction_understood":{"altitude":5000,"clearance_limit":"KDCA","frequency":"119.35","route":"HALIE4","squawk":"1456"},"readback_acid":"SWA1356","readback_content":{"altitude":5000,"clearance_limit":"KDCA","frequency":"119.35","route":"HALIE4","squawk":"1456"},"will_comply_as":{"altitude":5000,"clearance_limit":"KDCA","frequency":"119.35","route":"HALIE4","squawk":"1456"}},"tick":2063,"type":"fsm_intent"}
+{"payload":{"end_tick":2067,"speaker":"SWA1356","start_tick":2063,"text":"maintain five thousand, departure one one niner point three five, squawk one four five six, Southwest one three five six"},"tick":2063,"type":"transmission"}
+{"payload":{"acid":"SWA1356","readback":{"altitude":5000,"clearance_limit":"KDCA","frequency":"119.35","route":"HALIE4","squawk":"1456"},"readback_acid":"SWA1356"},"tick":2067,"type":"readback"}
+{"payload":{"n_aircraft":1},"tick":2067,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":2067,"type":"model_turn_start"}
+{"payload":{"output_tokens":138},"tick":2067,"type":"model_turn_end"}
+{"payload":{"acid":"UAL3563","actype":"E175","destination":"KDTW","persona":"airline_crisp"},"tick":2065,"type":"aircraft_spawn"}
+{"payload":{"acid":"UAL3563","bay":"queue","op":"auto_create"},"tick":2065,"type":"strip_op"}
+{"payload":{"end_tick":2071,"speaker":"UAL3563","start_tick":2067,"text":"Marlow Clearance, United three five six three, IFR to Detroit, ready to copy"},"tick":2067,"type":"transmission"}
+{"payload":{"acid":"SWA1356","op":"update"},"tick":2074,"type":"strip_op"}
+{"payload":{"end_tick":2076,"speaker":"MRL_CD","start_tick":2074,"text":"Southwest one three five six, readback correct."},"tick":2074,"type":"transmission"}
+{"payload":{"acid":"SWA1356","intent":"affirm","tier":1,"tier_name":"STANDARD"},"tick":2076,"type":"controller_parse"}
+{"payload":{"acid":"SWA1356"},"tick":2076,"type":"readback_affirmed"}
+{"payload":{"n_aircraft":2},"tick":2076,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":2076,"type":"model_turn_start"}
+{"payload":{"output_tokens":243},"tick":2076,"type":"model_turn_end"}
+{"payload":{"acid":"UAL3563","op":"create"},"tick":2087,"type":"strip_op"}
+{"payload":{"end_tick":2093,"speaker":"MRL_CD","start_tick":2087,"text":"United three five six three, cleared to Detroit, Pangg Five departure, maintain five thousand, departure one one niner point three five, squawk seven two six four."},"tick":2087,"type":"transmission"}
+{"payload":{"acid":"UAL3563","intent":"clearance","tier":1,"tier_name":"STANDARD"},"tick":2093,"type":"controller_parse"}
+{"payload":{"acid":"UAL3563","altitude":5000,"destination":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"7264"},"tick":2093,"type":"clearance_issued"}
+{"payload":{"acid":"UAL3563","error_code":null,"instruction_understood":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"7264"},"readback_acid":"UAL3563","readback_content":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"7264"},"will_comply_as":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"7264"}},"tick":2093,"type":"fsm_intent"}
+{"payload":{"end_tick":2097,"speaker":"UAL3563","start_tick":2093,"text":"maintain five thousand, departure one one niner point three five, squawk seven two six four, United three five six three"},"tick":2093,"type":"transmission"}
+{"payload":{"acid":"UAL3563","readback":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"7264"},"readback_acid":"UAL3563"},"tick":2097,"type":"readback"}
+{"payload":{"n_aircraft":2},"tick":2097,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":2097,"type":"model_turn_start"}
+{"payload":{"output_tokens":137},"tick":2097,"type":"model_turn_end"}
+{"payload":{"acid":"SWA1356","comply_as":{"altitude":5000,"clearance_limit":"KDCA","frequency":"119.35","route":"HALIE4","squawk":"1456"},"error_caught":false,"error_code":null,"neglected":false,"readback_dropped":false,"understood":{"altitude":5000,"clearance_limit":"KDCA","frequency":"119.35","route":"HALIE4","squawk":"1456"}},"tick":2093,"type":"aircraft_cleared"}
+{"payload":{"acid":"SWA1356","bay":"cleared","op":"auto_move"},"tick":2093,"type":"strip_op"}
+{"payload":{"acid":"UAL3563","op":"update"},"tick":2104,"type":"strip_op"}
+{"payload":{"end_tick":2106,"speaker":"MRL_CD","start_tick":2104,"text":"United three five six three, readback correct."},"tick":2104,"type":"transmission"}
+{"payload":{"acid":"UAL3563","intent":"affirm","tier":1,"tier_name":"STANDARD"},"tick":2106,"type":"controller_parse"}
+{"payload":{"acid":"UAL3563"},"tick":2106,"type":"readback_affirmed"}
+{"payload":{"n_aircraft":1},"tick":2106,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":2106,"type":"model_turn_start"}
+{"payload":{"output_tokens":46},"tick":2106,"type":"model_turn_end"}
+{"payload":{"acid":"UAL3563","comply_as":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"7264"},"error_caught":false,"error_code":null,"neglected":false,"readback_dropped":false,"understood":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"7264"}},"tick":2123,"type":"aircraft_cleared"}
+{"payload":{"acid":"UAL3563","bay":"cleared","op":"auto_move"},"tick":2123,"type":"strip_op"}
+{"payload":{"acid":"AAL2414","actype":"A320","destination":"KMCO","persona":"foreign_carrier"},"tick":2138,"type":"aircraft_spawn"}
+{"payload":{"acid":"AAL2414","bay":"queue","op":"auto_create"},"tick":2138,"type":"strip_op"}
+{"payload":{"end_tick":2142,"speaker":"AAL2414","start_tick":2138,"text":"Marlow Clearance, American two four one four, request IFR clearance to Orlando"},"tick":2138,"type":"transmission"}
+{"payload":{"n_aircraft":1},"tick":2142,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":2142,"type":"model_turn_start"}
+{"payload":{"output_tokens":248},"tick":2142,"type":"model_turn_end"}
+{"payload":{"acid":"AAL2414","op":"create"},"tick":2153,"type":"strip_op"}
+{"payload":{"end_tick":2159,"speaker":"MRL_CD","start_tick":2153,"text":"American two four one four, cleared to Orlando, Halie Four departure, maintain five thousand, departure one one niner point three five, squawk two three one two."},"tick":2153,"type":"transmission"}
+{"payload":{"acid":"AAL2414","intent":"clearance","tier":1,"tier_name":"STANDARD"},"tick":2159,"type":"controller_parse"}
+{"payload":{"acid":"AAL2414","altitude":5000,"destination":"KMCO","frequency":"119.35","route":"HALIE4","squawk":"2312"},"tick":2159,"type":"clearance_issued"}
+{"payload":{"acid":"AAL2414","error_code":"CS-WRONG","instruction_understood":{"altitude":5000,"clearance_limit":"KMCO","frequency":"119.35","route":"HALIE4","squawk":"2312"},"readback_acid":"AAL2404","readback_content":{"altitude":5000,"clearance_limit":"KMCO","frequency":"119.35","route":"HALIE4","squawk":"2312"},"will_comply_as":{"altitude":5000,"clearance_limit":"KMCO","frequency":"119.35","route":"HALIE4","squawk":"2312"}},"tick":2159,"type":"fsm_intent"}
+{"payload":{"end_tick":2163,"speaker":"AAL2414","start_tick":2159,"text":"maintain five thousand, departure one one niner point three five, squawk two three one two, American two four zero four"},"tick":2159,"type":"transmission"}
+{"payload":{"acid":"AAL2414","readback":{"altitude":5000,"clearance_limit":"KMCO","frequency":"119.35","route":"HALIE4","squawk":"2312"},"readback_acid":"AAL2404"},"tick":2163,"type":"readback"}
+{"payload":{"n_aircraft":1},"tick":2163,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":2163,"type":"model_turn_start"}
+{"payload":{"output_tokens":83},"tick":2163,"type":"model_turn_end"}
+{"payload":{"end_tick":2171,"speaker":"MRL_CD","start_tick":2167,"text":"American two four one four, negative, say your callsign again."},"tick":2167,"type":"transmission"}
+{"payload":{"acid":"AAL2414","intent":"correction","tier":1,"tier_name":"STANDARD"},"tick":2171,"type":"controller_parse"}
+{"payload":{"acid":"AAL2414","caught":true},"tick":2171,"type":"clearance_corrected"}
+{"payload":{"end_tick":2175,"speaker":"AAL2414","start_tick":2171,"text":"Correction, maintain five thousand, departure one one niner point three five, squawk two three one two, American two four one four"},"tick":2171,"type":"transmission"}
+{"payload":{"acid":"AAL2414","corrected":true,"readback":{"altitude":5000,"clearance_limit":"KMCO","frequency":"119.35","route":"HALIE4","squawk":"2312"},"readback_acid":"AAL2414"},"tick":2175,"type":"readback"}
+{"payload":{"n_aircraft":1},"tick":2175,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":2175,"type":"model_turn_start"}
+{"payload":{"output_tokens":138},"tick":2175,"type":"model_turn_end"}
+{"payload":{"acid":"AAL2414","op":"update"},"tick":2182,"type":"strip_op"}
+{"payload":{"end_tick":2184,"speaker":"MRL_CD","start_tick":2182,"text":"American two four one four, readback correct."},"tick":2182,"type":"transmission"}
+{"payload":{"acid":"AAL2414","intent":"affirm","tier":1,"tier_name":"STANDARD"},"tick":2184,"type":"controller_parse"}
+{"payload":{"acid":"AAL2414"},"tick":2184,"type":"readback_affirmed"}
+{"payload":{"n_aircraft":1},"tick":2184,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":2184,"type":"model_turn_start"}
+{"payload":{"output_tokens":46},"tick":2184,"type":"model_turn_end"}
+{"payload":{"acid":"AAL2414","comply_as":{"altitude":5000,"clearance_limit":"KMCO","frequency":"119.35","route":"HALIE4","squawk":"2312"},"error_caught":true,"error_code":"CS-WRONG","neglected":false,"readback_dropped":false,"understood":{"altitude":5000,"clearance_limit":"KMCO","frequency":"119.35","route":"HALIE4","squawk":"2312"}},"tick":2189,"type":"aircraft_cleared"}
+{"payload":{"acid":"AAL2414","bay":"cleared","op":"auto_move"},"tick":2189,"type":"strip_op"}
+{"payload":{"acid":"AAL2404","actype":"B738","destination":"KDTW","persona":"airline_crisp"},"tick":2205,"type":"aircraft_spawn"}
+{"payload":{"acid":"AAL2404","bay":"queue","op":"auto_create"},"tick":2205,"type":"strip_op"}
+{"payload":{"end_tick":2209,"speaker":"AAL2404","start_tick":2205,"text":"Marlow Clearance, American two four zero four, IFR to Detroit, ready to copy"},"tick":2205,"type":"transmission"}
+{"payload":{"n_aircraft":1},"tick":2209,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":2209,"type":"model_turn_start"}
+{"payload":{"output_tokens":249},"tick":2209,"type":"model_turn_end"}
+{"payload":{"acid":"AAL2404","op":"create"},"tick":2220,"type":"strip_op"}
+{"payload":{"end_tick":2226,"speaker":"MRL_CD","start_tick":2220,"text":"American two four zero four, cleared to Detroit, Pangg Five departure, maintain five thousand, departure one one niner point three five, squawk four three three six."},"tick":2220,"type":"transmission"}
+{"payload":{"acid":"AAL2404","intent":"clearance","tier":1,"tier_name":"STANDARD"},"tick":2226,"type":"controller_parse"}
+{"payload":{"acid":"AAL2404","altitude":5000,"destination":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"4336"},"tick":2226,"type":"clearance_issued"}
+{"payload":{"acid":"AAL2404","error_code":null,"instruction_understood":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"4336"},"readback_acid":"AAL2404","readback_content":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"4336"},"will_comply_as":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"4336"}},"tick":2226,"type":"fsm_intent"}
+{"payload":{"end_tick":2230,"speaker":"AAL2404","start_tick":2226,"text":"maintain five thousand, departure one one niner point three five, squawk four three three six, American two four zero four"},"tick":2226,"type":"transmission"}
+{"payload":{"acid":"AAL2404","readback":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"4336"},"readback_acid":"AAL2404"},"tick":2230,"type":"readback"}
+{"payload":{"n_aircraft":1},"tick":2230,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":2230,"type":"model_turn_start"}
+{"payload":{"output_tokens":137},"tick":2230,"type":"model_turn_end"}
+{"payload":{"acid":"AAL2404","op":"update"},"tick":2237,"type":"strip_op"}
+{"payload":{"end_tick":2239,"speaker":"MRL_CD","start_tick":2237,"text":"American two four zero four, readback correct."},"tick":2237,"type":"transmission"}
+{"payload":{"acid":"AAL2404","intent":"affirm","tier":1,"tier_name":"STANDARD"},"tick":2239,"type":"controller_parse"}
+{"payload":{"acid":"AAL2404"},"tick":2239,"type":"readback_affirmed"}
+{"payload":{"n_aircraft":1},"tick":2239,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":2239,"type":"model_turn_start"}
+{"payload":{"output_tokens":46},"tick":2239,"type":"model_turn_end"}
+{"payload":{"acid":"AAL2404","comply_as":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"4336"},"error_caught":false,"error_code":null,"neglected":false,"readback_dropped":false,"understood":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"PANGG5","squawk":"4336"}},"tick":2256,"type":"aircraft_cleared"}
+{"payload":{"acid":"AAL2404","bay":"cleared","op":"auto_move"},"tick":2256,"type":"strip_op"}
+{"payload":{"acid":"DAL1651","actype":"B739","destination":"KMCO","persona":"airline_crisp"},"tick":2610,"type":"aircraft_spawn"}
+{"payload":{"acid":"DAL1651","bay":"queue","op":"auto_create"},"tick":2610,"type":"strip_op"}
+{"payload":{"end_tick":2614,"speaker":"DAL1651","start_tick":2610,"text":"Marlow Clearance, Delta one six five one, IFR to Orlando, ready to copy"},"tick":2610,"type":"transmission"}
+{"payload":{"n_aircraft":1},"tick":2614,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":2614,"type":"model_turn_start"}
+{"payload":{"output_tokens":136},"tick":2614,"type":"model_turn_end"}
+{"payload":{"end_tick":2630,"speaker":"MRL_CD","start_tick":2620,"text":"Delta one six five one, I have an invalid SID filed. Marlow Regional publishes Marlow Five, Pangg Five, and Halie Four departures. Which will you accept?"},"tick":2620,"type":"transmission"}
+{"payload":{"acid":"DAL1651","intent":"other","tier":2,"tier_name":"NONSTANDARD"},"tick":2630,"type":"controller_parse"}
+{"payload":{"acid":"DAL1651","intent":"other","tier":2},"tick":2630,"type":"say_again"}
+{"payload":{"end_tick":2632,"speaker":"DAL1651","start_tick":2630,"text":"Say again for Delta one six five one?"},"tick":2630,"type":"transmission"}
+{"payload":{"n_aircraft":1},"tick":2632,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":2632,"type":"model_turn_start"}
+{"payload":{"output_tokens":103},"tick":2632,"type":"model_turn_end"}
+{"payload":{"end_tick":2646,"speaker":"MRL_CD","start_tick":2637,"text":"Delta one six five one, your filed SID is invalid. Available departures are Marlow Five, Pangg Five, and Halie Four. Which will you accept?"},"tick":2637,"type":"transmission"}
+{"payload":{"acid":"DAL1651","intent":"other","tier":2,"tier_name":"NONSTANDARD"},"tick":2646,"type":"controller_parse"}
+{"payload":{"acid":"DAL1651","intent":"other","tier":2},"tick":2646,"type":"say_again"}
+{"payload":{"end_tick":2648,"speaker":"DAL1651","start_tick":2646,"text":"Say again for Delta one six five one?"},"tick":2646,"type":"transmission"}
+{"payload":{"n_aircraft":1},"tick":2648,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":2648,"type":"model_turn_start"}
+{"payload":{"output_tokens":52},"tick":2648,"type":"model_turn_end"}
+{"payload":{"acid":"DAL1651","comply_as":{},"error_caught":false,"error_code":"RB-FREQ","neglected":true,"readback_dropped":false,"understood":{}},"tick":2790,"type":"aircraft_cleared"}
+{"payload":{"acid":"DAL1651","bay":"cleared","op":"auto_move"},"tick":2790,"type":"strip_op"}
+{"payload":{"acid":"UAL3958","actype":"B738","destination":"KBOS","persona":"student_pilot"},"tick":3111,"type":"aircraft_spawn"}
+{"payload":{"acid":"UAL3958","bay":"queue","op":"auto_create"},"tick":3111,"type":"strip_op"}
+{"payload":{"end_tick":3117,"speaker":"UAL3958","start_tick":3111,"text":"Uh, Marlow Clearance, United three niner five eight, we're, uh, ready to copy IFR to Boston"},"tick":3111,"type":"transmission"}
+{"payload":{"n_aircraft":1},"tick":3117,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":3117,"type":"model_turn_start"}
+{"payload":{"output_tokens":251},"tick":3117,"type":"model_turn_end"}
+{"payload":{"acid":"UAL3958","op":"create"},"tick":3129,"type":"strip_op"}
+{"payload":{"end_tick":3135,"speaker":"MRL_CD","start_tick":3129,"text":"United three niner five eight, cleared to Boston, Marlow Five departure, maintain five thousand, departure one one niner point three five, squawk four two six three."},"tick":3129,"type":"transmission"}
+{"payload":{"acid":"UAL3958","intent":"clearance","tier":1,"tier_name":"STANDARD"},"tick":3135,"type":"controller_parse"}
+{"payload":{"acid":"UAL3958","altitude":5000,"destination":"KBOS","frequency":"119.35","route":"MRLW5","squawk":"4263"},"tick":3135,"type":"clearance_issued"}
+{"payload":{"acid":"UAL3958","error_code":"RB-FREQ","instruction_understood":{"altitude":5000,"clearance_limit":"KBOS","frequency":"119.35","route":"MRLW5","squawk":"4263"},"readback_acid":"UAL3958","readback_content":{"altitude":5000,"clearance_limit":"KBOS","frequency":"119.53","route":"MRLW5","squawk":"4263"},"will_comply_as":{"altitude":5000,"clearance_limit":"KBOS","frequency":"119.53","route":"MRLW5","squawk":"4263"}},"tick":3135,"type":"fsm_intent"}
+{"payload":{"end_tick":3139,"speaker":"UAL3958","start_tick":3135,"text":"Okay, uh, maintain five thousand, departure one one niner point five three, squawk four two six three, United three niner five eight"},"tick":3135,"type":"transmission"}
+{"payload":{"acid":"UAL3958","readback":{"altitude":5000,"clearance_limit":"KBOS","frequency":"119.53","route":"MRLW5","squawk":"4263"},"readback_acid":"UAL3958"},"tick":3139,"type":"readback"}
+{"payload":{"n_aircraft":1},"tick":3139,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":3139,"type":"model_turn_start"}
+{"payload":{"output_tokens":87},"tick":3139,"type":"model_turn_end"}
+{"payload":{"acid":"UAL1802","actype":"C172","destination":"KBOS","persona":"ga_relaxed"},"tick":3132,"type":"aircraft_spawn"}
+{"payload":{"acid":"UAL1802","bay":"queue","op":"auto_create"},"tick":3132,"type":"strip_op"}
+{"payload":{"end_tick":3143,"speaker":"UAL1802","start_tick":3139,"text":"Marlow Clearance, United one eight zero two, IFR to Boston, ready to copy"},"tick":3139,"type":"transmission"}
+{"payload":{"end_tick":3145,"speaker":"MRL_CD","start_tick":3143,"text":"United three niner five eight, negative, departure one one niner point three five."},"tick":3143,"type":"transmission"}
+{"payload":{"acid":"UAL3958","intent":"correction","tier":1,"tier_name":"STANDARD"},"tick":3145,"type":"controller_parse"}
+{"payload":{"acid":"UAL3958","caught":true},"tick":3145,"type":"clearance_corrected"}
+{"payload":{"end_tick":3149,"speaker":"UAL3958","start_tick":3145,"text":"Correction, maintain five thousand, departure one one niner point three five, squawk four two six three, United three niner five eight"},"tick":3145,"type":"transmission"}
+{"payload":{"acid":"UAL3958","corrected":true,"readback":{"altitude":5000,"clearance_limit":"KBOS","frequency":"119.35","route":"MRLW5","squawk":"4263"},"readback_acid":"UAL3958"},"tick":3149,"type":"readback"}
+{"payload":{"n_aircraft":2},"tick":3149,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":3149,"type":"model_turn_start"}
+{"payload":{"output_tokens":146},"tick":3149,"type":"model_turn_end"}
+{"payload":{"acid":"UAL3958","op":"update"},"tick":3156,"type":"strip_op"}
+{"payload":{"end_tick":3158,"speaker":"MRL_CD","start_tick":3156,"text":"United three niner five eight, readback correct."},"tick":3156,"type":"transmission"}
+{"payload":{"acid":"UAL3958","intent":"affirm","tier":1,"tier_name":"STANDARD"},"tick":3158,"type":"controller_parse"}
+{"payload":{"acid":"UAL3958"},"tick":3158,"type":"readback_affirmed"}
+{"payload":{"n_aircraft":2},"tick":3158,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":3158,"type":"model_turn_start"}
+{"payload":{"output_tokens":243},"tick":3158,"type":"model_turn_end"}
+{"payload":{"acid":"UAL3958","comply_as":{"altitude":5000,"clearance_limit":"KBOS","frequency":"119.35","route":"MRLW5","squawk":"4263"},"error_caught":true,"error_code":"RB-FREQ","neglected":false,"readback_dropped":false,"understood":{"altitude":5000,"clearance_limit":"KBOS","frequency":"119.35","route":"MRLW5","squawk":"4263"}},"tick":3165,"type":"aircraft_cleared"}
+{"payload":{"acid":"UAL3958","bay":"cleared","op":"auto_move"},"tick":3165,"type":"strip_op"}
+{"payload":{"acid":"UAL1802","op":"create"},"tick":3169,"type":"strip_op"}
+{"payload":{"end_tick":3175,"speaker":"MRL_CD","start_tick":3169,"text":"United one eight zero two, cleared to Boston, Pangg Five departure, maintain five thousand, departure one one niner point three five, squawk two one two seven."},"tick":3169,"type":"transmission"}
+{"payload":{"acid":"UAL1802","intent":"clearance","tier":1,"tier_name":"STANDARD"},"tick":3175,"type":"controller_parse"}
+{"payload":{"acid":"UAL1802","altitude":5000,"destination":"KBOS","frequency":"119.35","route":"PANGG5","squawk":"2127"},"tick":3175,"type":"clearance_issued"}
+{"payload":{"acid":"UAL1802","error_code":null,"instruction_understood":{"altitude":5000,"clearance_limit":"KBOS","frequency":"119.35","route":"PANGG5","squawk":"2127"},"readback_acid":"UAL1802","readback_content":{"altitude":5000,"clearance_limit":"KBOS","frequency":"119.35","route":"PANGG5","squawk":"2127"},"will_comply_as":{"altitude":5000,"clearance_limit":"KBOS","frequency":"119.35","route":"PANGG5","squawk":"2127"}},"tick":3175,"type":"fsm_intent"}
+{"payload":{"end_tick":3179,"speaker":"UAL1802","start_tick":3175,"text":"maintain five thousand, departure one one niner point three five, squawk two one two seven, United one eight zero two"},"tick":3175,"type":"transmission"}
+{"payload":{"acid":"UAL1802","readback":{"altitude":5000,"clearance_limit":"KBOS","frequency":"119.35","route":"PANGG5","squawk":"2127"},"readback_acid":"UAL1802"},"tick":3179,"type":"readback"}
+{"payload":{"n_aircraft":1},"tick":3179,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":3179,"type":"model_turn_start"}
+{"payload":{"output_tokens":137},"tick":3179,"type":"model_turn_end"}
+{"payload":{"acid":"UAL1802","op":"update"},"tick":3186,"type":"strip_op"}
+{"payload":{"end_tick":3188,"speaker":"MRL_CD","start_tick":3186,"text":"United one eight zero two, readback correct."},"tick":3186,"type":"transmission"}
+{"payload":{"acid":"UAL1802","intent":"affirm","tier":1,"tier_name":"STANDARD"},"tick":3188,"type":"controller_parse"}
+{"payload":{"acid":"UAL1802"},"tick":3188,"type":"readback_affirmed"}
+{"payload":{"n_aircraft":1},"tick":3188,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":3188,"type":"model_turn_start"}
+{"payload":{"output_tokens":46},"tick":3188,"type":"model_turn_end"}
+{"payload":{"acid":"UAL1802","comply_as":{"altitude":5000,"clearance_limit":"KBOS","frequency":"119.35","route":"PANGG5","squawk":"2127"},"error_caught":false,"error_code":null,"neglected":false,"readback_dropped":false,"understood":{"altitude":5000,"clearance_limit":"KBOS","frequency":"119.35","route":"PANGG5","squawk":"2127"}},"tick":3205,"type":"aircraft_cleared"}
+{"payload":{"acid":"UAL1802","bay":"cleared","op":"auto_move"},"tick":3205,"type":"strip_op"}
+{"payload":{"acid":"SWA1278","actype":"C172","destination":"KATL","persona":"foreign_carrier"},"tick":3243,"type":"aircraft_spawn"}
+{"payload":{"acid":"SWA1278","bay":"queue","op":"auto_create"},"tick":3243,"type":"strip_op"}
+{"payload":{"end_tick":3247,"speaker":"SWA1278","start_tick":3243,"text":"Marlow Clearance, Southwest one two seven eight, request IFR clearance to Atlanta"},"tick":3243,"type":"transmission"}
+{"payload":{"n_aircraft":1},"tick":3247,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":3247,"type":"model_turn_start"}
+{"payload":{"output_tokens":136},"tick":3247,"type":"model_turn_end"}
+{"payload":{"end_tick":3263,"speaker":"MRL_CD","start_tick":3253,"text":"Southwest one two seven eight, I have an invalid SID filed. Marlow Regional publishes Marlow Five, Pangg Five, and Halie Four departures. Which will you accept?"},"tick":3253,"type":"transmission"}
+{"payload":{"acid":"SWA1278","intent":"other","tier":2,"tier_name":"NONSTANDARD"},"tick":3263,"type":"controller_parse"}
+{"payload":{"acid":"SWA1278","intent":"other","tier":2},"tick":3263,"type":"say_again"}
+{"payload":{"end_tick":3265,"speaker":"SWA1278","start_tick":3263,"text":"Say again for Southwest one two seven eight?"},"tick":3263,"type":"transmission"}
+{"payload":{"n_aircraft":1},"tick":3265,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":3265,"type":"model_turn_start"}
+{"payload":{"output_tokens":104},"tick":3265,"type":"model_turn_end"}
+{"payload":{"end_tick":3279,"speaker":"MRL_CD","start_tick":3270,"text":"Southwest one two seven eight, your filed SID is invalid. Available departures are Marlow Five, Pangg Five, and Halie Four. Which will you accept?"},"tick":3270,"type":"transmission"}
+{"payload":{"acid":"SWA1278","intent":"other","tier":2,"tier_name":"NONSTANDARD"},"tick":3279,"type":"controller_parse"}
+{"payload":{"acid":"SWA1278","intent":"other","tier":2},"tick":3279,"type":"say_again"}
+{"payload":{"end_tick":3281,"speaker":"SWA1278","start_tick":3279,"text":"Say again for Southwest one two seven eight?"},"tick":3279,"type":"transmission"}
+{"payload":{"n_aircraft":1},"tick":3281,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":3281,"type":"model_turn_start"}
+{"payload":{"output_tokens":53},"tick":3281,"type":"model_turn_end"}
+{"payload":{"acid":"DAL3180","actype":"A320","destination":"KMCO","persona":"airline_crisp"},"tick":3303,"type":"aircraft_spawn"}
+{"payload":{"acid":"DAL3180","bay":"queue","op":"auto_create"},"tick":3303,"type":"strip_op"}
+{"payload":{"end_tick":3307,"speaker":"DAL3180","start_tick":3303,"text":"Marlow Clearance, Delta three one eight zero, IFR to Orlando, ready to copy"},"tick":3303,"type":"transmission"}
+{"payload":{"n_aircraft":2},"tick":3307,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":3307,"type":"model_turn_start"}
+{"payload":{"output_tokens":136},"tick":3307,"type":"model_turn_end"}
+{"payload":{"end_tick":3323,"speaker":"MRL_CD","start_tick":3313,"text":"Delta three one eight zero, I have an invalid SID filed. Marlow Regional publishes Marlow Five, Pangg Five, and Halie Four departures. Which will you accept?"},"tick":3313,"type":"transmission"}
+{"payload":{"acid":"DAL3180","intent":"other","tier":2,"tier_name":"NONSTANDARD"},"tick":3323,"type":"controller_parse"}
+{"payload":{"acid":"DAL3180","intent":"other","tier":2},"tick":3323,"type":"say_again"}
+{"payload":{"end_tick":3325,"speaker":"DAL3180","start_tick":3323,"text":"Say again for Delta three one eight zero?"},"tick":3323,"type":"transmission"}
+{"payload":{"n_aircraft":2},"tick":3325,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":3325,"type":"model_turn_start"}
+{"payload":{"output_tokens":103},"tick":3325,"type":"model_turn_end"}
+{"payload":{"end_tick":3339,"speaker":"MRL_CD","start_tick":3330,"text":"Delta three one eight zero, your filed SID is invalid. Available departures are Marlow Five, Pangg Five, and Halie Four. Which will you accept?"},"tick":3330,"type":"transmission"}
+{"payload":{"acid":"DAL3180","intent":"other","tier":2,"tier_name":"NONSTANDARD"},"tick":3339,"type":"controller_parse"}
+{"payload":{"acid":"DAL3180","intent":"other","tier":2},"tick":3339,"type":"say_again"}
+{"payload":{"end_tick":3341,"speaker":"DAL3180","start_tick":3339,"text":"Say again for Delta three one eight zero?"},"tick":3339,"type":"transmission"}
+{"payload":{"n_aircraft":2},"tick":3341,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":3341,"type":"model_turn_start"}
+{"payload":{"output_tokens":52},"tick":3341,"type":"model_turn_end"}
+{"payload":{"acid":"SWA4040","actype":"B739","destination":"KDTW","persona":"airline_crisp"},"tick":3349,"type":"aircraft_spawn"}
+{"payload":{"acid":"SWA4040","bay":"queue","op":"auto_create"},"tick":3349,"type":"strip_op"}
+{"payload":{"end_tick":3353,"speaker":"SWA4040","start_tick":3349,"text":"Marlow Clearance, Southwest four zero four zero, IFR to Detroit, ready to copy"},"tick":3349,"type":"transmission"}
+{"payload":{"n_aircraft":3},"tick":3353,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":3353,"type":"model_turn_start"}
+{"payload":{"output_tokens":252},"tick":3353,"type":"model_turn_end"}
+{"payload":{"acid":"SWA4040","op":"create"},"tick":3365,"type":"strip_op"}
+{"payload":{"end_tick":3371,"speaker":"MRL_CD","start_tick":3365,"text":"Southwest four zero four zero, cleared to Detroit, Marlow Five departure, maintain five thousand, departure one one niner point three five, squawk four seven six two."},"tick":3365,"type":"transmission"}
+{"payload":{"acid":"SWA4040","intent":"clearance","tier":1,"tier_name":"STANDARD"},"tick":3371,"type":"controller_parse"}
+{"payload":{"acid":"SWA4040","altitude":5000,"destination":"KDTW","frequency":"119.35","route":"MRLW5","squawk":"4762"},"tick":3371,"type":"clearance_issued"}
+{"payload":{"acid":"SWA4040","error_code":"RB-ALT","instruction_understood":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"MRLW5","squawk":"4762"},"readback_acid":"SWA4040","readback_content":{"altitude":15000,"clearance_limit":"KDTW","frequency":"119.35","route":"MRLW5","squawk":"4762"},"will_comply_as":{"altitude":15000,"clearance_limit":"KDTW","frequency":"119.35","route":"MRLW5","squawk":"4762"}},"tick":3371,"type":"fsm_intent"}
+{"payload":{"end_tick":3375,"speaker":"SWA4040","start_tick":3371,"text":"maintain one five thousand, departure one one niner point three five, squawk four seven six two, Southwest four zero four zero"},"tick":3371,"type":"transmission"}
+{"payload":{"acid":"SWA4040","readback":{"altitude":15000,"clearance_limit":"KDTW","frequency":"119.35","route":"MRLW5","squawk":"4762"},"readback_acid":"SWA4040"},"tick":3375,"type":"readback"}
+{"payload":{"n_aircraft":3},"tick":3375,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":3375,"type":"model_turn_start"}
+{"payload":{"output_tokens":80},"tick":3375,"type":"model_turn_end"}
+{"payload":{"end_tick":3381,"speaker":"MRL_CD","start_tick":3379,"text":"Southwest four zero four zero, negative, maintain five thousand."},"tick":3379,"type":"transmission"}
+{"payload":{"acid":"SWA4040","intent":"correction","tier":1,"tier_name":"STANDARD"},"tick":3381,"type":"controller_parse"}
+{"payload":{"acid":"SWA4040","caught":true},"tick":3381,"type":"clearance_corrected"}
+{"payload":{"end_tick":3385,"speaker":"SWA4040","start_tick":3381,"text":"Correction, maintain five thousand, departure one one niner point three five, squawk four seven six two, Southwest four zero four zero"},"tick":3381,"type":"transmission"}
+{"payload":{"acid":"SWA4040","corrected":true,"readback":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"MRLW5","squawk":"4762"},"readback_acid":"SWA4040"},"tick":3385,"type":"readback"}
+{"payload":{"n_aircraft":3},"tick":3385,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":3385,"type":"model_turn_start"}
+{"payload":{"output_tokens":139},"tick":3385,"type":"model_turn_end"}
+{"payload":{"acid":"SWA4040","op":"update"},"tick":3392,"type":"strip_op"}
+{"payload":{"end_tick":3394,"speaker":"MRL_CD","start_tick":3392,"text":"Southwest four zero four zero, readback correct."},"tick":3392,"type":"transmission"}
+{"payload":{"acid":"SWA4040","intent":"affirm","tier":1,"tier_name":"STANDARD"},"tick":3394,"type":"controller_parse"}
+{"payload":{"acid":"SWA4040"},"tick":3394,"type":"readback_affirmed"}
+{"payload":{"n_aircraft":3},"tick":3394,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":3394,"type":"model_turn_start"}
+{"payload":{"output_tokens":46},"tick":3394,"type":"model_turn_end"}
+{"payload":{"acid":"SWA4040","comply_as":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"MRLW5","squawk":"4762"},"error_caught":true,"error_code":"RB-ALT","neglected":false,"readback_dropped":false,"understood":{"altitude":5000,"clearance_limit":"KDTW","frequency":"119.35","route":"MRLW5","squawk":"4762"}},"tick":3401,"type":"aircraft_cleared"}
+{"payload":{"acid":"SWA4040","bay":"cleared","op":"auto_move"},"tick":3401,"type":"strip_op"}
+{"payload":{"n_aircraft":2},"tick":3401,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":3401,"type":"model_turn_start"}
+{"payload":{"output_tokens":46},"tick":3401,"type":"model_turn_end"}
+{"payload":{"acid":"SWA1278","comply_as":{},"error_caught":false,"error_code":"RB-PART","neglected":true,"readback_dropped":false,"understood":{}},"tick":3423,"type":"aircraft_cleared"}
+{"payload":{"acid":"SWA1278","bay":"cleared","op":"auto_move"},"tick":3423,"type":"strip_op"}
+{"payload":{"n_aircraft":1},"tick":3423,"type":"radar_snapshot_sent"}
+{"payload":{},"tick":3423,"type":"model_turn_start"}
+{"payload":{"output_tokens":46},"tick":3423,"type":"model_turn_end"}
+{"payload":{"acid":"DAL3180","comply_as":{},"error_caught":false,"error_code":null,"neglected":true,"readback_dropped":false,"understood":{}},"tick":3483,"type":"aircraft_cleared"}
+{"payload":{"acid":"DAL3180","bay":"cleared","op":"auto_move"},"tick":3483,"type":"strip_op"}
+{"payload":{"position":"MRL_CD","seed":4},"tick":3483,"type":"session_end"}

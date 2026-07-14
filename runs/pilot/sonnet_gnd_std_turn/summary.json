@@ -1,0 +1,31 @@
+{
+  "band": "standard",
+  "bust_rate": 0.0,
+  "bust_wilson_upper_95": 0.7935,
+  "certification_note": "n=1 < 30 sessions",
+  "certified": false,
+  "icc_trials": null,
+  "mean_S": 1.0,
+  "mean_S_ci95_clustered": [
+    1.0,
+    1.0
+  ],
+  "pass_all_trials": 1.0,
+  "pass_at_1": 1.0,
+  "per_seed": {
+    "1": {
+      "S": [
+        1.0
+      ],
+      "gates": [
+        1
+      ]
+    }
+  },
+  "position": "GND",
+  "regime": "turn",
+  "seeds": 1,
+  "sessions": 1,
+  "subject": "claude-sonnet-5",
+  "trials_per_seed": 1
+}

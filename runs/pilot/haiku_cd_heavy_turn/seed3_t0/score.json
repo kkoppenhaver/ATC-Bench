@@ -1,0 +1,76 @@
+{
+  "S": 0.0,
+  "S_raw": 0.6337,
+  "cardinal_violations": [
+    {
+      "acid": "DAL614",
+      "code": "NEGLECT",
+      "detail": "uncleared at timeout"
+    },
+    {
+      "acid": "SWA2396",
+      "code": "NEGLECT",
+      "detail": "uncleared at timeout"
+    },
+    {
+      "acid": "SWA886",
+      "code": "NEGLECT",
+      "detail": "uncleared at timeout"
+    },
+    {
+      "acid": "SWA2270",
+      "code": "NEGLECT",
+      "detail": "uncleared at timeout"
+    },
+    {
+      "acid": "DAL378",
+      "code": "NEGLECT",
+      "detail": "uncleared at timeout"
+    }
+  ],
+  "components": {
+    "A": 0.7222,
+    "E": 0.781,
+    "F": 0.625,
+    "H": 0.3636
+  },
+  "counts": {
+    "aircraft": 18,
+    "cardinals": 5,
+    "catchable_errors": 11,
+    "caught_errors": 4,
+    "severes": 4,
+    "spurious_corrections": 0
+  },
+  "gate": 0,
+  "model": {
+    "budget_exhausted": false,
+    "id": "claude-haiku-4-5",
+    "input_tokens": 24168,
+    "output_tokens": 9475,
+    "spent_usd": 0.26000605000000004
+  },
+  "position": "MRL_CD",
+  "regime": "turn",
+  "seed": 3,
+  "severe_events": [
+    {
+      "acid": "DAL2751",
+      "code": "wrong_frequency"
+    },
+    {
+      "acid": "DAL4768",
+      "code": "wrong_frequency"
+    },
+    {
+      "acid": "UAL3813",
+      "code": "wrong_frequency"
+    },
+    {
+      "acid": "UAL3272",
+      "code": "wrong_squawk"
+    }
+  ],
+  "time_to_first_cardinal": 967,
+  "trial": 0
+}

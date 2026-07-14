@@ -1,0 +1,41 @@
+{
+  "S": 0.0,
+  "S_raw": 0.7975,
+  "cardinal_violations": [
+    {
+      "acid": "AAL4143",
+      "code": "NEGLECT",
+      "detail": "no clearance issued all session",
+      "tick": 3605
+    }
+  ],
+  "components": {
+    "A": 0.8519,
+    "E": 0.7364,
+    "F": 0.85,
+    "H": null
+  },
+  "counts": {
+    "aircraft": 11,
+    "cardinals": 1,
+    "completed": 10,
+    "env_go_arounds": 1,
+    "los": 0,
+    "model_go_arounds": 5,
+    "neglects": 1,
+    "wake": 0
+  },
+  "gate": 0,
+  "model": {
+    "budget_exhausted": true,
+    "id": "claude-sonnet-5",
+    "input_tokens": 416,
+    "output_tokens": 23281,
+    "spent_usd": 3.0160281
+  },
+  "position": "MRL_TWR",
+  "regime": "turn",
+  "seed": 1,
+  "time_to_first_cardinal": 3605,
+  "trial": 0
+}

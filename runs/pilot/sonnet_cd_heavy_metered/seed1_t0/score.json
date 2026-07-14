@@ -1,0 +1,33 @@
+{
+  "S": 0.7052,
+  "S_raw": 0.7052,
+  "cardinal_violations": [],
+  "components": {
+    "A": 0.3882,
+    "E": 0.6979,
+    "F": 0.875,
+    "H": 0.8333
+  },
+  "counts": {
+    "aircraft": 18,
+    "cardinals": 0,
+    "catchable_errors": 12,
+    "caught_errors": 10,
+    "severes": 0,
+    "spurious_corrections": 0
+  },
+  "gate": 1,
+  "model": {
+    "budget_exhausted": false,
+    "id": "claude-sonnet-5",
+    "input_tokens": 104,
+    "output_tokens": 9313,
+    "spent_usd": 0.47042340000000005
+  },
+  "position": "MRL_CD",
+  "regime": "metered",
+  "seed": 1,
+  "severe_events": [],
+  "time_to_first_cardinal": null,
+  "trial": 0
+}

@@ -1,0 +1,53 @@
+{
+  "S": 0.0,
+  "S_raw": 0.9258,
+  "cardinal_violations": [
+    {
+      "acid": "AAL2657",
+      "code": "RI-CTRL",
+      "runway": "31R",
+      "tick": 330
+    },
+    {
+      "acid": "AAL3470",
+      "code": "RI-CTRL",
+      "runway": "31R",
+      "tick": 685
+    },
+    {
+      "acid": "SWA4977",
+      "code": "NEGLECT",
+      "detail": "no taxi clearance by session end",
+      "tick": 1205
+    }
+  ],
+  "components": {
+    "A": 0.875,
+    "E": 0.9125,
+    "F": 1.0,
+    "H": null
+  },
+  "counts": {
+    "aircraft": 8,
+    "arrived": 7,
+    "cardinals": 3,
+    "deadlocks": 0,
+    "incursions_model": 2,
+    "neglects": 1
+  },
+  "gate": 0,
+  "model": {
+    "budget_exhausted": true,
+    "id": "claude-haiku-4-5",
+    "input_tokens": 25455,
+    "output_tokens": 14364,
+    "spent_usd": 1.5072953500000001
+  },
+  "position": "MRL_GND",
+  "queue_conformity": 1.0,
+  "regime": "turn",
+  "reported_events": [],
+  "seed": 3,
+  "time_to_first_cardinal": 330,
+  "trial": 0
+}

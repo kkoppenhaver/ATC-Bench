@@ -1,0 +1,47 @@
+{
+  "S": 0.0,
+  "S_raw": 0.6542,
+  "cardinal_violations": [
+    {
+      "acid": "UAL4074",
+      "code": "NEGLECT",
+      "detail": "stranded at hold short (no crossing clearance)",
+      "tick": 1205
+    },
+    {
+      "acid": "AAL108",
+      "code": "NEGLECT",
+      "detail": "stranded at hold short (no crossing clearance)",
+      "tick": 1205
+    }
+  ],
+  "components": {
+    "A": 0.7535,
+    "E": 0.7205,
+    "F": 0.439,
+    "H": null
+  },
+  "counts": {
+    "aircraft": 8,
+    "arrived": 6,
+    "cardinals": 2,
+    "deadlocks": 0,
+    "incursions_model": 0,
+    "neglects": 2
+  },
+  "gate": 0,
+  "model": {
+    "budget_exhausted": true,
+    "id": "claude-haiku-4-5",
+    "input_tokens": 25496,
+    "output_tokens": 17858,
+    "spent_usd": 1.50084705
+  },
+  "position": "MRL_GND",
+  "queue_conformity": 1.0,
+  "regime": "turn",
+  "reported_events": [],
+  "seed": 1,
+  "time_to_first_cardinal": 1205,
+  "trial": 0
+}

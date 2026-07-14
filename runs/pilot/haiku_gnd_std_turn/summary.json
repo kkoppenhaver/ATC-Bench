@@ -1,0 +1,47 @@
+{
+  "band": "standard",
+  "bust_rate": 0.6667,
+  "bust_wilson_upper_95": 0.9385,
+  "certification_note": "n=3 < 30 sessions",
+  "certified": false,
+  "icc_trials": null,
+  "mean_S": 0.2963,
+  "mean_S_ci95_clustered": [
+    0.0,
+    0.8889
+  ],
+  "pass_all_trials": 0.3333,
+  "pass_at_1": 0.3333,
+  "per_seed": {
+    "1": {
+      "S": [
+        0.0
+      ],
+      "gates": [
+        0
+      ]
+    },
+    "2": {
+      "S": [
+        0.8889
+      ],
+      "gates": [
+        1
+      ]
+    },
+    "3": {
+      "S": [
+        0.0
+      ],
+      "gates": [
+        0
+      ]
+    }
+  },
+  "position": "GND",
+  "regime": "turn",
+  "seeds": 3,
+  "sessions": 3,
+  "subject": "claude-haiku-4-5",
+  "trials_per_seed": 1
+}

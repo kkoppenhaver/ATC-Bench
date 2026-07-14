@@ -331,10 +331,17 @@ clustered CIs reported by `atcbench evaluate`.
   bootstrap CI on mean S, ICC(1) across trials, per-seed detail; writes run dirs +
   summary.json. Statistics pinned by tests, including the audit's 70%-bust
   controller never approaching certification._ _Deps: P3.6.2. Design §13.4, §17.1._
-- [ ] **P3.6.4 — Pilot campaign + band calibration (exit test).** 2–3 models spanning
+- [~] **P3.6.4 — Pilot campaign + band calibration (exit test).** 2–3 models spanning
   ability × ≥20 seeds × ≥3 trials; publish run dirs in `runs/`; recalibrate difficulty
   bands so standard-band frontier cert-failure is informative (not 0% or 100%); only
-  then pre-register weights/thresholds for any public leaderboard (P5.7). _Deps:
+  then pre-register weights/thresholds for any public leaderboard (P5.7). _Small pilot
+  done (runs/pilot, 26 sessions, $20): every axis discriminates — Haiku < Sonnet at
+  every cell; CD standard saturated / heavy informative (pass@1 0.6 vs 0.8 turn);
+  metering costs both models ~0.2 S and halves Haiku's cert rate; GND separates
+  (Haiku 1/3 vs Sonnet 1/1 at S=1.0); TWR busts both (wake+neglect vs one neglected
+  go-around loop). All busts audited as legitimate model failures. Learned: TWR spawn
+  schedule requires full-length sessions (feasibility gate correctly rejects 1200 s).
+  Remaining: full campaign (≥20 seeds × ≥3 trials) + band recalibration._ _Deps:
   P3.6.3. Design §12, §15._
 
 ---

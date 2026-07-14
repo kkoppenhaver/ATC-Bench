@@ -1,0 +1,92 @@
+{"from": "SWA4278", "t": 100, "text": "Marlow Clearance, Southwest four two seven eight, request IFR clearance to Washington National"}
+{"from": "MRL_CD", "t": 105, "text": "Southwest 4278, cleared to Washington National, Marlow Five departure, maintain five thousand, departure frequency one one niner point three five, squawk six seven five one."}
+{"from": "SWA4278", "t": 112, "text": "maintain five thousand, departure one one niner point five three, squawk six seven five one, Southwest four two seven eight"}
+{"from": "MRL_CD", "t": 116, "text": "Southwest 4278, negative, departure frequency one one niner point three five."}
+{"from": "SWA4278", "t": 119, "text": "Correction, maintain five thousand, departure one one niner point three five, squawk six seven five one, Southwest four two seven eight"}
+{"from": "MRL_CD", "t": 123, "text": "Southwest 4278, readback correct."}
+{"from": "UAL4074", "t": 148, "text": "Marlow Clearance, United four zero seven four, IFR to LaGuardia, ready to copy"}
+{"from": "MRL_CD", "t": 153, "text": "United 4074, cleared to LaGuardia, Halie Four departure, maintain five thousand, departure frequency one one niner point three five, squawk five one seven six."}
+{"from": "UAL4074", "t": 159, "text": "maintain five thousand, departure one one niner point three five, squawk five one seven six, United four zero seven four"}
+{"from": "MRL_CD", "t": 163, "text": "United 4074, readback correct."}
+{"from": "UAL4733", "t": 366, "text": "Marlow Clearance, United four seven three three, IFR to Orlando, ready to copy"}
+{"from": "MRL_CD", "t": 371, "text": "United 4733, cleared to Orlando, Halie Four departure, maintain five thousand, departure frequency one one niner point three five, squawk five three three one."}
+{"from": "UAL4733", "t": 377, "text": "maintain five thousand, departure one one niner point three five, United four seven three three"}
+{"from": "MRL_CD", "t": 380, "text": "United 4733, squawk five three three one, verify."}
+{"from": "UAL4733", "t": 383, "text": "Correction, maintain five thousand, departure one one niner point three five, squawk five three three one, United four seven three three"}
+{"from": "MRL_CD", "t": 387, "text": "United 4733, readback correct."}
+{"from": "AAL108", "t": 492, "text": "Marlow Clearance, American one zero eight, IFR to Boston, ready to copy"}
+{"from": "MRL_CD", "t": 497, "text": "American 108, cleared to Boston, Pangg Five departure, maintain five thousand, departure frequency one one niner point three five, squawk one seven one three."}
+{"from": "AAL108", "t": 503, "text": "maintain four thousand, departure one one niner point three five, squawk one seven one three, American one zero eight"}
+{"from": "MRL_CD", "t": 507, "text": "American 108, negative, maintain five thousand."}
+{"from": "AAL108", "t": 509, "text": "Correction, maintain five thousand, departure one one niner point three five, squawk one seven one three, American one zero eight"}
+{"from": "MRL_CD", "t": 513, "text": "American 108, readback correct."}
+{"from": "SWA4080", "t": 892, "text": "Marlow Clearance, Southwest four zero eight zero, IFR to Detroit, ready to copy"}
+{"from": "MRL_CD", "t": 897, "text": "Southwest 4080, cleared to Detroit, Halie Four departure, maintain five thousand, departure frequency one one niner point three five, squawk two four seven two."}
+{"from": "SWA4080", "t": 903, "text": "maintain five thousand, departure one one niner point three five, squawk two four seven two, Southwest four zero seven zero"}
+{"from": "MRL_CD", "t": 907, "text": "Southwest 4080, verify callsign, you read back Southwest four zero seven zero, correct callsign is Southwest four zero eight zero."}
+{"from": "SWA4080", "t": 913, "text": "Correction, maintain five thousand, departure one one niner point three five, squawk two four seven two, Southwest four zero eight zero"}
+{"from": "MRL_CD", "t": 917, "text": "Southwest 4080, readback correct."}
+{"from": "SWA4070", "t": 920, "text": "Marlow Clearance, Southwest four zero seven zero, IFR to Orlando, ready to copy"}
+{"from": "MRL_CD", "t": 925, "text": "Southwest 4070, cleared to Orlando, Halie Four departure, maintain five thousand, departure frequency one one niner point three five, squawk two six zero four."}
+{"from": "SWA4070", "t": 931, "text": "maintain five thousand, departure one one niner point three five, squawk two six zero four, Southwest four zero seven zero"}
+{"from": "MRL_CD", "t": 935, "text": "Southwest 4070, readback correct."}
+{"from": "AAL4143", "t": 1560, "text": "Marlow Clearance, American four one four three, IFR to Boston, ready to copy"}
+{"from": "MRL_CD", "t": 1565, "text": "American 4143, cleared to Boston, Marlow Five departure, maintain five thousand, departure frequency one one niner point three five, squawk one three zero three."}
+{"from": "AAL4143", "t": 1571, "text": "maintain five thousand, departure one one niner point three five, squawk one three zero three, American four one four three"}
+{"from": "MRL_CD", "t": 1575, "text": "American 4143, readback correct."}
+{"from": "SWA4554", "t": 1669, "text": "Marlow Clearance, Southwest four five five four, IFR to Boston, ready to copy"}
+{"from": "MRL_CD", "t": 1674, "text": "Southwest 4554, cleared to Boston, Marlow Five departure, maintain five thousand, departure frequency one one niner point three five, squawk six seven seven seven."}
+{"from": "SWA4554", "t": 1680, "text": "maintain five thousand, squawk six seven seven seven, Southwest four five five four"}
+{"from": "MRL_CD", "t": 1683, "text": "Southwest 4554, departure frequency one one niner point three five, verify."}
+{"from": "SWA4554", "t": 1686, "text": "Correction, maintain five thousand, departure one one niner point three five, squawk six seven seven seven, Southwest four five five four"}
+{"from": "MRL_CD", "t": 1690, "text": "Southwest 4554, readback correct."}
+{"from": "UAL972", "t": 1986, "text": "Marlow Clearance, United niner seven two, request IFR clearance to LaGuardia"}
+{"from": "MRL_CD", "t": 1991, "text": "United 972, cleared to LaGuardia, Marlow Five departure, maintain five thousand, departure frequency one one niner point three five, squawk two six two zero."}
+{"from": "UAL972", "t": 1997, "text": "maintain five thousand, squawk two six two zero, United niner seven two"}
+{"from": "MRL_CD", "t": 2000, "text": "United 972, departure frequency one one niner point three five, verify."}
+{"from": "UAL972", "t": 2003, "text": "Correction, maintain five thousand, departure one one niner point three five, squawk two six two zero, United niner seven two"}
+{"from": "MRL_CD", "t": 2007, "text": "United 972, readback correct."}
+{"from": "DAL3125", "t": 2010, "text": "Marlow Clearance, Delta three one two five, IFR to Boston, ready to copy"}
+{"from": "MRL_CD", "t": 2015, "text": "Delta 3125, cleared to Boston, Marlow Five departure, maintain five thousand, departure frequency one one niner point three five, squawk seven five one seven."}
+{"from": "DAL3125", "t": 2021, "text": "maintain five thousand, departure one one niner point three five, squawk seven five one seven, Delta three one two five"}
+{"from": "MRL_CD", "t": 2025, "text": "Delta 3125, readback correct."}
+{"from": "SWA4431", "t": 2362, "text": "Marlow Clearance, Southwest four four three one, request IFR clearance to LaGuardia"}
+{"from": "MRL_CD", "t": 2367, "text": "Southwest 4431, cleared to LaGuardia, Marlow Five departure, maintain five thousand, departure frequency one one niner point three five, squawk two six zero six."}
+{"from": "SWA4431", "t": 2373, "text": "maintain five thousand, departure one one niner point three five, squawk two six zero six, Southwest four four three one"}
+{"from": "MRL_CD", "t": 2377, "text": "Southwest 4431, readback correct."}
+{"from": "SWA739", "t": 2380, "text": "Marlow Clearance, Southwest seven three niner, IFR to Boston, ready to copy"}
+{"from": "MRL_CD", "t": 2385, "text": "Southwest 739, cleared to Boston, Marlow Five departure, maintain five thousand, departure frequency one one niner point three five, squawk seven five three four."}
+{"from": "DAL3556", "t": 2542, "text": "Marlow Clearance, Delta three five five six, IFR to Washington National, ready to copy"}
+{"from": "MRL_CD", "t": 2548, "text": "Delta 3556, cleared to Washington National, Marlow Five departure, maintain five thousand, departure frequency one one niner point three five, squawk three five six four."}
+{"from": "DAL3556", "t": 2555, "text": "maintain one five thousand, departure one one niner point three five, squawk three five six four, Delta three five five six"}
+{"from": "MRL_CD", "t": 2559, "text": "Delta 3556, negative, maintain five thousand."}
+{"from": "DAL3556", "t": 2561, "text": "Correction, maintain five thousand, departure one one niner point three five, squawk three five six four, Delta three five five six"}
+{"from": "MRL_CD", "t": 2565, "text": "Delta 3556, readback correct."}
+{"from": "SWA4011", "t": 2697, "text": "Marlow Clearance, Southwest four zero one one, IFR to Atlanta, ready to copy"}
+{"from": "MRL_CD", "t": 2702, "text": "Southwest 4011, cleared to Atlanta, Pangg Five departure, maintain five thousand, departure frequency one one niner point three five, squawk three six two zero."}
+{"from": "SWA4011", "t": 2708, "text": "maintain one five thousand, departure one one niner point three five, squawk three six two zero, Southwest four zero one one"}
+{"from": "MRL_CD", "t": 2712, "text": "Southwest 4011, negative, maintain five thousand."}
+{"from": "SWA4011", "t": 2714, "text": "Correction, maintain five thousand, departure one one niner point three five, squawk three six two zero, Southwest four zero one one"}
+{"from": "MRL_CD", "t": 2718, "text": "Southwest 4011, readback correct."}
+{"from": "UAL3444", "t": 2987, "text": "Marlow Clearance, United three four four four, IFR to Orlando, ready to copy"}
+{"from": "MRL_CD", "t": 2992, "text": "United 3444, cleared to Orlando, Halie Four departure, maintain five thousand, departure frequency one one niner point three five, squawk four six six five."}
+{"from": "UAL3444", "t": 2998, "text": "maintain five thousand, departure one one niner point five three, squawk four six six five, United three four four four"}
+{"from": "MRL_CD", "t": 3002, "text": "United 3444, negative, departure frequency one one niner point three five."}
+{"from": "UAL3444", "t": 3005, "text": "Correction, maintain five thousand, departure one one niner point three five, squawk four six six five, United three four four four"}
+{"from": "MRL_CD", "t": 3009, "text": "United 3444, readback correct."}
+{"from": "UAL4853", "t": 3012, "text": "Marlow Clearance, United four eight five three, request IFR clearance to Atlanta"}
+{"from": "UAL2230", "t": 3016, "text": "Marlow Clearance, United two two three zero, IFR to Detroit, ready to copy"}
+{"from": "MRL_CD", "t": 3022, "text": "United 4853, cleared to Atlanta, Pangg Five departure, maintain five thousand, departure frequency one one niner point three five, squawk five one seven six."}
+{"from": "UAL4853", "t": 3028, "text": "maintain four thousand, departure one one niner point three five, squawk five one seven six, United four eight five three"}
+{"from": "MRL_CD", "t": 3032, "text": "United 4853, negative, maintain five thousand."}
+{"from": "UAL4853", "t": 3034, "text": "Correction, maintain five thousand, departure one one niner point three five, squawk five one seven six, United four eight five three"}
+{"from": "MRL_CD", "t": 3038, "text": "United 2230, cleared to Detroit, Halie Four departure, maintain five thousand, departure frequency one one niner point three five, squawk six zero five two."}
+{"from": "UAL2230", "t": 3044, "text": "maintain five thousand, departure one one niner point three five, squawk six zero five two, United two two four zero"}
+{"from": "MRL_CD", "t": 3048, "text": "United 4853, readback correct."}
+{"from": "MRL_CD", "t": 3050, "text": "United 2230, verify callsign, you read back United two two four zero, correct callsign is United two two three zero."}
+{"from": "UAL2230", "t": 3056, "text": "Correction, maintain five thousand, departure one one niner point three five, squawk six zero five two, United two two three zero"}
+{"from": "MRL_CD", "t": 3061, "text": "United 2230, readback correct."}
+{"from": "UAL2240", "t": 3064, "text": "Marlow Clearance, United two two four zero, IFR to Washington National, ready to copy"}
+{"from": "MRL_CD", "t": 3070, "text": "United 2240, cleared to Washington National, Marlow Five departure, maintain five thousand, departure frequency one one niner point three five, squawk three four six four."}
+{"from": "UAL2240", "t": 3077, "text": "maintain five thousand, departure one one niner point three five, squawk three four six four, United two two four zero"}
+{"from": "MRL_CD", "t": 3081, "text": "United 2240, readback correct."}
