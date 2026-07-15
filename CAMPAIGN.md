@@ -31,6 +31,23 @@ default output (see §4).
 Anything in this table changing after stage 1 starts = amendment logged in §8 and a
 major-version note per X.4.
 
+## 2a. Cost context — field survey (2026-07-14)
+
+Survey of published agentic-benchmark eval costs (sources in commit; headline
+figures): SWE-bench Verified runs ~$1/instance at a 50-turn cap; TheAgentCompany
+$0.79–$6.34/task at ~27–40 steps; GAIA ~$2,829 for one frontier pass; MLE-bench
+~$5,500 per seed (16–36 seeds for headline claims); PaperBench >$75k/agent
+multi-seed; HAL's meta-leaderboard spent $40k for single-run (k=1) coverage and
+argues k=8 would cost $320k; Vending-Bench 2 — the closest long-horizon comparable —
+runs 3,000–6,000 messages and 60–100M tokens per rollout (order $1,000+/episode)
+with 5 runs/model, and trims context to a ~69k-token window, a near-exact analog of
+our P4.0g policy. Verdict: our $3.50–10/episode is high-normal per episode, ~10–40×
+cheaper than field norms **per turn** (~$0.005/turn vs $0.02–0.22), and the campaign
+buys 40–60 replicates/cell — a statistical design almost no published agentic
+benchmark achieves at any price (field norm is a single run with no error bars).
+The 30M cache-read tokens/episode figure and the trim policy are themselves
+publishable methodology.
+
 ## 3. Stage 1 — calibration grid
 
 Cells chosen from the pilot (26 sessions) and the post-P4.0f/g probes. CD-standard is
@@ -49,11 +66,24 @@ gradient; Sonnet skips it (its frontier is at standard).
 | GND standard · turn | Sonnet | 20 × 2 | 40 | ~10 (pre-flight, §6) | 15 | $400 |
 | TWR standard · turn | Sonnet | 20 × 2 | 40 | ~10 (pre-flight, §6) | 15 | $400 |
 
-**Stage 1 estimate: ~$1,220** · with 15% contingency: **~$1,400**.
+**Stage 1 ceiling: ~$1,220** · with 15% contingency: **~$1,400**. The table is the
+*ceiling*; execution is adaptive (below) with expected spend **~$1,000–1,200**.
 
 Trials rationale: 3 trials on CD (cheap; ICC needs trials) and 2 on GND/TWR (ICC(1)
 needs ≥2; the third trial on a $3.50–10 session buys little precision for its price —
 the seed, not the trial, is the sampling unit).
+
+**Adaptive allocation (pre-registered, evidence: sequential-testing designs reach
+stable rankings at ~60% of fixed-design cost — arXiv 2510.04265):**
+- **Pass A** — every cell at 20 seeds × 1 trial, Haiku cells first (≈ $600 total).
+- **Pass B** — top-ups, decided mechanically from pass-A summaries: (i) trial 2 on
+  all seeds for any cell that is neither floor nor ceiling (0 < pass@1 < 1); (ii)
+  trial 3 on CD cells only; (iii) floor/ceiling cells stop at 20 sessions — their
+  per-episode discriminating power is near zero and the rate + bound is the result.
+- **Paired-difference analysis is mandatory:** both models run identical scenario
+  seeds; the Haiku–Sonnet contrast is reported as a per-seed paired difference with
+  seed-clustered SEs (pairing cuts contrast variance ~1/3–1/2 for free — Miller 2024,
+  arXiv 2411.00640; ignoring seed clustering can inflate significance ~3×).
 
 ## 4. Stage 2 — conditional certification push
 
@@ -72,8 +102,23 @@ campaign.
 Per cell: `summary.json` (bust rate, Wilson upper, pass@1, pass^k, mean S,
 clustered CI, ICC, per-seed detail) + full run dirs (committed, per repo
 convention). Headline claims are limited to: per-cell bust rates with bounds,
-mean-S comparisons with CIs, the metering delta, and the Haiku/Sonnet separation.
-No "safe"/"certified" language for any cell that doesn't pass §4.
+mean-S comparisons with CIs (paired, seed-clustered — §3), the metering delta, and
+the Haiku/Sonnet separation. No "safe"/"certified" language for any cell that
+doesn't pass §4.
+
+**Cost is a first-class result** (field norm per HAL / "AI Agents That Matter",
+arXiv 2407.01502; cost-of-pass metric per arXiv 2504.13359): publish per-cell
+$/episode, tokens in/out/cache-read (tokens are the durable unit — prices drift),
+and **cost-of-pass** (expected dollars per successful shift = $/episode ÷ pass@1).
+A model that certifies at 3× the cost has not "won" unconditionally.
+
+**Optional add-on (own approval, ~$100): short-proxy validation.** 2 cells × 10
+paired episodes at 1200 s vs 3600 s, correlate per-seed outcomes. Field evidence
+says rankings *invert* with horizon (RE-Bench: agents beat humans at 2 h, lose 2×
+at 32 h), so we expect the proxy to fail for ranking — but a measured ρ < 0.8 is a
+published defense of why full-length sessions (and their cost) are load-bearing,
+and a ρ ≥ 0.8 would cut future campaign costs ~3×. Either outcome is a
+contribution; no one has published this test for long-horizon agentic evals.
 
 ## 6. Pre-flight checklist (before stage 1 spend)
 
